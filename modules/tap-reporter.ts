@@ -61,8 +61,6 @@ export = (s: EventEmitter, opts: ISumanOpts) => {
     return;
   }
 
-  console.log('tap reporter loaded XXX');
-
   count++;
   if (count > 1) {
     _suman.logError('Implementation error => Tap reporter loaded more than once.');
