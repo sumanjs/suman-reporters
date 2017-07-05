@@ -1,0 +1,10 @@
+node_modules
+.idea
+*.sh
+*.md
+*.json
+*.log
+.npmignore
+.gitignore
+*.ts
+!*.d.ts

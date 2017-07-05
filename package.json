@@ -1,0 +1,37 @@
+{
+  "name": "suman-reporters",
+  "version": "0.0.1001",
+  "description": "Suman standard reporters",
+  "main": "index.js",
+  "scripts": {
+    "test": "suman"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumanjs/suman-reporters.git"
+  },
+  "keywords": [
+    "Suman",
+    "sumanjs",
+    "reporters",
+    "stdout",
+    "tap",
+    "test",
+    "anything",
+    "protocol",
+    "tapjs"
+  ],
+  "author": "Olegzandr VD",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sumanjs/suman-reporters/issues"
+  },
+  "homepage": "https://github.com/sumanjs/suman-reporters#readme",
+  "devDependencies": {
+    "@types/core-js": "^0.9.42",
+    "@types/node": "^8.0.7"
+  },
+  "dependencies": {
+    "suman-events": "0.0.113"
+  }
+}
