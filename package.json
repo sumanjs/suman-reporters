@@ -27,11 +27,14 @@
     "url": "https://github.com/sumanjs/suman-reporters/issues"
   },
   "homepage": "https://github.com/sumanjs/suman-reporters#readme",
+  "dependencies": {
+    "chalk": "^2.0.1",
+    "suman-browser-polyfills": "0.0.1007",
+    "suman-events": "0.0.113"
+  },
   "devDependencies": {
+    "@types/chalk": "^0.4.31",
     "@types/core-js": "^0.9.42",
     "@types/node": "^8.0.7"
-  },
-  "dependencies": {
-    "suman-events": "0.0.113"
   }
 }

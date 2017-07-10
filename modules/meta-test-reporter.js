@@ -15,7 +15,7 @@ var results = {
     TEST_CASE_SKIPPED: 0,
     TEST_CASE_STUBBED: 0
 };
-module.exports = function (s, sumanOpts, expectations) {
+exports.default = function (s, sumanOpts, expectations) {
     count++;
     if (count > 1) {
         throw new Error('Suman implementation error => Suman standard reporter loaded more than once.');

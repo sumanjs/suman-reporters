@@ -1,9 +1,10 @@
 'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
-var util = require('util');
+var util = require("util");
+var chalk = require("chalk");
 var suman_events_1 = require("suman-events");
-var colors = require('colors/safe');
 var _suman = global.__suman = (global.__suman || {});
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
@@ -27,12 +28,11 @@ var onAnyEvent = function () {
     }
 };
 var count = 0;
-module.exports = function (s, opts) {
+exports.default = function (s, opts) {
     if (global.__suman.inceptionLevel < 1) {
         console.log('suman inception is 0, we do not load tap reporter.');
         return;
     }
-    console.log('tap reporter loaded XXX');
     count++;
     if (count > 1) {
         _suman.logError('Implementation error => Tap reporter loaded more than once.');
@@ -49,11 +49,11 @@ module.exports = function (s, opts) {
     var skipped = 0;
     var stubbed = 0;
     s.on(String(suman_events_1.events.RUNNER_INITIAL_SET), function (forkedCPs, processes, suites) {
-        onAnyEvent('\n\n\t ' + colors.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
+        onAnyEvent('\n\n\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
             forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' ') + '\n');
     });
     s.on(String(suman_events_1.events.RUNNER_OVERALL_SET), function (totalCount, processes, suites, addendum) {
-        onAnyEvent('\t ' + colors.bgBlue.yellow(' => [Suman runner] =>  overall set => '
+        onAnyEvent('\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  overall set => '
             + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
     });
     s.on(String(suman_events_1.events.RUNNER_ASCII_LOGO), function (logo) {
@@ -78,7 +78,7 @@ module.exports = function (s, opts) {
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         failures++;
         if (isColorable()) {
-            console.log(colors.red("not ok " + n + " " + title(test)));
+            console.log(chalk.red("not ok " + n + " " + title(test)));
         }
         else {
             console.log('not ok %d %s', n, title(test));
@@ -87,7 +87,7 @@ module.exports = function (s, opts) {
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         passes++;
         if (isColorable()) {
-            console.log(colors.green("ok " + n + " " + title(test)));
+            console.log(chalk.green("ok " + n + " " + title(test)));
         }
         else {
             console.log('ok %d %s', n, title(test));

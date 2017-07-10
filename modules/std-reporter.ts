@@ -1,21 +1,25 @@
 'use strict';
+
+//dts
+import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman';
 import EventEmitter = NodeJS.EventEmitter;
-
-
-//README: note that just for reference, all events are included here; many are noop'ed because of this
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
 const global = require('suman-browser-polyfills/modules/global');
 
+
 //core
-const util = require('util');
+import * as util from 'util';
+import * as assert from 'assert';
+import * as path from 'path';
+
+//npm
+import * as chalk from 'chalk';
 
 //project
 const _suman : IGlobalSumanObj = global.__suman = (global.__suman || {});
 import {events} from 'suman-events';
-const su = require('suman-utils');
-const colors = require('colors/safe');
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +80,7 @@ let count = 0;
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-export = (s: EventEmitter, sumanOpts: ISumanOpts) => {
+export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su: Object) => {
 
   if(global.__suman.inceptionLevel > 0){
     console.log('suman inception level greater than 0.');
@@ -94,18 +98,18 @@ export = (s: EventEmitter, sumanOpts: ISumanOpts) => {
   //on any event
   s.on(String(events.FILE_IS_NOT_DOT_JS), function (dir: string) {
     onAnyEvent('\n => Warning -> Suman will attempt to execute the following file:\n "' +
-      colors.cyan(dir) + '",\n (which is not a .js file).\n');
+      chalk.cyan(dir) + '",\n (which is not a .js file).\n');
   });
 
   s.on(String(events.RUNNER_INITIAL_SET),
     function (forkedCPs: Array<ISumanChildProcess>, processes: string, suites: string) {
-      onAnyEvent('\n\n\t',colors.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
+      onAnyEvent('\n\n\t',chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
           forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' '),'\n');
     });
 
   s.on(String(events.RUNNER_OVERALL_SET),
     function (totalCount: number, processes: string, suites: string, addendum: string) {
-      onAnyEvent('\t ' + colors.bgBlue.yellow(' => [Suman runner] =>  overall set => '
+      onAnyEvent('\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  overall set => '
           + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
     });
 
@@ -118,31 +122,31 @@ export = (s: EventEmitter, sumanOpts: ISumanOpts) => {
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
 
     if (_suman.processIsRunner) {
-      onAnyEvent('\n\n\t' + colors.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '   => test fail ') + '  \'' +
-        test.desc + '\'\n\t' + colors.bgYellow.gray(' Originating entry test path => ')
-        + colors.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + colors.yellow(test.errorDisplay) + '\n\n');
+      onAnyEvent('\n\n\t' + chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '   => test fail ') + '  \'' +
+        test.desc + '\'\n\t' + chalk.bgYellow.gray(' Originating entry test path => ')
+        + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay) + '\n\n');
     }
     else {
       onAnyEvent('\n\n\t' +
-        colors.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '  => test fail ') + '  "' +
-        test.desc + '"\n' + colors.yellow(test.errorDisplay) + '\n\n');
+        chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '  => test fail ') + '  "' +
+        test.desc + '"\n' + chalk.yellow(test.errorDisplay) + '\n\n');
     }
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
 
     onAnyEvent('\t' +
-      colors.blue(' ' + (noColors ? '(check)' : '\u2714 ')) + ' \'' + (test.desc || test.name) + '\' ' +
+      chalk.blue(' ' + (noColors ? '(check)' : '\u2714 ')) + ' \'' + (test.desc || test.name) + '\' ' +
       (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '') + '\n');
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    onAnyEvent('\t' + colors.yellow(' ' + (noColors ? '( - )' : '\u21AA ')) + ' (skipped) \'' +
+    onAnyEvent('\t' + chalk.yellow(' ' + (noColors ? '( - )' : '\u21AA ')) + ' (skipped) \'' +
       test.desc + '\'\n');
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    onAnyEvent('\t' + colors.yellow(' ' + (noColors ? '( --- )' : '\u2026 ')) + ' (stubbed) \'' +
+    onAnyEvent('\t' + chalk.yellow(' ' + (noColors ? '( --- )' : '\u2026 ')) + ' (stubbed) \'' +
       test.desc + '\'\n');
   });
 
@@ -168,7 +172,7 @@ export = (s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   //on verbose
   s.on(String(events.ERRORS_ONLY_OPTION), function () {
-    onVerboseEvent('\n' + colors.white.green.bold(' => ' + colors.white.bold('"--errors-only"')
+    onVerboseEvent('\n' + chalk.white.green.bold(' => ' + chalk.white.bold('"--errors-only"')
         + ' option used, hopefully you don\'t see much output until the end :) '), '\n');
   });
 
@@ -203,9 +207,9 @@ export = (s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   s.on(String(events.RUNNER_TEST_PATHS_CONFIRMATION), function (files: Array<string>) {
     if (sumanOpts.verbosity > 2 || su.isSumanDebug()) {
-      onAnyEvent(['\n ' + colors.bgBlack.white.bold(' Suman will attempt to execute test files with/within the following paths: '),
+      onAnyEvent(['\n ' + chalk.bgBlack.white.bold(' Suman will attempt to execute test files with/within the following paths: '),
         '\n\n',
-        files.map((p, i) => '\t ' + (i + 1) + ' => ' + colors.cyan('"' + p + '"')).join('\n') + '\n\n\n'].join(''))
+        files.map((p, i) => '\t ' + (i + 1) + ' => ' + chalk.cyan('"' + p + '"')).join('\n') + '\n\n\n'].join(''))
     }
   });
 

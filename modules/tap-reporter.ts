@@ -1,19 +1,21 @@
 'use strict';
+//dts
+import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman';
+import EventEmitter = NodeJS.EventEmitter;
+
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
 const global = require('suman-browser-polyfills/modules/global');
 
 //core
-const util = require('util');
+import * as util from 'util';
+import * as assert from 'assert';
+import * as path from 'path';
 
 //npm
+import * as chalk from 'chalk';
 import {events} from 'suman-events';
-import EventEmitter = NodeJS.EventEmitter;
-import {ISumanChildProcess} from "../../dts/runner";
-import {ISumanOpts} from "../../dts/global";
-import {ITestDataObj} from "../../dts/it";
-const colors = require('colors/safe');
 
 //project
 const _suman = global.__suman = (global.__suman || {});
@@ -54,7 +56,7 @@ let count = 0;
 
 //////////////////////////////////////////////////////////
 
-export = (s: EventEmitter, opts: ISumanOpts) => {
+export default (s: EventEmitter, opts: ISumanOpts) => {
 
   if (global.__suman.inceptionLevel < 1) {
     console.log('suman inception is 0, we do not load tap reporter.');
@@ -82,13 +84,13 @@ export = (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.RUNNER_INITIAL_SET),
     function (forkedCPs: Array<ISumanChildProcess>, processes: string, suites: string) {
-      onAnyEvent('\n\n\t ' + colors.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
+      onAnyEvent('\n\n\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
           forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' ') + '\n');
     });
 
   s.on(String(events.RUNNER_OVERALL_SET),
     function (totalCount: number, processes: string, suites: string, addendum: string) {
-      onAnyEvent('\t ' + colors.bgBlue.yellow(' => [Suman runner] =>  overall set => '
+      onAnyEvent('\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  overall set => '
           + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
     });
 
@@ -119,7 +121,7 @@ export = (s: EventEmitter, opts: ISumanOpts) => {
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
     failures++;
     if (isColorable()) {
-      console.log(colors.red(`not ok ${n} ${title(test)}`));
+      console.log(chalk.red(`not ok ${n} ${title(test)}`));
     }
     else {
       console.log('not ok %d %s', n, title(test));
@@ -130,7 +132,7 @@ export = (s: EventEmitter, opts: ISumanOpts) => {
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
     passes++;
     if (isColorable()) {
-      console.log(colors.green(`ok ${n} ${title(test)}`));
+      console.log(chalk.green(`ok ${n} ${title(test)}`));
     }
     else {
       console.log('ok %d %s', n, title(test));

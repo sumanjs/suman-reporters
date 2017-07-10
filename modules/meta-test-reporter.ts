@@ -1,20 +1,21 @@
 'use strict';
 
-
-//README: note that just for reference, all events are included here; many are noop'ed because of this
+//dts
+import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman';
+import EventEmitter = NodeJS.EventEmitter;
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
 const global = require('suman-browser-polyfills/modules/global');
 
 //core
-import * as assert from 'assert';
 import * as util from 'util';
+import * as assert from 'assert';
+import * as path from 'path';
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
 import {events} from 'suman-events';
-import su = require('suman-utils');
 const colors = require('colors/safe');
 import * as _ from 'lodash';
 
@@ -42,7 +43,9 @@ export interface IExpectedCounts {
   TEST_CASE_STUBBED: number
 }
 
-module.exports = (s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
+//README: note that just for reference, all events are included here; many are noop'ed because of this
+
+export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
 
   count++;
   if (count > 1) {
