@@ -50,7 +50,8 @@ exports.default = function (s, sumanOpts, expectations, su) {
     }
     count++;
     if (count > 1) {
-        throw new Error('Suman implementation error => Suman standard reporter loaded more than once.');
+        console.error(new Error('Suman implementation error => Suman standard reporter loaded more than once.').stack);
+        return;
     }
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);
     s.on(String(suman_events_1.events.FILE_IS_NOT_DOT_JS), function (dir) {

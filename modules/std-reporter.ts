@@ -89,7 +89,8 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
 
   count++;
   if (count > 1) {
-    throw new Error('Suman implementation error => Suman standard reporter loaded more than once.');
+    console.error(new Error('Suman implementation error => Suman standard reporter loaded more than once.').stack);
+    return;
   }
 
   //on error

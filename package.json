@@ -29,8 +29,8 @@
   "homepage": "https://github.com/sumanjs/suman-reporters#readme",
   "dependencies": {
     "chalk": "^2.0.1",
-    "suman-browser-polyfills": "0.0.1007",
-    "suman-events": "0.0.113"
+    "suman-browser-polyfills": "latest",
+    "suman-events": "latest"
   },
   "devDependencies": {
     "@types/chalk": "^0.4.31",
