@@ -82,14 +82,14 @@ let count = 0;
 
 export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su: Object) => {
 
-  if(global.__suman.inceptionLevel > 0){
-    console.log('suman inception level greater than 0.');
+  if(global.__suman && global.__suman.inceptionLevel > 0){
+    console.log('suman std reporter says: suman inception level greater than 0.');
     return;
   }
 
   count++;
   if (count > 1) {
-    console.error(new Error('Suman implementation error => Suman standard reporter loaded more than once.').stack);
+    console.error('Suman implementation error => Suman standard reporter loaded more than once.');
     return;
   }
 

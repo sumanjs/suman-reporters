@@ -27,17 +27,16 @@ var onAnyEvent = function () {
         return console.log.apply(console, args);
     }
 };
-var count = 0;
+var loaded = false;
 exports.default = function (s, opts) {
     if (global.__suman.inceptionLevel < 1) {
-        console.log('suman inception is 0, we do not load tap reporter.');
+        console.log('suman tap reporter says: suman inception is 0, we may not need to load this reporter.');
+    }
+    if (loaded) {
+        _suman.logError('Implementation error => TAP reporter loaded more than once.');
         return;
     }
-    count++;
-    if (count > 1) {
-        _suman.logError('Implementation error => Tap reporter loaded more than once.');
-        return;
-    }
+    loaded = true;
     var sumanOpts = _suman.sumanOpts;
     var level = _suman.inceptionLevel;
     var isColorable = function () {
@@ -74,23 +73,24 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_END), function (test) {
         ++n;
+        console.log('n incremented => ', n);
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         failures++;
-        if (isColorable()) {
+        if (false && isColorable()) {
             console.log(chalk.red("not ok " + n + " " + title(test)));
         }
         else {
-            console.log('not ok %d %s', n, title(test));
+            console.log("not ok " + n + " " + title(test));
         }
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         passes++;
-        if (isColorable()) {
+        if (false && isColorable()) {
             console.log(chalk.green("ok " + n + " " + title(test)));
         }
         else {
-            console.log('ok %d %s', n, title(test));
+            console.log("ok " + n + " " + title(test));
         }
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {

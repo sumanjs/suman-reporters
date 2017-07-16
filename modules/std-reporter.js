@@ -44,13 +44,13 @@ function onError(data) {
 }
 var count = 0;
 exports.default = function (s, sumanOpts, expectations, su) {
-    if (global.__suman.inceptionLevel > 0) {
-        console.log('suman inception level greater than 0.');
+    if (global.__suman && global.__suman.inceptionLevel > 0) {
+        console.log('suman std reporter says: suman inception level greater than 0.');
         return;
     }
     count++;
     if (count > 1) {
-        console.error(new Error('Suman implementation error => Suman standard reporter loaded more than once.').stack);
+        console.error('Suman implementation error => Suman standard reporter loaded more than once.');
         return;
     }
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);
