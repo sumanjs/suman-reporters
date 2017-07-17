@@ -1,13 +1,12 @@
 'use strict';
 
 //dts
-import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman';
+import {IGlobalSumanObj, ISumanOpts, ITestDataObj, ISumanChildProcess, ITableData} from 'suman';
 import EventEmitter = NodeJS.EventEmitter;
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
 const global = require('suman-browser-polyfills/modules/global');
-
 
 //core
 import * as util from 'util';
@@ -18,7 +17,7 @@ import * as path from 'path';
 import * as chalk from 'chalk';
 
 //project
-const _suman : IGlobalSumanObj = global.__suman = (global.__suman || {});
+const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
 import {events} from 'suman-events';
 
 ////////////////////////////////////////////////////////////////////////
@@ -41,30 +40,8 @@ function logDebug() {
   return debug;
 }
 
-
 interface IStringVarargs {
   (...args: string[]): void;
-}
-
-
-let onAnyEvent : IStringVarargs = function () {
-  if (!logDebug.apply(null, arguments)) {
-    const args = Array.from(arguments).map(function (data) {
-      return typeof data === 'string' ? data : util.inspect(data);
-    });
-    return console.log.apply(console, args);
-  }
-};
-
-function onVerboseEvent(data: any, value?: any) {
-  if (!logDebug.apply(null, arguments)) {
-    if (_suman.sumanOpts.verbosity > 6) {
-      process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n\n');
-      if (value) {
-        process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n\n');
-      }
-    }
-  }
 }
 
 function onError(data: string) {
@@ -79,10 +56,9 @@ let count = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-
 export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su: Object) => {
 
-  if(global.__suman && global.__suman.inceptionLevel > 0){
+  if (global.__suman && global.__suman.inceptionLevel > 0) {
     console.log('suman std reporter says: suman inception level greater than 0.');
     return;
   }
@@ -92,6 +68,38 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
     console.error('Suman implementation error => Suman standard reporter loaded more than once.');
     return;
   }
+
+  let onAnyEvent: IStringVarargs = function () {
+    if (!logDebug.apply(null, arguments)) {
+      const args = Array.from(arguments).map(function (data) {
+        return typeof data === 'string' ? data : util.inspect(data);
+      });
+
+      console.log.apply(console, args);
+    }
+  };
+
+  let onTestCaseEvent: IStringVarargs = function () {
+    if (!logDebug.apply(null, arguments)) {
+      const args = Array.from(arguments).map(function (data) {
+        return typeof data === 'string' ? data : util.inspect(data);
+      });
+
+      const padding = su.padWithXSpaces(sumanOpts.currPadCount.val || 0);
+      console.log.call(console, padding, ...args);
+    }
+  };
+
+  let onVerboseEvent = function (data: any, value?: any) {
+    if (!logDebug.apply(null, arguments)) {
+      if (sumanOpts && sumanOpts.verbosity > 6) {
+        process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n\n');
+        if (value) {
+          process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n\n');
+        }
+      }
+    }
+  };
 
   //on error
   s.on(String(events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);
@@ -104,8 +112,8 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
 
   s.on(String(events.RUNNER_INITIAL_SET),
     function (forkedCPs: Array<ISumanChildProcess>, processes: string, suites: string) {
-      onAnyEvent('\n\n\t',chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
-          forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' '),'\n');
+      onAnyEvent('\n\n\t', chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
+        forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' '), '\n');
     });
 
   s.on(String(events.RUNNER_OVERALL_SET),
@@ -123,36 +131,33 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
 
     if (_suman.processIsRunner) {
-      onAnyEvent('\n\n\t' + chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '   => test fail ') + '  \'' +
+      onTestCaseEvent(chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '   => test fail ') + '  \'' +
         test.desc + '\'\n\t' + chalk.bgYellow.gray(' Originating entry test path => ')
         + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay) + '\n\n');
     }
     else {
-      onAnyEvent('\n\n\t' +
-        chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '  => test fail ') + '  "' +
+      onTestCaseEvent(chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '  => test fail ') + '  "' +
         test.desc + '"\n' + chalk.yellow(test.errorDisplay) + '\n\n');
     }
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
-
-    onAnyEvent('\t' +
-      chalk.blue(' ' + (noColors ? '(check)' : '\u2714 ')) + ' \'' + (test.desc || test.name) + '\' ' +
-      (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '') + '\n');
+    onTestCaseEvent(chalk.blue(' ' + (noColors ? '(check)' : '\u2714 ')) + ' \'' + (test.desc || test.name) + '\' ' +
+      (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    onAnyEvent('\t' + chalk.yellow(' ' + (noColors ? '( - )' : '\u21AA ')) + ' (skipped) \'' +
-      test.desc + '\'\n');
+    onTestCaseEvent(chalk.yellow(' ' + (noColors ? '( - )' : '\u21AA ')) + ' (skipped) \'' +
+      test.desc);
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    onAnyEvent('\t' + chalk.yellow(' ' + (noColors ? '( --- )' : '\u2026 ')) + ' (stubbed) \'' +
-      test.desc + '\'\n');
+    onTestCaseEvent(chalk.yellow(' ' + (noColors ? '( --- )' : '\u2026 ')) + ' (stubbed) \'' +
+      test.desc);
   });
 
-  s.on(String(events.STANDARD_TABLE), function(table: ITableData){
-    if (!sumanOpts.no_tables){
+  s.on(String(events.STANDARD_TABLE), function (table: ITableData) {
+    if (!sumanOpts.no_tables) {
       console.log('\n\n');
       let str = table.toString();
       str = '\t' + str;

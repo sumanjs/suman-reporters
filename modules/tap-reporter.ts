@@ -115,7 +115,6 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_END), function (test: ITestDataObj) {
     ++n;
-    console.log('n incremented => ', n);
   });
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {

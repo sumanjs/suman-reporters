@@ -73,7 +73,6 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_END), function (test) {
         ++n;
-        console.log('n incremented => ', n);
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         failures++;
