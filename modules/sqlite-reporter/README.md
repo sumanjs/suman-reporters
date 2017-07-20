@@ -1,0 +1,1 @@
+Asynchronous, persistence reporter, which talks to SQLite.
