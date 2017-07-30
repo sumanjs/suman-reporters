@@ -24,17 +24,18 @@ function onError(data) {
         process.stderr.write(data);
     }
 }
-var count = 0;
+var testCaseCount = 0;
+var loaded = false;
 exports.default = function (s, sumanOpts, expectations, su) {
+    if (loaded) {
+        console.error('Suman implementation error => Suman standard reporter loaded more than once.');
+        return;
+    }
     if (global.__suman && global.__suman.inceptionLevel > 0) {
         console.log('suman std reporter says: suman inception level greater than 0.');
         return;
     }
-    count++;
-    if (count > 1) {
-        console.error('Suman implementation error => Suman standard reporter loaded more than once.');
-        return;
-    }
+    loaded = true;
     var onAnyEvent = function () {
         if (!logDebug.apply(null, arguments)) {
             var args = Array.from(arguments).map(function (data) {
@@ -80,28 +81,33 @@ exports.default = function (s, sumanOpts, expectations, su) {
         onAnyEvent('\n\n' + logo + '\n\n');
     });
     s.on(String(suman_events_1.events.FATAL_TEST_ERROR), onAnyEvent);
+    s.on(String(suman_events_1.events.TEST_CASE_END), function () {
+        testCaseCount++;
+    });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
+        console.log('\n');
         if (_suman.processIsRunner) {
-            onTestCaseEvent(chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '   => test fail ') + '  \'' +
-                test.desc + '\'\n\t' + chalk.bgYellow.gray(' Originating entry test path => ')
-                + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay) + '\n\n');
+            onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "] " + '\u2718' + '   => test fail ') + '  \'' +
+                (test.desc || test.name) + '\'\n\t' + chalk.bgYellow.gray(' Originating entry test path => ')
+                + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay || ''));
         }
         else {
-            onTestCaseEvent(chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '  => test fail ') + '  "' +
-                test.desc + '"\n' + chalk.yellow(test.errorDisplay) + '\n\n');
+            onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "] " + '\u2718' + '  => test fail ') + '  "' +
+                (test.desc || test.name) + '"\n' + chalk.yellow(test.errorDisplay || ''));
         }
+        console.log('\n');
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
-        onTestCaseEvent(chalk.blue(' ' + (noColors ? '(check)' : '\u2714 ')) + ' \'' + (test.desc || test.name) + '\' ' +
+        onTestCaseEvent(chalk.blue(" [" + testCaseCount + "] " + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
             (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        onTestCaseEvent(chalk.yellow(' ' + (noColors ? '( - )' : '\u21AA ')) + ' (skipped) \'' +
-            test.desc);
+        onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] " + '\u21AA ') + ' (skipped) \'' +
+            (test.desc || test.name));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        onTestCaseEvent(chalk.yellow(' ' + (noColors ? '( --- )' : '\u2026 ')) + ' (stubbed) \'' +
-            test.desc);
+        onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] " + '\u2026 ') + ' (stubbed) \'' +
+            (test.desc || test.name));
     });
     s.on(String(suman_events_1.events.STANDARD_TABLE), function (table) {
         if (!sumanOpts.no_tables) {

@@ -52,22 +52,24 @@ function onError(data: string) {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-let count = 0;
+let testCaseCount = 0;
+let loaded = false;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su: Object) => {
+
+  if (loaded) {
+    console.error('Suman implementation error => Suman standard reporter loaded more than once.');
+    return;
+  }
 
   if (global.__suman && global.__suman.inceptionLevel > 0) {
     console.log('suman std reporter says: suman inception level greater than 0.');
     return;
   }
 
-  count++;
-  if (count > 1) {
-    console.error('Suman implementation error => Suman standard reporter loaded more than once.');
-    return;
-  }
+  loaded = true;
 
   let onAnyEvent: IStringVarargs = function () {
     if (!logDebug.apply(null, arguments)) {
@@ -119,7 +121,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   s.on(String(events.RUNNER_OVERALL_SET),
     function (totalCount: number, processes: string, suites: string, addendum: string) {
       onAnyEvent('\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  overall set => '
-          + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
+        + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
     });
 
   s.on(String(events.RUNNER_ASCII_LOGO), function (logo: string) {
@@ -128,32 +130,40 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
 
   s.on(String(events.FATAL_TEST_ERROR), onAnyEvent);
 
+  s.on(String(events.TEST_CASE_END), function () {
+    testCaseCount++;
+  });
+
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
 
+    console.log('\n');
+
     if (_suman.processIsRunner) {
-      onTestCaseEvent(chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '   => test fail ') + '  \'' +
-        test.desc + '\'\n\t' + chalk.bgYellow.gray(' Originating entry test path => ')
-        + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay) + '\n\n');
+      onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '   => test fail ') + '  \'' +
+        (test.desc || test.name) + '\'\n\t' + chalk.bgYellow.gray(' Originating entry test path => ')
+        + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay || ''));
     }
     else {
-      onTestCaseEvent(chalk.bgWhite.black.bold(' ' + (noColors ? '(x)' : '\u2718') + '  => test fail ') + '  "' +
-        test.desc + '"\n' + chalk.yellow(test.errorDisplay) + '\n\n');
+      onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '  => test fail ') + '  "' +
+        (test.desc || test.name) + '"\n' + chalk.yellow(test.errorDisplay || ''));
     }
+
+    console.log('\n');
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
-    onTestCaseEvent(chalk.blue(' ' + (noColors ? '(check)' : '\u2714 ')) + ' \'' + (test.desc || test.name) + '\' ' +
+    onTestCaseEvent(chalk.blue(` [${testCaseCount}] ` + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
       (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    onTestCaseEvent(chalk.yellow(' ' + (noColors ? '( - )' : '\u21AA ')) + ' (skipped) \'' +
-      test.desc);
+    onTestCaseEvent(chalk.yellow(` [${testCaseCount}] ` + '\u21AA ') + ' (skipped) \'' +
+      (test.desc || test.name));
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    onTestCaseEvent(chalk.yellow(' ' + (noColors ? '( --- )' : '\u2026 ')) + ' (stubbed) \'' +
-      test.desc);
+    onTestCaseEvent(chalk.yellow(` [${testCaseCount}] ` + '\u2026 ') + ' (stubbed) \'' +
+      (test.desc || test.name));
   });
 
   s.on(String(events.STANDARD_TABLE), function (table: ITableData) {
@@ -179,7 +189,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   //on verbose
   s.on(String(events.ERRORS_ONLY_OPTION), function () {
     onVerboseEvent('\n' + chalk.white.green.bold(' => ' + chalk.white.bold('"--errors-only"')
-        + ' option used, hopefully you don\'t see much output until the end :) '), '\n');
+      + ' option used, hopefully you don\'t see much output until the end :) '), '\n');
   });
 
   s.on(String(events.USING_SERVER_MARKED_BY_HOSTNAME), onVerboseEvent);
