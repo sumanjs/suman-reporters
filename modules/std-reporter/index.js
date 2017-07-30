@@ -89,11 +89,11 @@ exports.default = function (s, sumanOpts, expectations, su) {
         if (_suman.processIsRunner) {
             onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "] " + '\u2718' + '   => test fail ') + '  \'' +
                 (test.desc || test.name) + '\'\n\t' + chalk.bgYellow.gray(' Originating entry test path => ')
-                + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay || ''));
+                + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay || test.error || ''));
         }
         else {
             onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "] " + '\u2718' + '  => test fail ') + '  "' +
-                (test.desc || test.name) + '"\n' + chalk.yellow(test.errorDisplay || ''));
+                (test.desc || test.name) + '"\n' + chalk.yellow(test.errorDisplay || test.error || ''));
         }
         console.log('\n');
     });
