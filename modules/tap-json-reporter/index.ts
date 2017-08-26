@@ -87,11 +87,12 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
     failures++;
-    console.log('test case failed.');
+    console.log('(test case failed).');
     console.log(su.customStringify({
       '@tap-json': true,
       ok: false,
       desc: test.desc || test.name,
+      filePath: test.testPath || test.filePath,
       error: test.errorDisplay || test.error,
       id: n,
       dateComplete: test.dateComplete,
@@ -101,10 +102,11 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
     passes++;
-    console.log('test case passed');
+    console.log('(test case passed)');
     console.log(su.customStringify({
       '@tap-json': true,
       ok: true,
+      filePath: test.testPath || test.filePath,
       desc: test.desc || test.name,
       id: n,
       dateComplete: test.dateComplete,
@@ -114,11 +116,12 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
     skipped++;
-    console.log('test case skipped');
+    console.log('(test case skipped)');
     console.log(su.customStringify({
       '@tap-json': true,
       ok: true,
       desc: test.desc || test.name,
+      filePath: test.testPath || test.filePath,
       id: n,
       skipped: true,
       skip: true,
@@ -129,10 +132,12 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
     stubbed++;
+    console.log('(test case stubbed)');
     console.log(su.customStringify({
       '@tap-json': true,
       ok: true,
       desc: test.desc || test.name,
+      filePath: test.testPath || test.filePath,
       id: n,
       stubbed: true,
       todo: true,

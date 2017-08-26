@@ -52,11 +52,12 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         failures++;
-        console.log('test case failed.');
+        console.log('(test case failed).');
         console.log(suman_utils_1.default.customStringify({
             '@tap-json': true,
             ok: false,
             desc: test.desc || test.name,
+            filePath: test.testPath || test.filePath,
             error: test.errorDisplay || test.error,
             id: n,
             dateComplete: test.dateComplete,
@@ -65,10 +66,11 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         passes++;
-        console.log('test case passed');
+        console.log('(test case passed)');
         console.log(suman_utils_1.default.customStringify({
             '@tap-json': true,
             ok: true,
+            filePath: test.testPath || test.filePath,
             desc: test.desc || test.name,
             id: n,
             dateComplete: test.dateComplete,
@@ -77,11 +79,12 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
         skipped++;
-        console.log('test case skipped');
+        console.log('(test case skipped)');
         console.log(suman_utils_1.default.customStringify({
             '@tap-json': true,
             ok: true,
             desc: test.desc || test.name,
+            filePath: test.testPath || test.filePath,
             id: n,
             skipped: true,
             skip: true,
@@ -91,10 +94,12 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
         stubbed++;
+        console.log('(test case stubbed)');
         console.log(suman_utils_1.default.customStringify({
             '@tap-json': true,
             ok: true,
             desc: test.desc || test.name,
+            filePath: test.testPath || test.filePath,
             id: n,
             stubbed: true,
             todo: true,

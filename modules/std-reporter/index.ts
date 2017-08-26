@@ -139,9 +139,9 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
     console.log('\n');
 
     if (_suman.processIsRunner) {
-      onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '   => test fail ') + '  \'' +
-        (test.desc || test.name) + '\'\n\t' + chalk.bgYellow.gray(' Originating entry test path => ')
-        + chalk.bgYellow.black.bold(test.sumanModulePath + ' ') + '\n' + chalk.yellow(test.errorDisplay || test.error || ''));
+      onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '   => test case fail ') + '  \'' +
+        (test.desc || test.name) + '\'\n ' + chalk.bgYellow.black(' Originating entry test path => ')
+        + chalk.bgYellow.black.bold(test.filePath + ' ') + '\n' + chalk.yellow(test.errorDisplay || test.error || ''));
     }
     else {
       onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '  => test fail ') + '  "' +
@@ -162,14 +162,17 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    onTestCaseEvent(chalk.yellow(` [${testCaseCount}] ` + '\u2026 ') + ' (stubbed) \'' +
-      (test.desc || test.name));
+    onTestCaseEvent(chalk.yellow(` [${testCaseCount}] ` + '\u2026 ') + ` (stubbed) "${test.desc || test.name}"`);
   });
 
-  s.on(String(events.STANDARD_TABLE), function (table: ITableData) {
+  s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
+
+    console.log('code => ', code);
+
     if (!sumanOpts.no_tables) {
       console.log('\n\n');
       let str = table.toString();
+      code > 0 && (str = chalk.red(str));
       str = '\t' + str;
       console.log(str.replace(/\n/g, '\n\t'));
       console.log('\n');
