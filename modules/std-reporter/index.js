@@ -89,11 +89,11 @@ exports.default = function (s, sumanOpts, expectations, su) {
         if (_suman.processIsRunner) {
             onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "] " + '\u2718' + '   => test case fail ') + '  \'' +
                 (test.desc || test.name) + '\'\n ' + chalk.bgYellow.black(' Originating entry test path => ')
-                + chalk.bgYellow.black.bold(test.filePath + ' ') + '\n' + chalk.yellow(test.errorDisplay || test.error || ''));
+                + chalk.bgYellow.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
         }
         else {
             onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "] " + '\u2718' + '  => test fail ') + '  "' +
-                (test.desc || test.name) + '"\n' + chalk.yellow(test.errorDisplay || test.error || ''));
+                (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
         }
         console.log('\n');
     });
@@ -109,7 +109,6 @@ exports.default = function (s, sumanOpts, expectations, su) {
         onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] " + '\u2026 ') + (" (stubbed) \"" + (test.desc || test.name) + "\""));
     });
     s.on(String(suman_events_1.events.STANDARD_TABLE), function (table, code) {
-        console.log('code => ', code);
         if (!sumanOpts.no_tables) {
             console.log('\n\n');
             var str = table.toString();

@@ -141,11 +141,11 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
     if (_suman.processIsRunner) {
       onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '   => test case fail ') + '  \'' +
         (test.desc || test.name) + '\'\n ' + chalk.bgYellow.black(' Originating entry test path => ')
-        + chalk.bgYellow.black.bold(test.filePath + ' ') + '\n' + chalk.yellow(test.errorDisplay || test.error || ''));
+        + chalk.bgYellow.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
     }
     else {
       onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '  => test fail ') + '  "' +
-        (test.desc || test.name) + '"\n' + chalk.yellow(test.errorDisplay || test.error || ''));
+        (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
     }
 
     console.log('\n');
@@ -166,8 +166,6 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   });
 
   s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
-
-    console.log('code => ', code);
 
     if (!sumanOpts.no_tables) {
       console.log('\n\n');
