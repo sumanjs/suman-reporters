@@ -139,12 +139,12 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
     console.log('\n');
 
     if (_suman.processIsRunner) {
-      onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '   => test case fail ') + '  \'' +
-        (test.desc || test.name) + '\'\n ' + chalk.bgYellow.black(' Originating entry test path => ')
-        + chalk.bgYellow.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
+      onTestCaseEvent(chalk.bgYellow.black.bold(` [${testCaseCount}] \u2718  => test case fail `) + '  \'' +
+        (test.desc || test.name) + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
+        + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
     }
     else {
-      onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}] ` + '\u2718' + '  => test fail ') + '  "' +
+      onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}]  \u2718  => test fail `) + '  "' +
         (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
     }
 
@@ -152,7 +152,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
-    onTestCaseEvent(chalk.blue(` [${testCaseCount}] ` + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
+    onTestCaseEvent(chalk.green(` [${testCaseCount}] ` + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
       (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
   });
 

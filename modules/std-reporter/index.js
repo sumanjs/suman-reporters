@@ -87,18 +87,18 @@ exports.default = function (s, sumanOpts, expectations, su) {
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         console.log('\n');
         if (_suman.processIsRunner) {
-            onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "] " + '\u2718' + '   => test case fail ') + '  \'' +
-                (test.desc || test.name) + '\'\n ' + chalk.bgYellow.black(' Originating entry test path => ')
-                + chalk.bgYellow.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
+            onTestCaseEvent(chalk.bgYellow.black.bold(" [" + testCaseCount + "] \u2718  => test case fail ") + '  \'' +
+                (test.desc || test.name) + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
+                + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
         }
         else {
-            onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "] " + '\u2718' + '  => test fail ') + '  "' +
+            onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "]  \u2718  => test fail ") + '  "' +
                 (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
         }
         console.log('\n');
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
-        onTestCaseEvent(chalk.blue(" [" + testCaseCount + "] " + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
+        onTestCaseEvent(chalk.green(" [" + testCaseCount + "] " + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
             (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
