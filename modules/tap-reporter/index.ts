@@ -1,8 +1,8 @@
 'use strict';
-//dts
-import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman';
-import EventEmitter = NodeJS.EventEmitter;
 
+//dts
+import {IGlobalSumanObj, ISumanOpts, ITestDataObj, SumanLib} from 'suman-types';
+import EventEmitter = NodeJS.EventEmitter;
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -19,6 +19,8 @@ import {events} from 'suman-events';
 
 //project
 const _suman = global.__suman = (global.__suman || {});
+
+const x : SumanLib.x.foo;
 
 ///////////////////////////////////////////////////////////
 
@@ -81,16 +83,14 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
   let skipped = 0;
   let stubbed = 0;
 
-  s.on(String(events.RUNNER_INITIAL_SET),
-    function (forkedCPs: Array<ISumanChildProcess>, processes: string, suites: string) {
-      onAnyEvent('\n\n\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
-          forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' ') + '\n');
-    });
+  s.on(String(events.RUNNER_INITIAL_SET), function (forkedCPs: Array<ISumanChildProcess>, processes: string, suites: string) {
+    onAnyEvent('\n\n\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
+      forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' ') + '\n');
+  });
 
-  s.on(String(events.RUNNER_OVERALL_SET),
-    function (totalCount: number, processes: string, suites: string, addendum: string) {
+  s.on(String(events.RUNNER_OVERALL_SET), function (totalCount: number, processes: string, suites: string, addendum: string) {
       onAnyEvent('\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  overall set => '
-          + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
+        + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
     });
 
   s.on(String(events.RUNNER_ASCII_LOGO), function (logo: string) {

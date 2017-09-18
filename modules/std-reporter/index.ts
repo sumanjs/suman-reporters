@@ -26,8 +26,7 @@ const noColors = process.argv.indexOf('--no-color') > 0;
 
 ////////////////////////////////////////////////////////////////////////
 
-function noop() {
-}
+const noop = function () {}
 
 function logDebug() {
   let debug;
