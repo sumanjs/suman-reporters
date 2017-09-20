@@ -69,7 +69,7 @@ exports.default = function (s, sumanOpts, expectations, su) {
         testCaseCount++;
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
-        console.log('\n');
+        console.log('');
         if (_suman.processIsRunner) {
             onTestCaseEvent(chalk.bgYellow.black.bold(" [" + testCaseCount + "] \u2718  => test case fail ") + '  \'' +
                 (test.desc || test.name) + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
@@ -79,7 +79,7 @@ exports.default = function (s, sumanOpts, expectations, su) {
             onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "]  \u2718  => test fail ") + '  "' +
                 (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
         }
-        console.log('\n');
+        console.log('');
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         debugger;

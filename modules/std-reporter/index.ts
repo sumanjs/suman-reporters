@@ -72,7 +72,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
       return typeof data === 'string' ? data : util.inspect(data);
     });
 
-    let amount = (sumanOpts.currPadCount && sumanOpts.currPadCount.val) ?  sumanOpts.currPadCount.val : 0;
+    let amount = (sumanOpts.currPadCount && sumanOpts.currPadCount.val) ? sumanOpts.currPadCount.val : 0;
     const padding = su.padWithXSpaces(amount);
     console.log.call(console, padding, ...args);
   };
@@ -119,7 +119,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
 
-    console.log('\n');
+    console.log(''); //
 
     if (_suman.processIsRunner) {
       onTestCaseEvent(chalk.bgYellow.black.bold(` [${testCaseCount}] \u2718  => test case fail `) + '  \'' +
@@ -131,7 +131,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
         (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
     }
 
-    console.log('\n');
+    console.log('');
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
