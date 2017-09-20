@@ -183,6 +183,5 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
     }
   });
 
-  _suman.log('TAP reporter loaded ZZZZZ.');
 
 };

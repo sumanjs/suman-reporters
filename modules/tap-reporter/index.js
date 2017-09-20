@@ -6,6 +6,7 @@ var util = require("util");
 var chalk = require("chalk");
 var suman_events_1 = require("suman-events");
 var _suman = global.__suman = (global.__suman || {});
+var x;
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
 }
@@ -129,5 +130,4 @@ exports.default = function (s, opts) {
             onAnyEvent(overallResultsTableString.replace(/\n/g, '\n\t') + '\n\n');
         }
     });
-    _suman.log('TAP reporter loaded ZZZZZ.');
 };

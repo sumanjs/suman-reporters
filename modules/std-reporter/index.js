@@ -7,26 +7,15 @@ var chalk = require("chalk");
 var _suman = global.__suman = (global.__suman || {});
 var suman_events_1 = require("suman-events");
 var noColors = process.argv.indexOf('--no-color') > 0;
-function noop() {
-}
-function logDebug() {
-    var debug;
-    if (debug = process.env.SUMAN_DEBUG) {
-        var args = Array.from(arguments).filter(function (i) { return i; });
-        args.forEach(function (a) {
-            process.stderr.write('\n' + (typeof a === 'string' ? a : util.inspect(a)) + '\n');
-        });
-    }
-    return debug;
-}
-function onError(data) {
-    if (!logDebug.apply(null, arguments)) {
-        process.stderr.write(data);
-    }
-}
+var noop = function () {
+};
 var testCaseCount = 0;
 var loaded = false;
 exports.default = function (s, sumanOpts, expectations, su) {
+    if (!sumanOpts) {
+        sumanOpts = {};
+        console.error('warning, no sumanOpts passed to std-reporter.');
+    }
     if (loaded) {
         console.error('Suman implementation error => Suman standard reporter loaded more than once.');
         return;
@@ -37,30 +26,25 @@ exports.default = function (s, sumanOpts, expectations, su) {
     }
     loaded = true;
     var onAnyEvent = function () {
-        if (!logDebug.apply(null, arguments)) {
-            var args = Array.from(arguments).map(function (data) {
-                return typeof data === 'string' ? data : util.inspect(data);
-            });
-            console.log.apply(console, args);
-        }
+        var args = Array.from(arguments).map(function (data) {
+            return typeof data === 'string' ? data : util.inspect(data);
+        });
+        console.log.apply(console, args);
     };
     var onTestCaseEvent = function () {
-        if (!logDebug.apply(null, arguments)) {
-            var args = Array.from(arguments).map(function (data) {
-                return typeof data === 'string' ? data : util.inspect(data);
-            });
-            var padding = su.padWithXSpaces(sumanOpts.currPadCount.val || 0);
-            (_a = console.log).call.apply(_a, [console, padding].concat(args));
-        }
+        var args = Array.from(arguments).map(function (data) {
+            return typeof data === 'string' ? data : util.inspect(data);
+        });
+        var amount = (sumanOpts.currPadCount && sumanOpts.currPadCount.val) ? sumanOpts.currPadCount.val : 0;
+        var padding = su.padWithXSpaces(amount);
+        (_a = console.log).call.apply(_a, [console, padding].concat(args));
         var _a;
     };
     var onVerboseEvent = function (data, value) {
-        if (!logDebug.apply(null, arguments)) {
-            if (sumanOpts && sumanOpts.verbosity > 6) {
-                process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n\n');
-                if (value) {
-                    process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n\n');
-                }
+        if (sumanOpts && sumanOpts.verbosity > 6) {
+            process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n\n');
+            if (value) {
+                process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n\n');
             }
         }
     };
@@ -98,25 +82,18 @@ exports.default = function (s, sumanOpts, expectations, su) {
         console.log('\n');
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
+        debugger;
         onTestCaseEvent(chalk.green(" [" + testCaseCount + "] " + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
             (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
+        debugger;
         onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] " + '\u21AA ') + ' (skipped) \'' +
             (test.desc || test.name));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
+        debugger;
         onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] " + '\u2026 ') + (" (stubbed) \"" + (test.desc || test.name) + "\""));
-    });
-    s.on(String(suman_events_1.events.STANDARD_TABLE), function (table, code) {
-        if (!sumanOpts.no_tables) {
-            console.log('\n\n');
-            var str = table.toString();
-            code > 0 && (str = chalk.red(str));
-            str = '\t' + str;
-            console.log(str.replace(/\n/g, '\n\t'));
-            console.log('\n');
-        }
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_SIGNAL), function (signal) {
         onAnyEvent(['<::::::::::::::::::::: Runner Exit Signal => ' + signal + ' ::::::::::::::::::::::::>'].join('\n'));
@@ -153,25 +130,35 @@ exports.default = function (s, sumanOpts, expectations, su) {
     s.on(String(suman_events_1.events.TEST_END), noop);
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_IS_ZERO), noop);
     s.on(String(suman_events_1.events.RUNNER_TEST_PATHS_CONFIRMATION), function (files) {
-        if (sumanOpts.verbosity > 2 || su.isSumanDebug()) {
+        if (sumanOpts.verbosity > 2) {
             onAnyEvent(['\n ' + chalk.bgBlack.white.bold(' Suman will attempt to execute test files with/within the following paths: '),
                 '\n\n',
                 files.map(function (p, i) { return '\t ' + (i + 1) + ' => ' + chalk.cyan('"' + p + '"'); }).join('\n') + '\n\n\n'].join(''));
         }
     });
     s.on(String(suman_events_1.events.RUNNER_RESULTS_TABLE), function (allResultsTableString) {
-        if (!sumanOpts.no_tables || su.isSumanDebug()) {
+        if (!sumanOpts.no_tables) {
             onAnyEvent('\n\n' + allResultsTableString.replace(/\n/g, '\n\t') + '\n\n');
         }
     });
     s.on(String(suman_events_1.events.RUNNER_RESULTS_TABLE_SORTED_BY_MILLIS), function (strSorted) {
-        if (!sumanOpts.no_tables || su.isSumanDebug()) {
+        if (!sumanOpts.no_tables) {
             onAnyEvent('\n\n' + strSorted.replace(/\n/g, '\n\t') + '\n\n');
         }
     });
     s.on(String(suman_events_1.events.RUNNER_OVERALL_RESULTS_TABLE), function (overallResultsTableString) {
-        if (!sumanOpts.no_tables || su.isSumanDebug()) {
+        if (!sumanOpts.no_tables) {
             onAnyEvent(overallResultsTableString.replace(/\n/g, '\n\t') + '\n\n');
+        }
+    });
+    s.on(String(suman_events_1.events.STANDARD_TABLE), function (table, code) {
+        if (!sumanOpts.no_tables) {
+            console.log('\n\n');
+            var str = table.toString();
+            code > 0 && (str = chalk.red(str));
+            str = '\t' + str;
+            console.log(str.replace(/\n/g, '\n\t'));
+            console.log('\n');
         }
     });
 };

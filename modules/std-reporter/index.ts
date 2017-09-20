@@ -26,27 +26,11 @@ const noColors = process.argv.indexOf('--no-color') > 0;
 
 ////////////////////////////////////////////////////////////////////////
 
-const noop = function () {}
-
-function logDebug() {
-  let debug;
-  if (debug = process.env.SUMAN_DEBUG) {
-    const args = Array.from(arguments).filter(i => i);
-    args.forEach(function (a) {
-      process.stderr.write('\n' + (typeof a === 'string' ? a : util.inspect(a)) + '\n');
-    });
-  }
-  return debug;
-}
+const noop = function () {
+};
 
 interface IStringVarargs {
   (...args: string[]): void;
-}
-
-function onError(data: string) {
-  if (!logDebug.apply(null, arguments)) {
-    process.stderr.write(data);
-  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +41,11 @@ let loaded = false;
 /////////////////////////////////////////////////////////////////////////////////////
 
 export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su: Object) => {
+
+  if (!sumanOpts) {
+    sumanOpts = {};
+    console.error('warning, no sumanOpts passed to std-reporter.');
+  }
 
   if (loaded) {
     console.error('Suman implementation error => Suman standard reporter loaded more than once.');
@@ -71,33 +60,28 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   loaded = true;
 
   let onAnyEvent: IStringVarargs = function () {
-    if (!logDebug.apply(null, arguments)) {
-      const args = Array.from(arguments).map(function (data) {
-        return typeof data === 'string' ? data : util.inspect(data);
-      });
+    const args = Array.from(arguments).map(function (data) {
+      return typeof data === 'string' ? data : util.inspect(data);
+    });
 
-      console.log.apply(console, args);
-    }
+    console.log.apply(console, args);
   };
 
   let onTestCaseEvent: IStringVarargs = function () {
-    if (!logDebug.apply(null, arguments)) {
-      const args = Array.from(arguments).map(function (data) {
-        return typeof data === 'string' ? data : util.inspect(data);
-      });
+    const args = Array.from(arguments).map(function (data) {
+      return typeof data === 'string' ? data : util.inspect(data);
+    });
 
-      const padding = su.padWithXSpaces(sumanOpts.currPadCount.val || 0);
-      console.log.call(console, padding, ...args);
-    }
+    let amount = (sumanOpts.currPadCount && sumanOpts.currPadCount.val) ?  sumanOpts.currPadCount.val : 0;
+    const padding = su.padWithXSpaces(amount);
+    console.log.call(console, padding, ...args);
   };
 
   let onVerboseEvent = function (data: any, value?: any) {
-    if (!logDebug.apply(null, arguments)) {
-      if (sumanOpts && sumanOpts.verbosity > 6) {
-        process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n\n');
-        if (value) {
-          process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n\n');
-        }
+    if (sumanOpts && sumanOpts.verbosity > 6) {
+      process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n\n');
+      if (value) {
+        process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n\n');
       }
     }
   };
@@ -151,29 +135,20 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
+    debugger;
     onTestCaseEvent(chalk.green(` [${testCaseCount}] ` + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
       (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
+    debugger;
     onTestCaseEvent(chalk.yellow(` [${testCaseCount}] ` + '\u21AA ') + ' (skipped) \'' +
       (test.desc || test.name));
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
+    debugger;
     onTestCaseEvent(chalk.yellow(` [${testCaseCount}] ` + '\u2026 ') + ` (stubbed) "${test.desc || test.name}"`);
-  });
-
-  s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
-
-    if (!sumanOpts.no_tables) {
-      console.log('\n\n');
-      let str = table.toString();
-      code > 0 && (str = chalk.red(str));
-      str = '\t' + str;
-      console.log(str.replace(/\n/g, '\n\t'));
-      console.log('\n');
-    }
   });
 
   s.on(String(events.RUNNER_EXIT_SIGNAL), function (signal: any) {
@@ -222,7 +197,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   s.on(String(events.RUNNER_EXIT_CODE_IS_ZERO), noop);
 
   s.on(String(events.RUNNER_TEST_PATHS_CONFIRMATION), function (files: Array<string>) {
-    if (sumanOpts.verbosity > 2 || su.isSumanDebug()) {
+    if (sumanOpts.verbosity > 2) {
       onAnyEvent(['\n ' + chalk.bgBlack.white.bold(' Suman will attempt to execute test files with/within the following paths: '),
         '\n\n',
         files.map((p, i) => '\t ' + (i + 1) + ' => ' + chalk.cyan('"' + p + '"')).join('\n') + '\n\n\n'].join(''))
@@ -230,20 +205,32 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   });
 
   s.on(String(events.RUNNER_RESULTS_TABLE), function (allResultsTableString: string) {
-    if (!sumanOpts.no_tables || su.isSumanDebug()) {
+    if (!sumanOpts.no_tables) {
       onAnyEvent('\n\n' + allResultsTableString.replace(/\n/g, '\n\t') + '\n\n')
     }
   });
 
   s.on(String(events.RUNNER_RESULTS_TABLE_SORTED_BY_MILLIS), function (strSorted: string) {
-    if (!sumanOpts.no_tables || su.isSumanDebug()) {
+    if (!sumanOpts.no_tables) {
       onAnyEvent('\n\n' + strSorted.replace(/\n/g, '\n\t') + '\n\n')
     }
   });
 
   s.on(String(events.RUNNER_OVERALL_RESULTS_TABLE), function (overallResultsTableString: string) {
-    if (!sumanOpts.no_tables || su.isSumanDebug()) {
+    if (!sumanOpts.no_tables) {
       onAnyEvent(overallResultsTableString.replace(/\n/g, '\n\t') + '\n\n')
+    }
+  });
+
+  s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
+
+    if (!sumanOpts.no_tables) {
+      console.log('\n\n');
+      let str = table.toString();
+      code > 0 && (str = chalk.red(str));
+      str = '\t' + str;
+      console.log(str.replace(/\n/g, '\n\t'));
+      console.log('\n');
     }
   });
 };
