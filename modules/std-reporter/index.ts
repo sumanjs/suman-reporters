@@ -73,6 +73,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
     });
 
     let amount = (sumanOpts.currPadCount && sumanOpts.currPadCount.val) ? sumanOpts.currPadCount.val : 0;
+    //// let amount = sumanOpts.currPadCount.val;
     const padding = su.padWithXSpaces(amount);
     console.log.call(console, padding, ...args);
   };
