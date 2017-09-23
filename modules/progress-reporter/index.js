@@ -4,9 +4,9 @@ var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var ProgressBar = require('progress');
 var events = require('suman-events').events;
-function onAnyEvent(data) {
+var onAnyEvent = function (data) {
     process.stdout.write(data);
-}
+};
 exports.default = function (s, sumanOpts) {
     var progressBar;
     s.on(events.RUNNER_STARTED, function onRunnerStart(totalNumTests) {

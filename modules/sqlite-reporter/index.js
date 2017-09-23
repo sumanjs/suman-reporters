@@ -26,7 +26,7 @@ exports.default = function (s, sqlite3) {
     if (ret) {
         return ret;
     }
-    function runAsync(fn) {
+    var runAsync = function (fn) {
         ret.count++;
         console.log(' => Suman sqlite reporter count pre => ', ret.count);
         fn(function (err) {
@@ -37,7 +37,7 @@ exports.default = function (s, sqlite3) {
                 ret.cb();
             }
         });
-    }
+    };
     function runPromise(promise) {
         ret.count++;
         console.log(' => Suman sqlite reporter count pre => ', ret.count);

@@ -54,7 +54,7 @@ export default (s: EventEmitter, sqlite3: Object) => {
     return ret;
   }
 
-  function runAsync(fn: Function) {
+  const runAsync = function (fn: Function) {
     ret.count++;
     console.log(' => Suman sqlite reporter count pre => ', ret.count);
     fn(function (err: Error) {
@@ -67,7 +67,7 @@ export default (s: EventEmitter, sqlite3: Object) => {
         ret.cb();
       }
     });
-  }
+  };
 
   function runPromise(promise: Promise<any>) {
     ret.count++;

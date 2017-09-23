@@ -15,18 +15,17 @@ import * as path from 'path';
 const ProgressBar = require('progress');
 const {events} = require('suman-events');
 
-
 ////////////////////////////////////////
 
-function onAnyEvent (data) {
+const onAnyEvent = function (data) {
   process.stdout.write(data);
-}
+};
 
 export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   let progressBar;
 
-  s.on(events.RUNNER_STARTED, function onRunnerStart (totalNumTests) {
+  s.on(events.RUNNER_STARTED, function onRunnerStart(totalNumTests) {
 
     console.log('\n');
 
@@ -37,7 +36,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
     );
   });
 
-  s.on(events.TEST_FILE_CHILD_PROCESS_EXITED, function onTestEnd (d) {
+  s.on(events.TEST_FILE_CHILD_PROCESS_EXITED, function onTestEnd(d) {
     // process.stdout.write('\n\n');
     // process.stdout.write(' Test finished with exit code = ' + d.exitCode + ' => path => ' + d.testPath);
     // process.stdout.write('\n\n');
@@ -49,15 +48,15 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   s.on(events.RUNNER_EXIT_CODE, onAnyEvent);
 
-  s.on(events.RUNNER_ENDED, function onRunnerEnd () {
+  s.on(events.RUNNER_ENDED, function onRunnerEnd() {
     console.log('\n => Runner end event fired.');
   });
 
-  s.on('suite-skipped', function onRunnerEnd () {
+  s.on('suite-skipped', function onRunnerEnd() {
 
   });
 
-  s.on('suite-end', function onRunnerEnd () {
+  s.on('suite-end', function onRunnerEnd() {
 
   });
 

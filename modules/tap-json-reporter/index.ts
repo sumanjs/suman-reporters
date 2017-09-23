@@ -28,7 +28,7 @@ function title(test: ITestDataObj) {
 
 //////////////////////////////////////////////////////////
 
-function logDebug() {
+const logDebug = function () {
   let debug;
   if (debug = process.env.SUMAN_DEBUG) {
     const args = Array.from(arguments).filter(i => i);
@@ -37,7 +37,7 @@ function logDebug() {
     });
   }
   return debug;
-}
+};
 
 interface IStringVarargs {
   (...args: string[]): void;

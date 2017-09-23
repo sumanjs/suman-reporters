@@ -9,7 +9,7 @@ var _suman = global.__suman = (global.__suman || {});
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
 }
-function logDebug() {
+var logDebug = function () {
     var debug;
     if (debug = process.env.SUMAN_DEBUG) {
         var args = Array.from(arguments).filter(function (i) { return i; });
@@ -18,7 +18,7 @@ function logDebug() {
         });
     }
     return debug;
-}
+};
 var onAnyEvent = function () {
     if (!logDebug.apply(null, arguments)) {
         var args = Array.from(arguments).map(function (data) {
