@@ -1,7 +1,7 @@
 'use strict';
 
 //dts
-import {IGlobalSumanObj, ISumanOpts, ITestDataObj, SumanLib} from 'suman-types';
+import {IGlobalSumanObj, ISumanOpts, ITestDataObj, SumanLib} from 'suman';
 import EventEmitter = NodeJS.EventEmitter;
 
 //polyfills
@@ -18,9 +18,7 @@ import * as chalk from 'chalk';
 import {events} from 'suman-events';
 
 //project
-const _suman = global.__suman = (global.__suman || {});
-
-const x : SumanLib.x.foo;
+const _suman : IGlobalSumanObj = global.__suman = (global.__suman || {});
 
 ///////////////////////////////////////////////////////////
 

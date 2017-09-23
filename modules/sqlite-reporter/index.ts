@@ -1,6 +1,10 @@
 'use strict';
 import EventEmitter = NodeJS.EventEmitter;
 
+//polyfills
+const process = require('suman-browser-polyfills/modules/process');
+const global = require('suman-browser-polyfills/modules/global');
+
 //core
 import util = require('util');
 import path = require('path');

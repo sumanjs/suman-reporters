@@ -6,7 +6,6 @@ var util = require("util");
 var chalk = require("chalk");
 var suman_events_1 = require("suman-events");
 var _suman = global.__suman = (global.__suman || {});
-var x;
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
 }
