@@ -68,6 +68,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   };
 
   let onTestCaseEvent: IStringVarargs = function () {
+    debugger;
     const args = Array.from(arguments).map(function (data) {
       return typeof data === 'string' ? data : util.inspect(data);
     });

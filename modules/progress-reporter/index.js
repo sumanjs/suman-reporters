@@ -1,5 +1,4 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var ProgressBar = require('progress');
@@ -7,6 +6,7 @@ var events = require('suman-events').events;
 function onAnyEvent(data) {
     process.stdout.write(data);
 }
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (s, sumanOpts) {
     var progressBar;
     s.on(events.RUNNER_STARTED, function onRunnerStart(totalNumTests) {

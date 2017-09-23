@@ -18,7 +18,7 @@ import {events} from 'suman-events';
 import su from 'suman-utils';
 
 //project
-const _suman = global.__suman = (global.__suman || {});
+const _suman : IGlobalSumanObj = global.__suman = (global.__suman || {});
 
 ///////////////////////////////////////////////////////////
 

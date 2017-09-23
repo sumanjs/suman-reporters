@@ -1,5 +1,4 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var path = require("path");
@@ -22,6 +21,7 @@ db.configure('busyTimeout', 4000);
 function noop() {
 }
 var ret;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (s, sqlite3) {
     if (ret) {
         return ret;

@@ -1,5 +1,4 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var assert = require("assert");
@@ -15,6 +14,7 @@ var results = {
     TEST_CASE_SKIPPED: 0,
     TEST_CASE_STUBBED: 0
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (s, sumanOpts, expectations) {
     count++;
     if (count > 1) {

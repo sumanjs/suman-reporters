@@ -1,5 +1,4 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var events = require('suman-events').events;
@@ -8,6 +7,7 @@ function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
 }
 var count = 0;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (s, opts) {
     count++;
     if (count > 1) {

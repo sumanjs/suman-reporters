@@ -1,5 +1,4 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
@@ -11,6 +10,7 @@ var noop = function () {
 };
 var testCaseCount = 0;
 var loaded = false;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (s, sumanOpts, expectations, su) {
     if (!sumanOpts) {
         sumanOpts = {};
@@ -32,6 +32,7 @@ exports.default = function (s, sumanOpts, expectations, su) {
         console.log.apply(console, args);
     };
     var onTestCaseEvent = function () {
+        debugger;
         var args = Array.from(arguments).map(function (data) {
             return typeof data === 'string' ? data : util.inspect(data);
         });

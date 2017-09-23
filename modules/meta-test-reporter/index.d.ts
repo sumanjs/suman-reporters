@@ -6,5 +6,5 @@ export interface IExpectedCounts {
     TEST_CASE_SKIPPED: number;
     TEST_CASE_STUBBED: number;
 }
-declare const _default: (s: EventEmitter, sumanOpts: any, expectations: IExpectedCounts) => void;
+declare var _default: (s: EventEmitter, sumanOpts: any, expectations: IExpectedCounts) => void;
 export default _default;
