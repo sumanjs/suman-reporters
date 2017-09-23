@@ -68,7 +68,6 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   };
 
   let onTestCaseEvent: IStringVarargs = function () {
-    debugger;
     const args = Array.from(arguments).map(function (data) {
       return typeof data === 'string' ? data : util.inspect(data);
     });
@@ -137,20 +136,16 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
-    debugger;
-    onTestCaseEvent(chalk.green(` [${testCaseCount}] ` + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
-      (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
+    let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
+    onTestCaseEvent(`${chalk.green(` [${testCaseCount}] \u2714`)} '${test.desc || test.name}' ${timeDiffStr}`);
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    debugger;
-    onTestCaseEvent(chalk.yellow(` [${testCaseCount}] ` + '\u21AA ') + ' (skipped) \'' +
-      (test.desc || test.name));
+    onTestCaseEvent(`${chalk.yellow(` [${testCaseCount}] \u21AA`)} '${test.desc || test.name}' ${chalk.italic.grey('(skipped)')}`);
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    debugger;
-    onTestCaseEvent(chalk.yellow(` [${testCaseCount}] ` + '\u2026 ') + ` (stubbed) "${test.desc || test.name}"`);
+    onTestCaseEvent(`${chalk.yellow(` [${testCaseCount}] \u2026`)} '${test.desc || test.name}' ${chalk.italic.grey('(stubbed)')}`);
   });
 
   s.on(String(events.RUNNER_EXIT_SIGNAL), function (signal: any) {

@@ -1,4 +1,5 @@
 'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
@@ -27,7 +28,6 @@ var onAnyEvent = function () {
     }
 };
 var loaded = false;
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (s, opts) {
     if (global.__suman.inceptionLevel < 1) {
         console.log('suman tap reporter says: suman inception is 0, we may not need to load this reporter.');

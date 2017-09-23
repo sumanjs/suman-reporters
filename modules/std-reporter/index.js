@@ -1,4 +1,5 @@
 'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
@@ -10,7 +11,6 @@ var noop = function () {
 };
 var testCaseCount = 0;
 var loaded = false;
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = function (s, sumanOpts, expectations, su) {
     if (!sumanOpts) {
         sumanOpts = {};
@@ -32,7 +32,6 @@ exports.default = function (s, sumanOpts, expectations, su) {
         console.log.apply(console, args);
     };
     var onTestCaseEvent = function () {
-        debugger;
         var args = Array.from(arguments).map(function (data) {
             return typeof data === 'string' ? data : util.inspect(data);
         });
@@ -83,18 +82,14 @@ exports.default = function (s, sumanOpts, expectations, su) {
         console.log('');
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
-        debugger;
-        onTestCaseEvent(chalk.green(" [" + testCaseCount + "] " + '\u2714 ') + ' \'' + (test.desc || test.name) + '\' ' +
-            (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : ''));
+        var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
+        onTestCaseEvent(chalk.green(" [" + testCaseCount + "] \u2714") + " '" + (test.desc || test.name) + "' " + timeDiffStr);
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        debugger;
-        onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] " + '\u21AA ') + ' (skipped) \'' +
-            (test.desc || test.name));
+        onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] \u21AA") + " '" + (test.desc || test.name) + "' " + chalk.italic.grey('(skipped)'));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        debugger;
-        onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] " + '\u2026 ') + (" (stubbed) \"" + (test.desc || test.name) + "\""));
+        onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] \u2026") + " '" + (test.desc || test.name) + "' " + chalk.italic.grey('(stubbed)'));
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_SIGNAL), function (signal) {
         onAnyEvent(['<::::::::::::::::::::: Runner Exit Signal => ' + signal + ' ::::::::::::::::::::::::>'].join('\n'));
