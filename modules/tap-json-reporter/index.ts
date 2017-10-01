@@ -16,11 +16,10 @@ import * as path from 'path';
 //npm
 import * as chalk from 'chalk';
 import {events} from 'suman-events';
-import su from 'suman-utils';
-
+import * as su from 'suman-utils';
 
 //project
-const _suman : IGlobalSumanObj = global.__suman = (global.__suman || {});
+const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
 
 ///////////////////////////////////////////////////////////
 
@@ -107,7 +106,7 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
       '@tap-json': true,
       ok: true,
       filePath: test.testPath || test.filePath,
-      desc: test.desc || test.title ||  test.name,
+      desc: test.desc || test.title || test.name,
       id: n,
       dateComplete: test.dateComplete,
       dateStarted: test.dateStarted

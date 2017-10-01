@@ -1,8 +1,11 @@
 'use strict';
 
 //dts
-import {IGlobalSumanObj, ISumanOpts, ITestDataObj, ISumanChildProcess, ITableData} from 'suman';
+import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
+import {ITestDataObj} from "suman-types/dts/it";
+import {ISumanChildProcess} from "suman-types/dts/runner";
+import {ITableData} from "suman-types/dts/table-data";
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -14,6 +17,7 @@ import * as assert from 'assert';
 import * as path from 'path';
 
 //npm
+import su = require("suman-utils");
 import * as chalk from 'chalk';
 
 //project
@@ -40,10 +44,10 @@ let loaded = false;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su: Object) => {
+export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) => {
 
   if (!sumanOpts) {
-    sumanOpts = {};
+    sumanOpts = {} as Partial<ISumanOpts>;
     console.error('warning, no sumanOpts passed to std-reporter.');
   }
 
@@ -52,7 +56,12 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
     return;
   }
 
-  if (global.__suman && global.__suman.inceptionLevel > 0) {
+  const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
+  if (!('val' in currentPaddingCount)) {
+    console.error(`'${path.basename(__dirname)}' reporter may be unable to properly indent output.`);
+  }
+
+  if (_suman.inceptionLevel > 0) {
     console.log('suman std reporter says: suman inception level greater than 0.');
     return;
   }
@@ -72,8 +81,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
       return typeof data === 'string' ? data : util.inspect(data);
     });
 
-    let amount = (sumanOpts.currPadCount && sumanOpts.currPadCount.val) ? sumanOpts.currPadCount.val : 0;
-    //// let amount = sumanOpts.currPadCount.val;
+    let amount = currentPaddingCount.val || 0;
     const padding = su.padWithXSpaces(amount);
     console.log.call(console, padding, ...args);
   };
@@ -201,33 +209,29 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object, su
     }
   });
 
-  s.on(String(events.RUNNER_RESULTS_TABLE), function (allResultsTableString: string) {
-    if (!sumanOpts.no_tables) {
+  if (!sumanOpts.no_tables) {
+
+    s.on(String(events.RUNNER_RESULTS_TABLE), function (allResultsTableString: string) {
       onAnyEvent('\n\n' + allResultsTableString.replace(/\n/g, '\n\t') + '\n\n')
-    }
-  });
+    });
 
-  s.on(String(events.RUNNER_RESULTS_TABLE_SORTED_BY_MILLIS), function (strSorted: string) {
-    if (!sumanOpts.no_tables) {
+    s.on(String(events.RUNNER_RESULTS_TABLE_SORTED_BY_MILLIS), function (strSorted: string) {
       onAnyEvent('\n\n' + strSorted.replace(/\n/g, '\n\t') + '\n\n')
-    }
-  });
+    });
 
-  s.on(String(events.RUNNER_OVERALL_RESULTS_TABLE), function (overallResultsTableString: string) {
-    if (!sumanOpts.no_tables) {
+    s.on(String(events.RUNNER_OVERALL_RESULTS_TABLE), function (overallResultsTableString: string) {
       onAnyEvent(overallResultsTableString.replace(/\n/g, '\n\t') + '\n\n')
-    }
-  });
+    });
 
-  s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
-
-    if (!sumanOpts.no_tables) {
+    s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
       console.log('\n\n');
       let str = table.toString();
       code > 0 && (str = chalk.red(str));
       str = '\t' + str;
       console.log(str.replace(/\n/g, '\n\t'));
       console.log('\n');
-    }
-  });
+    });
+
+  }
+
 };

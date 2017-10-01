@@ -4,7 +4,7 @@ var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
 var suman_events_1 = require("suman-events");
-var suman_utils_1 = require("suman-utils");
+var su = require("suman-utils");
 var _suman = global.__suman = (global.__suman || {});
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
@@ -52,7 +52,7 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         failures++;
-        console.log(suman_utils_1.default.customStringify({
+        console.log(su.customStringify({
             '@tap-json': true,
             ok: false,
             desc: test.desc || test.title || test.name,
@@ -65,7 +65,7 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         passes++;
-        console.log(suman_utils_1.default.customStringify({
+        console.log(su.customStringify({
             '@tap-json': true,
             ok: true,
             filePath: test.testPath || test.filePath,
@@ -77,7 +77,7 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
         skipped++;
-        console.log(suman_utils_1.default.customStringify({
+        console.log(su.customStringify({
             '@tap-json': true,
             ok: true,
             desc: test.desc || test.title || test.name,
@@ -91,7 +91,7 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
         stubbed++;
-        console.log(suman_utils_1.default.customStringify({
+        console.log(su.customStringify({
             '@tap-json': true,
             ok: true,
             desc: test.desc || test.title || test.name,

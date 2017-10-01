@@ -11,6 +11,7 @@
     "suman-types",
     "suman-events",
     "suman-debug",
-    "suman-browser-polyfills"
+    "suman-browser-polyfills",
+    "suman-utils"
   ]
 }
