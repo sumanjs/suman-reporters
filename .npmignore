@@ -1,10 +1,23 @@
+
+### folders
 node_modules
 .idea
+test
+
+### files
+.npmignore
+.gitignore
+suman.conf.js
+
+### matching files
 *.sh
 *.md
 *.json
 *.log
-.npmignore
-.gitignore
 *.ts
+*.yml
+*.txt
+*.DS_Store
+
+### negation
 !*.d.ts

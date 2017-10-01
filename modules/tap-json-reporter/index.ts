@@ -1,6 +1,7 @@
 'use strict';
 //dts
-import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman';
+import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
+import {ITestDataObj} from "suman-types/dts/it";
 import EventEmitter = NodeJS.EventEmitter;
 
 //polyfills
@@ -16,6 +17,7 @@ import * as path from 'path';
 import * as chalk from 'chalk';
 import {events} from 'suman-events';
 import su from 'suman-utils';
+
 
 //project
 const _suman : IGlobalSumanObj = global.__suman = (global.__suman || {});
@@ -58,12 +60,12 @@ let loaded = false;
 
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
-  if (global.__suman.inceptionLevel < 1) {
-    console.log('suman tap reporter says: suman inception is 0, we may not need to load this reporter.');
+  if (_suman.inceptionLevel < 1) {
+    console.error('Suman waring => tap-reporter: suman inception is 0, we may not need to load this reporter.');
   }
 
   if (loaded) {
-    _suman.logError('Implementation error => TAP reporter loaded more than once.');
+    console.error('Suman implementation warning => TAP reporter loaded more than once.');
     return;
   }
 
@@ -87,11 +89,10 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
     failures++;
-    console.log('(test case failed).');
     console.log(su.customStringify({
       '@tap-json': true,
       ok: false,
-      desc: test.desc || test.name,
+      desc: test.desc || test.title || test.name,
       filePath: test.testPath || test.filePath,
       error: test.errorDisplay || test.error,
       id: n,
@@ -102,12 +103,11 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
     passes++;
-    console.log('(test case passed)');
     console.log(su.customStringify({
       '@tap-json': true,
       ok: true,
       filePath: test.testPath || test.filePath,
-      desc: test.desc || test.name,
+      desc: test.desc || test.title ||  test.name,
       id: n,
       dateComplete: test.dateComplete,
       dateStarted: test.dateStarted
@@ -116,11 +116,10 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
     skipped++;
-    console.log('(test case skipped)');
     console.log(su.customStringify({
       '@tap-json': true,
       ok: true,
-      desc: test.desc || test.name,
+      desc: test.desc || test.title || test.name,
       filePath: test.testPath || test.filePath,
       id: n,
       skipped: true,
@@ -132,11 +131,10 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
     stubbed++;
-    console.log('(test case stubbed)');
     console.log(su.customStringify({
       '@tap-json': true,
       ok: true,
-      desc: test.desc || test.name,
+      desc: test.desc || test.title || test.name,
       filePath: test.testPath || test.filePath,
       id: n,
       stubbed: true,

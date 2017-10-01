@@ -29,11 +29,11 @@ var onAnyEvent = function () {
 };
 var loaded = false;
 exports.default = function (s, opts) {
-    if (global.__suman.inceptionLevel < 1) {
-        console.log('suman tap reporter says: suman inception is 0, we may not need to load this reporter.');
+    if (_suman.inceptionLevel < 1) {
+        console.error('Suman waring => tap-reporter: suman inception is 0, we may not need to load this reporter.');
     }
     if (loaded) {
-        _suman.logError('Implementation error => TAP reporter loaded more than once.');
+        console.error('Suman implementation warning => TAP reporter loaded more than once.');
         return;
     }
     loaded = true;
@@ -52,11 +52,10 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         failures++;
-        console.log('(test case failed).');
         console.log(suman_utils_1.default.customStringify({
             '@tap-json': true,
             ok: false,
-            desc: test.desc || test.name,
+            desc: test.desc || test.title || test.name,
             filePath: test.testPath || test.filePath,
             error: test.errorDisplay || test.error,
             id: n,
@@ -66,12 +65,11 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         passes++;
-        console.log('(test case passed)');
         console.log(suman_utils_1.default.customStringify({
             '@tap-json': true,
             ok: true,
             filePath: test.testPath || test.filePath,
-            desc: test.desc || test.name,
+            desc: test.desc || test.title || test.name,
             id: n,
             dateComplete: test.dateComplete,
             dateStarted: test.dateStarted
@@ -79,11 +77,10 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
         skipped++;
-        console.log('(test case skipped)');
         console.log(suman_utils_1.default.customStringify({
             '@tap-json': true,
             ok: true,
-            desc: test.desc || test.name,
+            desc: test.desc || test.title || test.name,
             filePath: test.testPath || test.filePath,
             id: n,
             skipped: true,
@@ -94,11 +91,10 @@ exports.default = function (s, opts) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
         stubbed++;
-        console.log('(test case stubbed)');
         console.log(suman_utils_1.default.customStringify({
             '@tap-json': true,
             ok: true,
-            desc: test.desc || test.name,
+            desc: test.desc || test.title || test.name,
             filePath: test.testPath || test.filePath,
             id: n,
             stubbed: true,
