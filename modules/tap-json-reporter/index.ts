@@ -144,6 +144,7 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
       dateComplete: test.dateComplete,
       dateStarted: test.dateStarted
     }));
+
   });
 
 };
