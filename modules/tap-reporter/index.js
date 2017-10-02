@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
+var path = require("path");
 var chalk = require("chalk");
 var suman_events_1 = require("suman-events");
 var _suman = global.__suman = (global.__suman || {});
@@ -29,11 +30,12 @@ var onAnyEvent = function () {
 };
 var loaded = false;
 exports.default = function (s, opts) {
+    var reporterName = path.basename(__dirname);
     if (global.__suman.inceptionLevel < 1) {
-        console.log('suman tap reporter says: suman inception is 0, we may not need to load this reporter.');
+        console.log("suman warning, \"" + reporterName + "\": suman inception is 0, we may not need to load this reporter.");
     }
     if (loaded) {
-        _suman.logError('Implementation error => TAP reporter loaded more than once.');
+        _suman.logError("Implementation error => \"" + reporterName + "\" loaded more than once.");
         return;
     }
     loaded = true;

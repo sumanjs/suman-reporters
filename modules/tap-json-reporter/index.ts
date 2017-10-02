@@ -1,4 +1,5 @@
 'use strict';
+
 //dts
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import {ITestDataObj} from "suman-types/dts/it";
@@ -55,16 +56,18 @@ let onAnyEvent: IStringVarargs = function () {
 
 let loaded = false;
 
-//////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
+  const reporterName = path.basename(__dirname);
+
   if (_suman.inceptionLevel < 1) {
-    console.error('Suman waring => tap-reporter: suman inception is 0, we may not need to load this reporter.');
+    console.error(`Suman warning => "${reporterName}": suman inception is 0, we may not need to load this reporter.`);
   }
 
   if (loaded) {
-    console.error('Suman implementation warning => TAP reporter loaded more than once.');
+    console.error(`Suman implementation warning => "${reporterName}" loaded more than once.`);
     return;
   }
 

@@ -58,12 +58,14 @@ let loaded = false;
 
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
+  const reporterName = path.basename(__dirname);
+
   if (global.__suman.inceptionLevel < 1) {
-    console.log('suman tap reporter says: suman inception is 0, we may not need to load this reporter.');
+    console.log(`suman warning, "${reporterName}": suman inception is 0, we may not need to load this reporter.`);
   }
 
   if (loaded) {
-    _suman.logError('Implementation error => TAP reporter loaded more than once.');
+    _suman.logError(`Implementation error => "${reporterName}" loaded more than once.`);
     return;
   }
 
