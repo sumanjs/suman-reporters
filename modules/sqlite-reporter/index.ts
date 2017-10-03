@@ -1,4 +1,6 @@
 'use strict';
+
+//dts
 import EventEmitter = NodeJS.EventEmitter;
 
 //polyfills
@@ -39,9 +41,9 @@ db.configure('busyTimeout', 4000);
 
 /////////////////////////////////////////////////////////////
 
-function noop() {
+const noop = function () {
   // we use this noop fn in several places
-}
+};
 
 let ret: IRet;
 
@@ -53,6 +55,8 @@ export default (s: EventEmitter, sqlite3: Object) => {
     // defensive programming construct, yay
     return ret;
   }
+
+  const reporterName = path.basename(__dirname);
 
   const runAsync = function (fn: Function) {
     ret.count++;
@@ -69,7 +73,7 @@ export default (s: EventEmitter, sqlite3: Object) => {
     });
   };
 
-  function runPromise(promise: Promise<any>) {
+  const runPromise = function (promise: Promise<any>) {
     ret.count++;
     console.log(' => Suman sqlite reporter count pre => ', ret.count);
     return promise
@@ -78,7 +82,7 @@ export default (s: EventEmitter, sqlite3: Object) => {
       ret.count--;
       ret.count < 1 && ret.cb();
     });
-  }
+  };
 
   s.on(String(events.FATAL_TEST_ERROR), function (val: any) {
     console.log('value => ', val);
@@ -185,6 +189,7 @@ export default (s: EventEmitter, sqlite3: Object) => {
   });
 
   return ret = {
+    reporterName,
     count: 0,
     cb: noop
   };
