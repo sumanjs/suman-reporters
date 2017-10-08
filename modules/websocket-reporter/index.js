@@ -4,9 +4,9 @@ var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var events = require('suman-events').events;
 var _suman = global.__suman = (global.__suman || {});
-function title(test) {
+var title = function (test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
-}
+};
 var count = 0;
 exports.default = function (s, opts) {
     count++;

@@ -19,13 +19,14 @@ db.on('error', function (err) {
     console.error(' => sqlite error => ', err);
 });
 db.configure('busyTimeout', 4000);
-function noop() {
-}
+var noop = function () {
+};
 var ret;
 exports.default = function (s, sqlite3) {
     if (ret) {
         return ret;
     }
+    var reporterName = path.basename(__dirname);
     var runAsync = function (fn) {
         ret.count++;
         console.log(' => Suman sqlite reporter count pre => ', ret.count);
@@ -38,7 +39,7 @@ exports.default = function (s, sqlite3) {
             }
         });
     };
-    function runPromise(promise) {
+    var runPromise = function (promise) {
         ret.count++;
         console.log(' => Suman sqlite reporter count pre => ', ret.count);
         return promise
@@ -47,7 +48,7 @@ exports.default = function (s, sqlite3) {
             ret.count--;
             ret.count < 1 && ret.cb();
         });
-    }
+    };
     s.on(String(suman_events_1.events.FATAL_TEST_ERROR), function (val) {
         console.log('value => ', val);
         runAsync(function (cb) {
@@ -134,6 +135,7 @@ exports.default = function (s, sqlite3) {
         });
     });
     return ret = {
+        reporterName: reporterName,
         count: 0,
         cb: noop
     };

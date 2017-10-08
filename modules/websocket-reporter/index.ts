@@ -14,16 +14,13 @@ import * as path from 'path';
 
 //npm
 const {events} = require('suman-events');
-
-//project
-const _suman : IGlobalSumanObj = global.__suman = (global.__suman || {});
-
-//npm
 import * as chalk from 'chalk';
 
-function title (test) {
+//project
+const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
+const title = function (test) {
   return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
-}
+};
 
 //////////////////////////////////////////////////////////
 
@@ -34,7 +31,7 @@ let count = 0;
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
   count++;
-  if(count > 1){
+  if (count > 1) {
     throw new Error('Implementation error => Tap reporter loaded more than once.');
   }
 
@@ -89,6 +86,5 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
   });
 
   console.log(' => TAP reporter loaded.');
-
 
 };
