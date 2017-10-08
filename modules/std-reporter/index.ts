@@ -58,7 +58,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
 
   const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
   if (!('val' in currentPaddingCount)) {
-    console.error(`'${path.basename(__dirname)}' reporter may be unable to properly indent output.`);
+    _suman.logError(`'${path.basename(__dirname)}' reporter may be unable to properly indent output.`);
   }
 
   if (_suman.inceptionLevel > 0) {
@@ -88,9 +88,9 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
 
   let onVerboseEvent = function (data: any, value?: any) {
     if (sumanOpts && sumanOpts.verbosity > 6) {
-      process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n\n');
+      process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n');
       if (value) {
-        process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n\n');
+        process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n');
       }
     }
   };
@@ -117,7 +117,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
     });
 
   s.on(String(events.RUNNER_ASCII_LOGO), function (logo: string) {
-    onAnyEvent('\n\n' + logo + '\n\n')
+    onAnyEvent(logo, '\n')
   });
 
   s.on(String(events.FATAL_TEST_ERROR), onAnyEvent);
@@ -202,10 +202,10 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
   s.on(String(events.RUNNER_EXIT_CODE_IS_ZERO), noop);
 
   s.on(String(events.RUNNER_TEST_PATHS_CONFIRMATION), function (files: Array<string>) {
-    if (sumanOpts.verbosity > 2) {
+    if (sumanOpts.verbosity > 5) {
       onAnyEvent(['\n ' + chalk.bgBlack.white.bold(' Suman will attempt to execute test files with/within the following paths: '),
-        '\n\n',
-        files.map((p, i) => '\t ' + (i + 1) + ' => ' + chalk.cyan('"' + p + '"')).join('\n') + '\n\n\n'].join(''))
+        '\n',
+        files.map((p, i) => '\t ' + (i + 1) + ' => ' + chalk.bold('"' + p + '"')).join('\n') + '\n\n'].join(''))
     }
   });
 
@@ -226,7 +226,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
     s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
       console.log('\n\n');
       let str = table.toString();
-      code > 0 && (str = chalk.red(str));
+      code > 0? (str = chalk.yellow.bold(str)) : (str = chalk.gray(str));
       str = '\t' + str;
       console.log(str.replace(/\n/g, '\n\t'));
       console.log('\n');

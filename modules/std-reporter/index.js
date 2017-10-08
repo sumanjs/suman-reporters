@@ -24,7 +24,7 @@ exports.default = function (s, sumanOpts, expectations) {
     }
     var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
     if (!('val' in currentPaddingCount)) {
-        console.error("'" + path.basename(__dirname) + "' reporter may be unable to properly indent output.");
+        _suman.logError("'" + path.basename(__dirname) + "' reporter may be unable to properly indent output.");
     }
     if (_suman.inceptionLevel > 0) {
         console.log('suman std reporter says: suman inception level greater than 0.');
@@ -48,9 +48,9 @@ exports.default = function (s, sumanOpts, expectations) {
     };
     var onVerboseEvent = function (data, value) {
         if (sumanOpts && sumanOpts.verbosity > 6) {
-            process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n\n');
+            process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n');
             if (value) {
-                process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n\n');
+                process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n');
             }
         }
     };
@@ -68,7 +68,7 @@ exports.default = function (s, sumanOpts, expectations) {
             + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
     });
     s.on(String(suman_events_1.events.RUNNER_ASCII_LOGO), function (logo) {
-        onAnyEvent('\n\n' + logo + '\n\n');
+        onAnyEvent(logo, '\n');
     });
     s.on(String(suman_events_1.events.FATAL_TEST_ERROR), onAnyEvent);
     s.on(String(suman_events_1.events.TEST_CASE_END), function () {
@@ -132,10 +132,10 @@ exports.default = function (s, sumanOpts, expectations) {
     s.on(String(suman_events_1.events.TEST_END), noop);
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_IS_ZERO), noop);
     s.on(String(suman_events_1.events.RUNNER_TEST_PATHS_CONFIRMATION), function (files) {
-        if (sumanOpts.verbosity > 2) {
+        if (sumanOpts.verbosity > 5) {
             onAnyEvent(['\n ' + chalk.bgBlack.white.bold(' Suman will attempt to execute test files with/within the following paths: '),
-                '\n\n',
-                files.map(function (p, i) { return '\t ' + (i + 1) + ' => ' + chalk.cyan('"' + p + '"'); }).join('\n') + '\n\n\n'].join(''));
+                '\n',
+                files.map(function (p, i) { return '\t ' + (i + 1) + ' => ' + chalk.bold('"' + p + '"'); }).join('\n') + '\n\n'].join(''));
         }
     });
     if (!sumanOpts.no_tables) {
@@ -151,7 +151,7 @@ exports.default = function (s, sumanOpts, expectations) {
         s.on(String(suman_events_1.events.STANDARD_TABLE), function (table, code) {
             console.log('\n\n');
             var str = table.toString();
-            code > 0 && (str = chalk.red(str));
+            code > 0 ? (str = chalk.yellow.bold(str)) : (str = chalk.gray(str));
             str = '\t' + str;
             console.log(str.replace(/\n/g, '\n\t'));
             console.log('\n');
