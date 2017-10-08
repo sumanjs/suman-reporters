@@ -59,6 +59,8 @@ let loaded = false;
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
   const reporterName = path.basename(__dirname);
+  const log = console.log.bind(console, ` [suman-${reporterName}] `);
+  const logError = console.error.bind(console,` [suman-${reporterName}] `);
 
   if (global.__suman.inceptionLevel < 1) {
     console.log(`suman warning, "${reporterName}": suman inception is 0, we may not need to load this reporter.`);

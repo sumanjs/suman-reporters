@@ -31,6 +31,8 @@ var onAnyEvent = function () {
 var loaded = false;
 exports.default = function (s, opts) {
     var reporterName = path.basename(__dirname);
+    var log = console.log.bind(console, " [suman-" + reporterName + "] ");
+    var logError = console.error.bind(console, " [suman-" + reporterName + "] ");
     if (global.__suman.inceptionLevel < 1) {
         console.log("suman warning, \"" + reporterName + "\": suman inception is 0, we may not need to load this reporter.");
     }

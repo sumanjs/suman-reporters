@@ -31,12 +31,14 @@ var onAnyEvent = function () {
 var loaded = false;
 exports.default = function (s, opts) {
     var reporterName = path.basename(__dirname);
-    if (_suman.inceptionLevel < 1) {
-        console.error("Suman warning => \"" + reporterName + "\": suman inception is 0, we may not need to load this reporter.");
-    }
+    var log = console.log.bind(console, " [suman-" + reporterName + "] ");
+    var logError = console.error.bind(console, " [suman-" + reporterName + "] ");
     if (loaded) {
-        console.error("Suman implementation warning => \"" + reporterName + "\" loaded more than once.");
+        logError("Suman implementation warning => \"" + reporterName + "\" loaded more than once.");
         return;
+    }
+    if (_suman.inceptionLevel < 1) {
+        logError("warning => \"" + reporterName + "\": suman inception is 0, we may not need to load this reporter.");
     }
     loaded = true;
     var sumanOpts = _suman.sumanOpts;

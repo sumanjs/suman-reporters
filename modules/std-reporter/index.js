@@ -22,9 +22,12 @@ exports.default = function (s, sumanOpts, expectations) {
         console.error('Suman implementation error => Suman standard reporter loaded more than once.');
         return;
     }
+    var reporterName = path.basename(__dirname);
+    var log = console.log.bind(console, " [suman-" + reporterName + "] ");
+    var logError = console.error.bind(console, " [suman-" + reporterName + "] ");
     var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
     if (!('val' in currentPaddingCount)) {
-        _suman.logError("'" + path.basename(__dirname) + "' reporter may be unable to properly indent output.");
+        logError("'" + path.basename(__dirname) + "' reporter may be unable to properly indent output.");
     }
     if (_suman.inceptionLevel > 0) {
         console.log('suman std reporter says: suman inception level greater than 0.');

@@ -56,9 +56,14 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
     return;
   }
 
+  const reporterName = path.basename(__dirname);
+  const log = console.log.bind(console, ` [suman-${reporterName}] `);
+  const logError = console.error.bind(console,` [suman-${reporterName}] `);
+
+
   const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
   if (!('val' in currentPaddingCount)) {
-    _suman.logError(`'${path.basename(__dirname)}' reporter may be unable to properly indent output.`);
+    logError(`'${path.basename(__dirname)}' reporter may be unable to properly indent output.`);
   }
 
   if (_suman.inceptionLevel > 0) {
