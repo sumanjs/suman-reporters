@@ -8,7 +8,6 @@ test
 .npmignore
 .gitignore
 suman.conf.js
-package-lock.json
 yarn.lock
 
 ### matching files
