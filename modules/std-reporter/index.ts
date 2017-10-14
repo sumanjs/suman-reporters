@@ -48,17 +48,18 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
 
   if (!sumanOpts) {
     sumanOpts = {} as Partial<ISumanOpts>;
-    console.error('warning, no sumanOpts passed to std-reporter.');
+    _suman.logError('Suman implementation warning, no sumanOpts passed to std-reporter.');
   }
 
   if (loaded) {
-    console.error('Suman implementation error => Suman standard reporter loaded more than once.');
+  _suman.logError('Suman implementation error => Suman standard reporter loaded more than once.');
     return;
   }
 
   const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
+
   if (!('val' in currentPaddingCount)) {
-    _suman.logError(`'${path.basename(__dirname)}' reporter may be unable to properly indent output.`);
+    _suman.logWarning(`'${path.basename(__dirname)}' reporter may be unable to properly indent output.`);
   }
 
   if (_suman.inceptionLevel > 0) {
@@ -145,7 +146,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
     let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-    onTestCaseEvent(`${chalk.green(` [${testCaseCount}] \u2714`)} '${test.desc || test.name}' ${timeDiffStr}`);
+    onTestCaseEvent(`${chalk.green(` [${testCaseCount}] ${chalk.bold('✔')}`)} '${test.desc || test.name}' ${timeDiffStr}`);
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {

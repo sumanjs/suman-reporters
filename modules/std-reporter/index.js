@@ -16,15 +16,15 @@ var loaded = false;
 exports.default = function (s, sumanOpts, expectations) {
     if (!sumanOpts) {
         sumanOpts = {};
-        console.error('warning, no sumanOpts passed to std-reporter.');
+        _suman.logError('Suman implementation warning, no sumanOpts passed to std-reporter.');
     }
     if (loaded) {
-        console.error('Suman implementation error => Suman standard reporter loaded more than once.');
+        _suman.logError('Suman implementation error => Suman standard reporter loaded more than once.');
         return;
     }
     var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
     if (!('val' in currentPaddingCount)) {
-        _suman.logError("'" + path.basename(__dirname) + "' reporter may be unable to properly indent output.");
+        _suman.logWarning("'" + path.basename(__dirname) + "' reporter may be unable to properly indent output.");
     }
     if (_suman.inceptionLevel > 0) {
         console.log('suman std reporter says: suman inception level greater than 0.');
@@ -89,7 +89,7 @@ exports.default = function (s, sumanOpts, expectations) {
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-        onTestCaseEvent(chalk.green(" [" + testCaseCount + "] \u2714") + " '" + (test.desc || test.name) + "' " + timeDiffStr);
+        onTestCaseEvent(chalk.green(" [" + testCaseCount + "] " + chalk.bold('✔')) + " '" + (test.desc || test.name) + "' " + timeDiffStr);
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
         onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] \u21AA") + " '" + (test.desc || test.name) + "' " + chalk.italic.grey('(skipped)'));
