@@ -13,24 +13,28 @@ var noop = function () {
 };
 var testCaseCount = 0;
 var loaded = false;
+var reporterName = path.basename(__dirname);
+var log = console.log.bind(console, " [suman-" + reporterName + "] ");
+var logWarning = console.error.bind(console, " [suman-" + reporterName + "] ");
+var logError = console.error.bind(console, " [suman-" + reporterName + "] ");
 exports.default = function (s, sumanOpts, expectations) {
-    if (!sumanOpts) {
-        sumanOpts = {};
-        _suman.logError('Suman implementation warning, no sumanOpts passed to std-reporter.');
-    }
     if (loaded) {
-        _suman.logError('Suman implementation error => Suman standard reporter loaded more than once.');
-        return;
-    }
-    var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
-    if (!('val' in currentPaddingCount)) {
-        _suman.logWarning("'" + path.basename(__dirname) + "' reporter may be unable to properly indent output.");
-    }
-    if (_suman.inceptionLevel > 0) {
-        console.log('suman std reporter says: suman inception level greater than 0.');
+        logError('Suman implementation error => reporter loaded more than once.');
         return;
     }
     loaded = true;
+    if (!sumanOpts) {
+        sumanOpts = {};
+        logError('Suman implementation warning, no sumanOpts passed to reporter.');
+    }
+    var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
+    if (!('val' in currentPaddingCount)) {
+        logError("'" + reporterName + "' reporter may be unable to properly indent output.");
+    }
+    if (_suman.inceptionLevel > 0) {
+        log("Suman '" + reporterName + "': suman inception level greater than 0.");
+        return;
+    }
     var onAnyEvent = function () {
         var args = Array.from(arguments).map(function (data) {
             return typeof data === 'string' ? data : util.inspect(data);

@@ -41,33 +41,36 @@ interface IStringVarargs {
 
 let testCaseCount = 0;
 let loaded = false;
+const reporterName = path.basename(__dirname);
+const log = console.log.bind(console, ` [suman-${reporterName}] `);
+const logWarning = console.error.bind(console, ` [suman-${reporterName}] `);
+const logError = console.error.bind(console, ` [suman-${reporterName}] `);
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) => {
 
+  if (loaded) {
+    logError('Suman implementation error => reporter loaded more than once.');
+    return;
+  }
+  loaded = true;
+
   if (!sumanOpts) {
     sumanOpts = {} as Partial<ISumanOpts>;
-    _suman.logError('Suman implementation warning, no sumanOpts passed to std-reporter.');
-  }
-
-  if (loaded) {
-  _suman.logError('Suman implementation error => Suman standard reporter loaded more than once.');
-    return;
+    logError('Suman implementation warning, no sumanOpts passed to reporter.');
   }
 
   const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
 
   if (!('val' in currentPaddingCount)) {
-    _suman.logWarning(`'${path.basename(__dirname)}' reporter may be unable to properly indent output.`);
+    logError(`'${reporterName}' reporter may be unable to properly indent output.`);
   }
 
   if (_suman.inceptionLevel > 0) {
-    console.log('suman std reporter says: suman inception level greater than 0.');
+    log(`Suman '${reporterName}': suman inception level greater than 0.`);
     return;
   }
-
-  loaded = true;
 
   let onAnyEvent: IStringVarargs = function () {
     const args = Array.from(arguments).map(function (data) {
@@ -227,7 +230,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
     s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
       console.log('\n\n');
       let str = table.toString();
-      code > 0? (str = chalk.yellow.bold(str)) : (str = chalk.gray(str));
+      code > 0 ? (str = chalk.yellow.bold(str)) : (str = chalk.gray(str));
       str = '\t' + str;
       console.log(str.replace(/\n/g, '\n\t'));
       console.log('\n');

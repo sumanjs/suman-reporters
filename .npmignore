@@ -8,8 +8,9 @@ test
 .npmignore
 .gitignore
 suman.conf.js
-package-lock.json
 yarn.lock
+LICENSE.md
+.editorconfig
 
 ### matching files
 *.sh
