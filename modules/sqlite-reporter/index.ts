@@ -17,6 +17,9 @@ import su = require('suman-utils');
 
 //project
 import {events} from 'suman-events';
+import {getLogger} from "../../lib/logging";
+const reporterName = path.basename(__dirname);
+const log = getLogger(reporterName);
 
 ////////////////////////////////////////////////
 
@@ -26,15 +29,15 @@ const dbPth = path.resolve(process.env.HOME + '/.suman/db');
 
 let db = new sqlite3.Database(dbPth, function (err: Error) {
   if (err) {
-    console.error(err);
+    log.error(err);
   }
   else {
-    console.log(' => SQLite connected.');
+    log.veryGood(' => SQLite connected.');
   }
 });
 
 db.on('error', function (err: Error) {
-  console.error(' => sqlite error => ', err);
+  log.error(' => sqlite error => ', err);
 });
 
 db.configure('busyTimeout', 4000);
@@ -56,15 +59,11 @@ export default (s: EventEmitter, sqlite3: Object) => {
     return ret;
   }
 
-  const reporterName = path.basename(__dirname);
-
   const runAsync = function (fn: Function) {
     ret.count++;
-    console.log(' => Suman sqlite reporter count pre => ', ret.count);
     fn(function (err: Error) {
       err && console.error(err.stack || err);
       ret.count--;
-      console.log(' => Suman sqlite reporter count post => ', ret.count);
       if (ret.count < 1) {
         // ret.cb starts off as a noop, but the suman framework
         // will reassign the value in the future and it will signal that we are done
@@ -75,7 +74,6 @@ export default (s: EventEmitter, sqlite3: Object) => {
 
   const runPromise = function (promise: Promise<any>) {
     ret.count++;
-    console.log(' => Suman sqlite reporter count pre => ', ret.count);
     return promise
     .catch(err => err && console.error(err.stack || err))
     .then(function () {
@@ -85,20 +83,17 @@ export default (s: EventEmitter, sqlite3: Object) => {
   };
 
   s.on(String(events.FATAL_TEST_ERROR), function (val: any) {
-    console.log('value => ', val);
-    runAsync(function (cb: Function) {
 
+    runAsync(function (cb: Function) {
       db.serialize(function () {
         db.run('CREATE TABLE lorem (info TEXT)');
-
         let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
         for (let i = 0; i < 10; i++) {
           stmt.run('Ipsum ' + i);
         }
         stmt.finalize();
-
         db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          console.log('rows count => ', rows.length);
+          log.info('rows count => ', rows.length);
           cb()
         });
       });
@@ -107,19 +102,16 @@ export default (s: EventEmitter, sqlite3: Object) => {
   });
 
   s.on(String(events.TEST_CASE_END), function (val: any) {
-    console.log('value => ', val);
     runAsync(function (cb: Function) {
       db.serialize(function () {
         db.run('CREATE TABLE lorem (info TEXT)');
-
         let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
         for (let i = 0; i < 1; i++) {
           stmt.run('Ipsum ' + i);
         }
         stmt.finalize();
-
         db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          console.log('rows count => ', rows.length);
+          log.info('rows count => ', rows.length);
           cb()
         });
       });
@@ -127,20 +119,16 @@ export default (s: EventEmitter, sqlite3: Object) => {
   });
 
   s.on(String(events.TEST_CASE_PASS), function (val: any) {
-    console.log('value => ', val);
     runAsync(function (cb: Function) {
-
       db.serialize(function () {
         db.run('CREATE TABLE lorem (info TEXT)');
-
         let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
         for (let i = 0; i < 1; i++) {
           stmt.run('Ipsum ' + i);
         }
         stmt.finalize();
-
         db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          console.log('rows count => ', rows.length);
+          log.info('rows count => ', rows.length);
           cb()
         });
       });
@@ -149,19 +137,16 @@ export default (s: EventEmitter, sqlite3: Object) => {
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (val: any) {
-    console.log('value => ', val);
     runAsync(function (cb: Function) {
       db.serialize(function () {
         db.run('CREATE TABLE lorem (info TEXT)');
-
         let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
         for (let i = 0; i < 1; i++) {
           stmt.run('Ipsum ' + i);
         }
         stmt.finalize();
-
         db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          console.log('rows count => ', rows.length);
+          log.info('rows count => ', rows.length);
           cb()
         });
       });
@@ -169,19 +154,16 @@ export default (s: EventEmitter, sqlite3: Object) => {
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (val: any) {
-    console.log('value => ', val);
     runAsync(function (cb: Function) {
       db.serialize(function () {
         db.run('CREATE TABLE lorem (info TEXT)');
-
         let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
         for (let i = 0; i < 1; i++) {
           stmt.run('Ipsum ' + i);
         }
         stmt.finalize();
-
         db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          console.log('rows count => ', rows.length);
+          log.info('rows count => ', rows.length);
           cb()
         });
       });

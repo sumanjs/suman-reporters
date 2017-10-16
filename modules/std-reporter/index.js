@@ -8,31 +8,28 @@ var su = require("suman-utils");
 var chalk = require("chalk");
 var _suman = global.__suman = (global.__suman || {});
 var suman_events_1 = require("suman-events");
+var logging_1 = require("../../lib/logging");
+var reporterName = path.basename(__dirname);
+var log = logging_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
 var noop = function () {
 };
 var testCaseCount = 0;
 var loaded = false;
-var reporterName = path.basename(__dirname);
-var log = console.log.bind(console, " [suman-" + reporterName + "] ");
-var logWarning = console.error.bind(console, " [suman-" + reporterName + "] ");
-var logError = console.error.bind(console, " [suman-" + reporterName + "] ");
 exports.default = function (s, sumanOpts, expectations) {
     if (loaded) {
-        logError('Suman implementation error => reporter loaded more than once.');
+        log.error('Suman implementation error => reporter loaded more than once.');
         return;
     }
     loaded = true;
     if (!sumanOpts) {
         sumanOpts = {};
-        logError('Suman implementation warning, no sumanOpts passed to reporter.');
+        log.error('Suman implementation warning, no sumanOpts passed to reporter.');
     }
     var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
-    if (!('val' in currentPaddingCount)) {
-        logError("'" + reporterName + "' reporter may be unable to properly indent output.");
-    }
+    var first = true;
     if (_suman.inceptionLevel > 0) {
-        log("Suman '" + reporterName + "': suman inception level greater than 0.");
+        log.info("suman inception level greater than 0.");
         return;
     }
     var onAnyEvent = function () {
@@ -42,6 +39,12 @@ exports.default = function (s, sumanOpts, expectations) {
         console.log.apply(console, args);
     };
     var onTestCaseEvent = function () {
+        if (first) {
+            if (!('val' in currentPaddingCount)) {
+                log.error("'" + reporterName + "' reporter may be unable to properly indent output.");
+            }
+            first = false;
+        }
         var args = Array.from(arguments).map(function (data) {
             return typeof data === 'string' ? data : util.inspect(data);
         });

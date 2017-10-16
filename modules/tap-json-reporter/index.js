@@ -7,6 +7,7 @@ var path = require("path");
 var suman_events_1 = require("suman-events");
 var su = require("suman-utils");
 var _suman = global.__suman = (global.__suman || {});
+var logging_1 = require("../../lib/logging");
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
 }
@@ -29,16 +30,15 @@ var onAnyEvent = function () {
     }
 };
 var loaded = false;
+var reporterName = path.basename(__dirname);
+var log = logging_1.getLogger(reporterName);
 exports.default = function (s, opts) {
-    var reporterName = path.basename(__dirname);
-    var log = console.log.bind(console, " [suman-" + reporterName + "] ");
-    var logError = console.error.bind(console, " [suman-" + reporterName + "] ");
     if (loaded) {
-        logError("Suman implementation warning => \"" + reporterName + "\" loaded more than once.");
+        log.error("Suman implementation warning => \"" + reporterName + "\" loaded more than once.");
         return;
     }
     if (_suman.inceptionLevel < 1) {
-        logError("warning => \"" + reporterName + "\": suman inception is 0, we may not need to load this reporter.");
+        log.error("warning => \"" + reporterName + "\": suman inception is 0, we may not need to load this reporter.");
     }
     loaded = true;
     var sumanOpts = _suman.sumanOpts;

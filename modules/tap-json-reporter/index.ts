@@ -21,6 +21,7 @@ import * as su from 'suman-utils';
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
+import {getLogger} from "../../lib/logging";
 
 ///////////////////////////////////////////////////////////
 
@@ -55,22 +56,20 @@ let onAnyEvent: IStringVarargs = function () {
 };
 
 let loaded = false;
+const reporterName = path.basename(__dirname);
+const log = getLogger(reporterName);
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
-  const reporterName = path.basename(__dirname);
-  const log = console.log.bind(console, ` [suman-${reporterName}] `);
-  const logError = console.error.bind(console, ` [suman-${reporterName}] `);
-
   if (loaded) {
-    logError(`Suman implementation warning => "${reporterName}" loaded more than once.`);
+    log.error(`Suman implementation warning => "${reporterName}" loaded more than once.`);
     return;
   }
 
   if (_suman.inceptionLevel < 1) {
-    logError(`warning => "${reporterName}": suman inception is 0, we may not need to load this reporter.`);
+    log.error(`warning => "${reporterName}": suman inception is 0, we may not need to load this reporter.`);
   }
 
   loaded = true;

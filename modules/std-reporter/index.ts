@@ -23,6 +23,9 @@ import * as chalk from 'chalk';
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
 import {events} from 'suman-events';
+import {getLogger} from "../../lib/logging";
+const reporterName = path.basename(__dirname);
+const log = getLogger(reporterName);
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -41,34 +44,28 @@ interface IStringVarargs {
 
 let testCaseCount = 0;
 let loaded = false;
-const reporterName = path.basename(__dirname);
-const log = console.log.bind(console, ` [suman-${reporterName}] `);
-const logWarning = console.error.bind(console, ` [suman-${reporterName}] `);
-const logError = console.error.bind(console, ` [suman-${reporterName}] `);
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) => {
 
   if (loaded) {
-    logError('Suman implementation error => reporter loaded more than once.');
+    log.error('Suman implementation error => reporter loaded more than once.');
     return;
   }
   loaded = true;
 
   if (!sumanOpts) {
     sumanOpts = {} as Partial<ISumanOpts>;
-    logError('Suman implementation warning, no sumanOpts passed to reporter.');
+    log.error('Suman implementation warning, no sumanOpts passed to reporter.');
   }
 
   const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
 
-  if (!('val' in currentPaddingCount)) {
-    logError(`'${reporterName}' reporter may be unable to properly indent output.`);
-  }
+  let first = true;
 
   if (_suman.inceptionLevel > 0) {
-    log(`Suman '${reporterName}': suman inception level greater than 0.`);
+    log.info(`suman inception level greater than 0.`);
     return;
   }
 
@@ -81,6 +78,14 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
   };
 
   let onTestCaseEvent: IStringVarargs = function () {
+
+    if (first) {
+      if (!('val' in currentPaddingCount)) {
+        log.error(`'${reporterName}' reporter may be unable to properly indent output.`);
+      }
+      first = false;
+    }
+
     const args = Array.from(arguments).map(function (data) {
       return typeof data === 'string' ? data : util.inspect(data);
     });
