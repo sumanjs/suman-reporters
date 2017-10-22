@@ -8,5 +8,6 @@ interface ISumanGlobal extends Global {
 interface IRet {
   reporterName: string,
   count: number,
-  cb: Function
+  cb: Function,
+  completionHook?: Function
 }

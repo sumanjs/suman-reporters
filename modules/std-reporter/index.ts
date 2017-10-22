@@ -80,8 +80,8 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
   let onTestCaseEvent: IStringVarargs = function () {
 
     if (first) {
-      if (!('val' in currentPaddingCount)) {
-        log.error(`'${reporterName}' reporter may be unable to properly indent output.`);
+      if (!('val' in currentPaddingCount) && sumanOpts.series) {
+        log.warning(`'${reporterName}' reporter may be unable to properly indent output.\n`);
       }
       first = false;
     }

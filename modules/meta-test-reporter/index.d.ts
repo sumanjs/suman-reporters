@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import EventEmitter = NodeJS.EventEmitter;
 export interface IExpectedCounts {
     TEST_CASE_FAIL: number;
