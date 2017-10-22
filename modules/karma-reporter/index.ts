@@ -27,6 +27,8 @@ import {getLogger} from "../../lib/logging";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 
+log.info('loading loading loading')
+
 ////////////////////////////////////////////////////////////////////////
 
 const noColors = process.argv.indexOf('--no-color') > 0;
@@ -123,9 +125,9 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
   });
 
 
-  setTimeout(function(){
-    karma.complete();
-  }, 300);
+  // setTimeout(function(){
+  //   karma.complete();
+  // }, 3000);
 
   return ret = {
     reporterName,
@@ -133,7 +135,8 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
     cb: noop,
     completionHook: function () {
       log.veryGood('calling karma.complete()...');
-      karma.complete();
+      karma.info({total: testCaseCount});
+      karma.complete({total: testCaseCount});
     }
   };
 

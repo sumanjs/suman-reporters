@@ -10,6 +10,7 @@ var suman_events_1 = require("suman-events");
 var logging_1 = require("../../lib/logging");
 var reporterName = path.basename(__dirname);
 var log = logging_1.getLogger(reporterName);
+log.info('loading loading loading');
 var noColors = process.argv.indexOf('--no-color') > 0;
 var noop = function () {
 };
@@ -52,16 +53,14 @@ exports.default = function (s, sumanOpts, expectations) {
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
         karma.result({ id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: [] });
     });
-    setTimeout(function () {
-        karma.complete();
-    }, 300);
     return ret = {
         reporterName: reporterName,
         count: 0,
         cb: noop,
         completionHook: function () {
             log.veryGood('calling karma.complete()...');
-            karma.complete();
+            karma.info({ total: testCaseCount });
+            karma.complete({ total: testCaseCount });
         }
     };
 };
