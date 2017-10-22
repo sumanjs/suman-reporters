@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/chalk": "^0.4.31",
     "@types/core-js": "^0.9.42",
-    "@types/node": "^8.0.7"
+    "@types/node": "^8.0.7",
+    "@types/socket.io-client": "^1.4.31"
   }
 }

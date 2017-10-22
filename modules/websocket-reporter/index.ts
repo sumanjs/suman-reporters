@@ -1,6 +1,6 @@
 'use strict';
 //dts
-import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman';
+import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
 
 //polyfills
@@ -15,25 +15,40 @@ import * as path from 'path';
 //npm
 const {events} = require('suman-events');
 import * as chalk from 'chalk';
+import su = require('suman-utils');
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
-const title = function (test) {
-  return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
-};
+import {getLogger} from "../../lib/logging";
+const reporterName = path.basename(__dirname);
+const log = getLogger(reporterName);
 
 //////////////////////////////////////////////////////////
 
 let count = 0;
+let ret: IRet;
 
 //////////////////////////////////////////////////////////
 
-export default (s: EventEmitter, opts: ISumanOpts) => {
+export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: SocketIOClient.Socket) => {
 
-  count++;
-  if (count > 1) {
-    throw new Error('Implementation error => Tap reporter loaded more than once.');
+  if (ret) {
+    // defensive programming construct, yay
+    return ret;
   }
+
+  const runAsync = function (fn: Function) {
+    ret.count++;
+    fn(function (err: Error) {
+      err && console.error(err.stack || err);
+      ret.count--;
+      if (ret.count < 1) {
+        // ret.cb starts off as a noop, but the suman framework
+        // will reassign the value in the future and it will signal that we are done
+        ret.cb && ret.cb();
+      }
+    });
+  };
 
   //TODO: make a websocket connection with runner
   //TODO: this reporter should be used by the browser only
@@ -57,34 +72,62 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
     console.log('# skipped ' + failures);
   });
 
-  s.on(events.TAP_COMPLETE, function (data) {
-
-  });
-
   s.on(events.TEST_CASE_END, function (test) {
     ++n;
   });
 
   s.on(events.TEST_CASE_FAIL, function (test) {
     failures++;
-    console.log('not ok %d %s', n, title(test));
+    runAsync(function (cb: Function) {
+      const str = su.customStringify({
+        childId: process.env.SUMAN_CHILD_ID,
+        test,
+        type: 'LOG_RESULT',
+      });
+      client.emit('LOG_RESULT', JSON.parse(str), cb);
+    });
   });
 
   s.on(events.TEST_CASE_PASS, function (test) {
     passes++;
-    console.log('ok %d %s', n, title(test));
+    runAsync(function (cb: Function) {
+      const str = su.customStringify({
+        childId: process.env.SUMAN_CHILD_ID,
+        test,
+        type: 'LOG_RESULT',
+      });
+      client.emit('LOG_RESULT', JSON.parse(str), cb);
+    });
   });
 
   s.on(events.TEST_CASE_SKIPPED, function (test) {
     skipped++;
-    console.log('ok %d %s # SKIP -', n, title(test));
+    runAsync(function (cb: Function) {
+      const str = su.customStringify({
+        childId: process.env.SUMAN_CHILD_ID,
+        test,
+        type: 'LOG_RESULT',
+      });
+      client.emit('LOG_RESULT', JSON.parse(str), cb);
+    });
   });
 
   s.on(events.TEST_CASE_STUBBED, function (test) {
     stubbed++;
-    console.log('ok %d %s # STUBBED -', n, title(test));
+    runAsync(function (cb: Function) {
+      const str = su.customStringify({
+        childId: process.env.SUMAN_CHILD_ID,
+        test,
+        type: 'LOG_RESULT',
+      });
+      client.emit('LOG_RESULT', JSON.parse(str), cb);
+    });
   });
 
-  console.log(' => TAP reporter loaded.');
+  return ret = {
+    reporterName,
+    count: 0,
+    cb: null
+  };
 
 };

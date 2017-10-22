@@ -97,7 +97,6 @@ export default (s: EventEmitter, sqlite3: Object) => {
           cb()
         });
       });
-
     });
   });
 

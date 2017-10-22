@@ -27,8 +27,6 @@ import {getLogger} from "../../lib/logging";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 
-log.info('loading loading loading')
-
 ////////////////////////////////////////////////////////////////////////
 
 const noColors = process.argv.indexOf('--no-color') > 0;
