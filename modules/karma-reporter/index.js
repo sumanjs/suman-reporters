@@ -40,23 +40,27 @@ exports.default = function (s, sumanOpts, expectations) {
         testCaseCount++;
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
-        karma.result({ pass: false, fail: true, name: test.desc });
+        karma.result({ id: String(test.testId), skipped: false, success: false, description: test.desc, log: [], suite: [] });
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-        karma.result({ pass: true, name: test.desc });
+        karma.result({ id: String(test.testId), skipped: false, success: true, description: test.desc, log: [], suite: [] });
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        karma.result({ pass: false, skipped: true, skip: true, name: test.desc });
+        karma.result({ id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: [] });
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        karma.result({ pass: false, stubbed: true, stub: true, name: test.desc });
+        karma.result({ id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: [] });
     });
+    setTimeout(function () {
+        karma.complete();
+    }, 300);
     return ret = {
         reporterName: reporterName,
         count: 0,
         cb: noop,
         completionHook: function () {
+            log.veryGood('calling karma.complete()...');
             karma.complete();
         }
     };

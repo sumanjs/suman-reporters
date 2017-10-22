@@ -69,6 +69,31 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
   const karma = global.__karma__;
   assert(karma, 'karma object not exposed at global.__karma___ or window.__karma__');
 
+  /*
+
+   // object passed to result(obj);
+
+    {
+      // test id
+      id: String,
+
+        // test description
+        description: String,
+
+      // the suite to which this test belongs. potentially nested.
+      suite: Array[String],
+
+      // an array of string error messages that might explain a failure.
+      // this is required if success is false.
+      log: Array[String],
+
+      success: Boolean, // pass / fail
+
+      skipped: Boolean // skipped / ran
+    }
+
+  */
+
   //on error
   s.on(String(events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);
 
@@ -81,27 +106,33 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
   });
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
-    karma.result({pass: false, fail: true, name: test.desc});
+    karma.result({id: String(test.testId), skipped: false, success: false, description: test.desc, log: [], suite: []});
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
     let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-    karma.result({pass: true, name: test.desc});
+    karma.result({id: String(test.testId), skipped: false, success: true, description: test.desc, log: [], suite: []});
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    karma.result({pass: false, skipped: true, skip: true, name: test.desc});
+    karma.result({id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: []});
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    karma.result({pass: false, stubbed: true, stub: true, name: test.desc});
+    karma.result({id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: []});
   });
+
+
+  setTimeout(function(){
+    karma.complete();
+  }, 300);
 
   return ret = {
     reporterName,
     count: 0,
     cb: noop,
     completionHook: function () {
+      log.veryGood('calling karma.complete()...');
       karma.complete();
     }
   };
