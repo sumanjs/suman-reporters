@@ -33,11 +33,15 @@ const r = require('suman-reporters/modules/tap-reporter');
 
 To use a reporter with the suman command line, the API is like so:
 
-`suman --reporter=tap-reporter`
+```bash
+$ suman --reporter=tap-reporter
+```
 
 You can load multiple reporters like so:
 
-`suman --reporter=tap-reporter --reporter=std-reporter`
+```bash
+$ suman --reporter=tap-reporter --reporter=std-reporter
+```
 
 
 The loading logic is as follows:
@@ -47,8 +51,9 @@ The loading logic is as follows:
 
 So for "max efficiency", you could just use this:
 
-`suman --reporter=suman-reporters/modules/tap-reporter`
-
+```bash
+suman --reporter=suman-reporters/modules/tap-reporter
+```
 
 ## Anatomy of a Suman compliant reporter:
 
