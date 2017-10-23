@@ -2,52 +2,99 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
+var path = require("path");
 var events = require('suman-events').events;
+var su = require("suman-utils");
 var _suman = global.__suman = (global.__suman || {});
-var title = function (test) {
-    return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
-};
+var logging_1 = require("../../lib/logging");
+var reporterName = path.basename(__dirname);
+var log = logging_1.getLogger(reporterName);
 var count = 0;
-exports.default = function (s, opts) {
-    count++;
-    if (count > 1) {
-        throw new Error('Implementation error => Tap reporter loaded more than once.');
+var ret;
+exports.default = function (s, opts, expectations, client) {
+    if (ret) {
+        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
+        return ret;
     }
-    var n = 0;
-    var passes = 0;
-    var failures = 0;
-    var skipped = 0;
-    var stubbed = 0;
+    log.info("loading " + reporterName + ".");
+    var runAsync = function (fn) {
+        ret.count++;
+        fn(function (err) {
+            err && console.error(err.stack || err);
+            ret.count--;
+            if (ret.count < 1) {
+                ret.cb && ret.cb();
+            }
+        });
+    };
+    var results = {
+        n: 0,
+        passes: 0,
+        failures: 0,
+        skipped: 0,
+        stubbed: 0
+    };
     s.on(events.RUNNER_STARTED, function () {
         console.log(' => Suman runner has started.\n');
     });
     s.on(events.RUNNER_ENDED, function () {
-        console.log('# tests ' + (passes + failures));
-        console.log('# pass ' + passes);
-        console.log('# fail ' + failures);
-        console.log('# stubbed ' + failures);
-        console.log('# skipped ' + failures);
-    });
-    s.on(events.TAP_COMPLETE, function (data) {
+        console.log('# tests ' + (results.passes + results.failures));
+        console.log('# pass ' + results.passes);
+        console.log('# fail ' + results.failures);
+        console.log('# stubbed ' + results.failures);
+        console.log('# skipped ' + results.failures);
     });
     s.on(events.TEST_CASE_END, function (test) {
-        ++n;
+        ++results.n;
     });
     s.on(events.TEST_CASE_FAIL, function (test) {
-        failures++;
-        console.log('not ok %d %s', n, title(test));
+        results.failures++;
+        runAsync(function (cb) {
+            var str = su.customStringify({
+                childId: process.env.SUMAN_CHILD_ID,
+                test: test,
+                type: 'LOG_RESULT',
+            });
+            client.emit('LOG_RESULT', JSON.parse(str), cb);
+        });
     });
     s.on(events.TEST_CASE_PASS, function (test) {
-        passes++;
-        console.log('ok %d %s', n, title(test));
+        results.passes++;
+        runAsync(function (cb) {
+            var str = su.customStringify({
+                childId: process.env.SUMAN_CHILD_ID,
+                test: test,
+                type: 'LOG_RESULT',
+            });
+            client.emit('LOG_RESULT', JSON.parse(str), cb);
+        });
     });
     s.on(events.TEST_CASE_SKIPPED, function (test) {
-        skipped++;
-        console.log('ok %d %s # SKIP -', n, title(test));
+        results.skipped++;
+        runAsync(function (cb) {
+            var str = su.customStringify({
+                childId: process.env.SUMAN_CHILD_ID,
+                test: test,
+                type: 'LOG_RESULT',
+            });
+            client.emit('LOG_RESULT', JSON.parse(str), cb);
+        });
     });
     s.on(events.TEST_CASE_STUBBED, function (test) {
-        stubbed++;
-        console.log('ok %d %s # STUBBED -', n, title(test));
+        results.stubbed++;
+        runAsync(function (cb) {
+            var str = su.customStringify({
+                childId: process.env.SUMAN_CHILD_ID,
+                test: test,
+                type: 'LOG_RESULT',
+            });
+            client.emit('LOG_RESULT', JSON.parse(str), cb);
+        });
     });
-    console.log(' => TAP reporter loaded.');
+    return ret = {
+        results: results,
+        reporterName: reporterName,
+        count: 0,
+        cb: null
+    };
 };

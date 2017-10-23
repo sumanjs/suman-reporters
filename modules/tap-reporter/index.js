@@ -7,6 +7,9 @@ var path = require("path");
 var chalk = require("chalk");
 var suman_events_1 = require("suman-events");
 var _suman = global.__suman = (global.__suman || {});
+var logging_1 = require("../../lib/logging");
+var reporterName = path.basename(__dirname);
+var log = logging_1.getLogger(reporterName);
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
 }
@@ -30,16 +33,14 @@ var onAnyEvent = function () {
 };
 var loaded = false;
 exports.default = function (s, opts) {
-    var reporterName = path.basename(__dirname);
-    var log = console.log.bind(console, " [suman-" + reporterName + "] ");
-    var logError = console.error.bind(console, " [suman-" + reporterName + "] ");
     if (global.__suman.inceptionLevel < 1) {
-        console.log("suman warning, \"" + reporterName + "\": suman inception is 0, we may not need to load this reporter.");
+        console.log("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
     if (loaded) {
-        _suman.logError("Implementation error => \"" + reporterName + "\" loaded more than once.");
+        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
         return;
     }
+    log.info("loading " + reporterName + ".");
     loaded = true;
     var sumanOpts = _suman.sumanOpts;
     var level = _suman.inceptionLevel;

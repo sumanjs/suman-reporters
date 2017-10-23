@@ -34,8 +34,11 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
 
   if (ret) {
     // defensive programming construct, yay
+    log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
     return ret;
   }
+
+  log.info(`loading ${reporterName}.`);
 
   const runAsync = function (fn: Function) {
     ret.count++;
@@ -54,30 +57,33 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
   //TODO: this reporter should be used by the browser only
   //TODO: it should write to stdout *AND* write the same thing to websocket connection
 
-  let n = 0;
-  let passes = 0;
-  let failures = 0;
-  let skipped = 0;
-  let stubbed = 0;
+
+  const results = {
+    n: 0,
+    passes: 0,
+    failures: 0,
+    skipped: 0,
+    stubbed: 0
+  };
 
   s.on(events.RUNNER_STARTED, function () {
     console.log(' => Suman runner has started.\n');
   });
 
   s.on(events.RUNNER_ENDED, function () {
-    console.log('# tests ' + (passes + failures));
-    console.log('# pass ' + passes);
-    console.log('# fail ' + failures);
-    console.log('# stubbed ' + failures);
-    console.log('# skipped ' + failures);
+    console.log('# tests ' + (results.passes + results.failures));
+    console.log('# pass ' + results.passes);
+    console.log('# fail ' + results.failures);
+    console.log('# stubbed ' + results.failures);
+    console.log('# skipped ' + results.failures);
   });
 
   s.on(events.TEST_CASE_END, function (test) {
-    ++n;
+    ++results.n;
   });
 
   s.on(events.TEST_CASE_FAIL, function (test) {
-    failures++;
+    results.failures++;
     runAsync(function (cb: Function) {
       const str = su.customStringify({
         childId: process.env.SUMAN_CHILD_ID,
@@ -89,7 +95,7 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
   });
 
   s.on(events.TEST_CASE_PASS, function (test) {
-    passes++;
+    results.passes++;
     runAsync(function (cb: Function) {
       const str = su.customStringify({
         childId: process.env.SUMAN_CHILD_ID,
@@ -101,7 +107,7 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
   });
 
   s.on(events.TEST_CASE_SKIPPED, function (test) {
-    skipped++;
+    results.skipped++;
     runAsync(function (cb: Function) {
       const str = su.customStringify({
         childId: process.env.SUMAN_CHILD_ID,
@@ -113,7 +119,7 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
   });
 
   s.on(events.TEST_CASE_STUBBED, function (test) {
-    stubbed++;
+    results.stubbed++;
     runAsync(function (cb: Function) {
       const str = su.customStringify({
         childId: process.env.SUMAN_CHILD_ID,
@@ -125,6 +131,7 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
   });
 
   return ret = {
+    results,
     reporterName,
     count: 0,
     cb: null

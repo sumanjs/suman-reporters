@@ -34,12 +34,13 @@ var reporterName = path.basename(__dirname);
 var log = logging_1.getLogger(reporterName);
 exports.default = function (s, opts) {
     if (loaded) {
-        log.error("Suman implementation warning => \"" + reporterName + "\" loaded more than once.");
+        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
         return;
     }
     if (_suman.inceptionLevel < 1) {
-        log.error("warning => \"" + reporterName + "\": suman inception is 0, we may not need to load this reporter.");
+        log.error("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
+    log.info("loading " + reporterName + ".");
     loaded = true;
     var sumanOpts = _suman.sumanOpts;
     var level = _suman.inceptionLevel;

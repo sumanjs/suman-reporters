@@ -64,14 +64,15 @@ const log = getLogger(reporterName);
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
   if (loaded) {
-    log.error(`Suman implementation warning => "${reporterName}" loaded more than once.`);
+    log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
     return;
   }
 
   if (_suman.inceptionLevel < 1) {
-    log.error(`warning => "${reporterName}": suman inception is 0, we may not need to load this reporter.`);
+    log.error(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
   }
 
+  log.info(`loading ${reporterName}.`);
   loaded = true;
   let sumanOpts = _suman.sumanOpts;
   let level = _suman.inceptionLevel;

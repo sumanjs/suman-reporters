@@ -19,6 +19,9 @@ import {events} from 'suman-events';
 
 //project
 const _suman : IGlobalSumanObj = global.__suman = (global.__suman || {});
+import {getLogger} from "../../lib/logging";
+const reporterName = path.basename(__dirname);
+const log = getLogger(reporterName);
 
 ///////////////////////////////////////////////////////////
 
@@ -58,18 +61,16 @@ let loaded = false;
 
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
-  const reporterName = path.basename(__dirname);
-  const log = console.log.bind(console, ` [suman-${reporterName}] `);
-  const logError = console.error.bind(console,` [suman-${reporterName}] `);
-
   if (global.__suman.inceptionLevel < 1) {
-    console.log(`suman warning, "${reporterName}": suman inception is 0, we may not need to load this reporter.`);
+    console.log(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
   }
 
   if (loaded) {
-    _suman.logError(`Implementation error => "${reporterName}" loaded more than once.`);
+    log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
     return;
   }
+
+  log.info(`loading ${reporterName}.`);
 
   loaded = true;
   let sumanOpts = _suman.sumanOpts;

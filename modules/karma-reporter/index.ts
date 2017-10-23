@@ -42,19 +42,26 @@ interface IStringVarargs {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-let testCaseCount = 0;
-let loaded = false;
 let ret: IRet;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) => {
 
-  if (loaded) {
-    log.error('Suman implementation error => reporter loaded more than once.');
-    return;
+  if (ret) {
+    // defensive programming construct, yay
+    return ret;
   }
-  loaded = true;
+
+  const results = {
+    n: 0,
+    passes: 0,
+    failures: 0,
+    skipped: 0,
+    stubbed: 0
+  };
+
+  log.info(`loading ${reporterName}.`);
 
   if (!sumanOpts) {
     sumanOpts = {} as Partial<ISumanOpts>;
@@ -102,23 +109,27 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
   });
 
   s.on(String(events.TEST_CASE_END), function () {
-    testCaseCount++;
+    ++results.n;
   });
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
+    ++results.failures;
     karma.result({id: String(test.testId), skipped: false, success: false, description: test.desc, log: [], suite: []});
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
+    ++results.passes;
     let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
     karma.result({id: String(test.testId), skipped: false, success: true, description: test.desc, log: [], suite: []});
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
+    ++results.skipped;
     karma.result({id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: []});
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
+    ++results.stubbed;
     karma.result({id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: []});
   });
 
@@ -128,13 +139,14 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
   // }, 3000);
 
   return ret = {
+    results,
     reporterName,
     count: 0,
     cb: noop,
     completionHook: function () {
       log.veryGood('calling karma.complete()...');
-      karma.info({total: testCaseCount});
-      karma.complete({total: testCaseCount});
+      karma.info({total: results.n});
+      karma.complete({total: results.n});
     }
   };
 

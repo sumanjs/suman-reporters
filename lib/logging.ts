@@ -6,6 +6,8 @@ import chalk = require('chalk');
 
 export const getLogger = function (reporterName: string) {
 
+  reporterName = reporterName || 'browser-reporting';
+
   return {
     info: console.log.bind(console, ` [suman-${reporterName}] `),
     warning: console.error.bind(console, chalk.yellow(` [suman-${reporterName}] `)),

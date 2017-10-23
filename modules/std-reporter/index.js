@@ -18,10 +18,11 @@ var testCaseCount = 0;
 var loaded = false;
 exports.default = function (s, sumanOpts, expectations) {
     if (loaded) {
-        log.error('Suman implementation error => reporter loaded more than once.');
+        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
         return;
     }
     loaded = true;
+    log.info("loading " + reporterName + ".");
     if (!sumanOpts) {
         sumanOpts = {};
         log.error('Suman implementation warning, no sumanOpts passed to reporter.');

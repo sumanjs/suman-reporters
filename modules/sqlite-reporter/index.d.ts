@@ -1,3 +1,7 @@
 import EventEmitter = NodeJS.EventEmitter;
-declare const _default: (s: EventEmitter, sqlite3: Object) => IRet;
+declare const _default: (s: EventEmitter, sqlite3: Object) => IRet | {
+    reporterName: string;
+    count: number;
+    cb: () => void;
+};
 export default _default;
