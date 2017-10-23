@@ -12,9 +12,11 @@ and the Suman runner will capture the stdout from your child process, and then u
 to report the output in a more human friendly format in the parent process (the Suman runner is the parent process).
 
 
-### Installing
+## Installing
 
-`npm install suman-reporters`
+```bash
+$ npm install suman-reporters
+```
 
 ## Loading reporters
 Suman reporters in this package can be imported like so:
@@ -44,7 +46,7 @@ $ suman --reporter=tap-reporter --reporter=std-reporter
 ```
 
 
-The loading logic is as follows:
+### The loading logic is as follows:
 
 1. First suman will attempt to `require('tap-reporter')`
 2. If the above fails, then it will attempt to `require('suman-reporters/modules/tap-reporter')`
@@ -52,10 +54,10 @@ The loading logic is as follows:
 So for "max efficiency", you could just use this:
 
 ```bash
-suman --reporter=suman-reporters/modules/tap-reporter
+$ suman --reporter=suman-reporters/modules/tap-reporter
 ```
 
-## Anatomy of a Suman compliant reporter:
+## Anatomy of a Suman-compliant reporter:
 
 Export a function, either with `module.exports` or `exports.default`.
 
