@@ -3,7 +3,14 @@
 # Official Suman reporters
 
 This repo contains reporters for both Node.js and the browser. Suman supports asynchronous reporters, so that reporters
-can persist data using async I/O, etc, if they wish.
+can persist data using async I/O, etc, if they wish. 
+
+<br>
+If you are using a language other than JS with the Suman runner: <br>
+what you do is write TAP or TAP-JSON to stdout in the language of your choice,
+and the Suman runner will capture the stdout from your child process, and then use one of these reporters
+to report the output in a more human friendly format in the parent process (the Suman runner is the parent process).
+
 
 ### Installing
 
@@ -12,13 +19,17 @@ can persist data using async I/O, etc, if they wish.
 ## Loading reporters
 Suman reporters in this package can be imported like so:
 
+```typescript
+// typescript
+import r = require('suman-reporters/modules/tap-reporter');
+```
+
 ```js
+// js
 const r = require('suman-reporters/modules/tap-reporter');
 ```
 
-```typescript
-import r = require('suman-reporters/modules/tap-reporter');
-```
+
 
 To use a reporter with the suman command line, the API is like so:
 
@@ -34,7 +45,7 @@ The loading logic is as follows:
 1. First suman will attempt to `require('tap-reporter')`
 2. If the above fails, then it will attempt to `require('suman-reporters/modules/tap-reporter')`
 
-So for "max efficiency", you would just use this:
+So for "max efficiency", you could just use this:
 
 `suman --reporter=suman-reporters/modules/tap-reporter`
 
