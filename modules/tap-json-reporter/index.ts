@@ -4,6 +4,7 @@
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import {ITestDataObj} from "suman-types/dts/it";
 import EventEmitter = NodeJS.EventEmitter;
+import {IRet} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');

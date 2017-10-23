@@ -1,8 +1,9 @@
 'use strict';
 
 //dts
-import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman';
+import {IGlobalSumanObj, ISumanOpts, ITestDataObj} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
+import {IRet} from 'suman-types/dts/reporters';
 
 //core
 import * as util from 'util';

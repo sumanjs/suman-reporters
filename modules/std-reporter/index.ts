@@ -6,6 +6,7 @@ import EventEmitter = NodeJS.EventEmitter;
 import {ITestDataObj} from "suman-types/dts/it";
 import {ISumanChildProcess} from "suman-types/dts/runner";
 import {ITableData} from "suman-types/dts/table-data";
+import {IRet} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');

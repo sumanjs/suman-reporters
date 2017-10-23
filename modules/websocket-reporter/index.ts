@@ -1,7 +1,9 @@
 'use strict';
 //dts
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
+import {IRet} from 'suman-types/dts/reporters';
 import EventEmitter = NodeJS.EventEmitter;
+import {ITestDataObj} from "suman-types/dts/it";
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -53,10 +55,6 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
     });
   };
 
-  //TODO: make a websocket connection with runner
-  //TODO: this reporter should be used by the browser only
-  //TODO: it should write to stdout *AND* write the same thing to websocket connection
-
 
   const results = {
     n: 0,
@@ -78,11 +76,11 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
     console.log('# skipped ' + results.skipped);
   });
 
-  s.on(events.TEST_CASE_END, function (test) {
+  s.on(events.TEST_CASE_END, function (test: ITestDataObj) {
     ++results.n;
   });
 
-  s.on(events.TEST_CASE_FAIL, function (test) {
+  s.on(events.TEST_CASE_FAIL, function (test: ITestDataObj) {
     results.failures++;
     runAsync(function (cb: Function) {
       const str = su.customStringify({
@@ -94,7 +92,7 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
     });
   });
 
-  s.on(events.TEST_CASE_PASS, function (test) {
+  s.on(events.TEST_CASE_PASS, function (test: ITestDataObj) {
     results.passes++;
     runAsync(function (cb: Function) {
       const str = su.customStringify({
@@ -106,7 +104,7 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
     });
   });
 
-  s.on(events.TEST_CASE_SKIPPED, function (test) {
+  s.on(events.TEST_CASE_SKIPPED, function (test: ITestDataObj) {
     results.skipped++;
     runAsync(function (cb: Function) {
       const str = su.customStringify({
@@ -118,7 +116,7 @@ export default (s: EventEmitter, opts: ISumanOpts, expectations: {}, client: Soc
     });
   });
 
-  s.on(events.TEST_CASE_STUBBED, function (test) {
+  s.on(events.TEST_CASE_STUBBED, function (test: ITestDataObj) {
     results.stubbed++;
     runAsync(function (cb: Function) {
       const str = su.customStringify({

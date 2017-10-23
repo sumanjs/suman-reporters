@@ -1,7 +1,10 @@
 'use strict';
 
 //dts
+import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
+import {IRet} from 'suman-types/dts/reporters';
+import {ITestDataObj} from "suman-types/dts/it";
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
