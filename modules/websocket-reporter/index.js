@@ -20,7 +20,7 @@ exports.default = function (s, opts, expectations, client) {
     var runAsync = function (fn) {
         ret.count++;
         fn(function (err) {
-            err && console.error(err.stack || err);
+            err && log.error(err.stack || err);
             ret.count--;
             if (ret.count < 1) {
                 ret.cb && ret.cb();
@@ -38,11 +38,11 @@ exports.default = function (s, opts, expectations, client) {
         console.log(' => Suman runner has started.\n');
     });
     s.on(events.RUNNER_ENDED, function () {
-        console.log('# tests ' + (results.passes + results.failures));
+        console.log('# tests ' + (results.n));
         console.log('# pass ' + results.passes);
         console.log('# fail ' + results.failures);
-        console.log('# stubbed ' + results.failures);
-        console.log('# skipped ' + results.failures);
+        console.log('# stubbed ' + results.stubbed);
+        console.log('# skipped ' + results.skipped);
     });
     s.on(events.TEST_CASE_END, function (test) {
         ++results.n;

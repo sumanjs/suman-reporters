@@ -1,3 +1,4 @@
+import { ISumanOpts } from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
 export interface IExpectedCounts {
     TEST_CASE_FAIL: number;
@@ -5,5 +6,5 @@ export interface IExpectedCounts {
     TEST_CASE_SKIPPED: number;
     TEST_CASE_STUBBED: number;
 }
-declare const _default: (s: EventEmitter, sumanOpts: any, expectations: IExpectedCounts) => void;
+declare const _default: (s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => void;
 export default _default;

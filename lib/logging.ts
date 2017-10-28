@@ -13,7 +13,7 @@ export const getLogger = function (reporterName: string) {
     warning: console.error.bind(console, chalk.yellow(` [suman-${reporterName}] `)),
     error: console.error.bind(console, chalk.red(` [suman-${reporterName}] `)),
     good: console.error.bind(console, chalk.cyan(` [suman-${reporterName}] `)),
-    veryGood: console.error.bind(console, chalk.green(` [suman-${reporterName}] `))
+    veryGood: console.log.bind(console, chalk.green(` [suman-${reporterName}] `))
   }
 
 };

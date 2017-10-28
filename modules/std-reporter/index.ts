@@ -3,6 +3,7 @@
 //dts
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
+import {ITestSuite} from 'suman-types/dts/test-suite';
 import {ITestDataObj} from "suman-types/dts/it";
 import {ISumanChildProcess} from "suman-types/dts/runner";
 import {ITableData} from "suman-types/dts/table-data";
@@ -93,9 +94,14 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
       return typeof data === 'string' ? data : util.inspect(data);
     });
 
+    if(!_suman.isTestMostRecentLog){
+      console.log();  // log a new line
+    }
+
     let amount = currentPaddingCount.val || 0;
     const padding = su.padWithXSpaces(amount);
     console.log.call(console, padding, ...args);
+    _suman.isTestMostRecentLog = true;
   };
 
   let onVerboseEvent = function (data: any, value?: any) {
@@ -106,6 +112,11 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
       }
     }
   };
+
+  s.on(String(events.SUMAN_CONTEXT_BLOCK), function(b: ITestSuite){
+    console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val),
+      chalk.underline.gray.bold.italic(`▶ ${b.desc} ▶▷ `));
+  });
 
   //on error
   s.on(String(events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);

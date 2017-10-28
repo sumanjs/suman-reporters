@@ -49,9 +49,13 @@ exports.default = function (s, sumanOpts, expectations) {
         var args = Array.from(arguments).map(function (data) {
             return typeof data === 'string' ? data : util.inspect(data);
         });
+        if (!_suman.isTestMostRecentLog) {
+            console.log();
+        }
         var amount = currentPaddingCount.val || 0;
         var padding = su.padWithXSpaces(amount);
         (_a = console.log).call.apply(_a, [console, padding].concat(args));
+        _suman.isTestMostRecentLog = true;
         var _a;
     };
     var onVerboseEvent = function (data, value) {
@@ -62,6 +66,9 @@ exports.default = function (s, sumanOpts, expectations) {
             }
         }
     };
+    s.on(String(suman_events_1.events.SUMAN_CONTEXT_BLOCK), function (b) {
+        console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val), chalk.underline.gray.bold.italic("\u25B6 " + b.desc + " \u25B6\u25B7 "));
+    });
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);
     s.on(String(suman_events_1.events.FILE_IS_NOT_DOT_JS), function (dir) {
         onAnyEvent('\n => Warning -> Suman will attempt to execute the following file:\n "' +
