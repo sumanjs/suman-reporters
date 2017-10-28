@@ -38,7 +38,7 @@ exports.default = function (s, opts) {
         return;
     }
     if (_suman.inceptionLevel < 1) {
-        log.error("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
+        log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
     log.info("loading " + reporterName + ".");
     loaded = true;

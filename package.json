@@ -11,14 +11,14 @@
     "url": "git+https://github.com/sumanjs/suman-reporters.git"
   },
   "keywords": [
-    "Suman",
+    "suman",
+    "test runner",
     "sumanjs",
     "reporters",
-    "stdout",
+    "tap-json",
     "tap",
     "test",
-    "anything",
-    "protocol",
+    "test-protocol",
     "tapjs"
   ],
   "author": "Olegzandr VD",

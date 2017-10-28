@@ -34,7 +34,7 @@ var onAnyEvent = function () {
 var loaded = false;
 exports.default = function (s, opts) {
     if (global.__suman.inceptionLevel < 1) {
-        console.log("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
+        log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
     if (loaded) {
         log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
