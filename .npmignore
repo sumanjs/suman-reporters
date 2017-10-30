@@ -3,13 +3,13 @@
 node_modules
 .idea
 test
+scripts
 
 ### files
 .npmignore
 .gitignore
 suman.conf.js
 yarn.lock
-LICENSE.md
 .editorconfig
 
 ### matching files
