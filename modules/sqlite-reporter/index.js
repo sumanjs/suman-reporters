@@ -5,9 +5,9 @@ var global = require('suman-browser-polyfills/modules/global');
 var path = require("path");
 var sqlite3 = require('sqlite3').verbose();
 var suman_events_1 = require("suman-events");
-var logging_1 = require("../../lib/logging");
+var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
-var log = logging_1.getLogger(reporterName);
+var log = utils_1.getLogger(reporterName);
 var p = path.resolve(process.env.HOME + '/.suman/global/node_modules/sqlite3');
 var dbPth = path.resolve(process.env.HOME + '/.suman/db');
 var db = new sqlite3.Database(dbPth, function (err) {
@@ -27,6 +27,7 @@ var noop = function () {
 var ret;
 exports.default = function (s, sqlite3) {
     if (ret) {
+        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
         return ret;
     }
     var runAsync = function (fn) {

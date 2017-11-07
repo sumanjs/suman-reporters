@@ -18,11 +18,13 @@ import * as path from 'path';
 //npm
 import * as chalk from 'chalk';
 import {events} from 'suman-events';
-import * as su from 'suman-utils';
+import su =  require('suman-utils');
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
-import {getLogger} from "../../lib/logging";
+import {getLogger} from "../../lib/utils";
+const reporterName = path.basename(__dirname);
+const log = getLogger(reporterName);
 
 ///////////////////////////////////////////////////////////
 
@@ -56,25 +58,25 @@ let onAnyEvent: IStringVarargs = function () {
   }
 };
 
-let loaded = false;
-const reporterName = path.basename(__dirname);
-const log = getLogger(reporterName);
+let ret: IRet = null;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
 export default (s: EventEmitter, opts: ISumanOpts) => {
 
-  if (loaded) {
+  if (ret) {
     log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
-    return;
+    return ret;
   }
 
   if (_suman.inceptionLevel < 1) {
     log.warning(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
   }
 
-  log.info(`loading ${reporterName}.`);
-  loaded = true;
+  if (su.vgt(5)) {
+    log.info(`loading ${reporterName}.`);
+  }
+
   let sumanOpts = _suman.sumanOpts;
   let level = _suman.inceptionLevel;
 
@@ -149,5 +151,7 @@ export default (s: EventEmitter, opts: ISumanOpts) => {
     }));
 
   });
+
+  return ret = {} as Partial<IRet>
 
 };

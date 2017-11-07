@@ -20,7 +20,7 @@ import su = require('suman-utils');
 
 //project
 import {events} from 'suman-events';
-import {getLogger} from "../../lib/logging";
+import {getLogger} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 
@@ -59,6 +59,7 @@ export default (s: EventEmitter, sqlite3: Object) => {
 
   if (ret) {
     // defensive programming construct, yay
+    log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
     return ret;
   }
 

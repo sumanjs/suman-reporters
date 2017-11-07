@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import EventEmitter = NodeJS.EventEmitter;
 import { IRet } from 'suman-types/dts/reporters';
 declare const _default: (s: EventEmitter, sqlite3: Object) => IRet | {

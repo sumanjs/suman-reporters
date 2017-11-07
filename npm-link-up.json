@@ -10,7 +10,6 @@
   "list": [
     "suman-types",
     "suman-events",
-    "suman-debug",
     "suman-browser-polyfills",
     "suman-utils"
   ]

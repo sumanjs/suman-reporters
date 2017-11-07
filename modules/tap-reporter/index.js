@@ -7,9 +7,9 @@ var path = require("path");
 var chalk = require("chalk");
 var suman_events_1 = require("suman-events");
 var _suman = global.__suman = (global.__suman || {});
-var logging_1 = require("../../lib/logging");
+var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
-var log = logging_1.getLogger(reporterName);
+var log = utils_1.getLogger(reporterName);
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
 }

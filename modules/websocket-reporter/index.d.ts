@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /// <reference types="socket.io-client" />
 import { ISumanOpts } from 'suman-types/dts/global';
 import { IRet } from 'suman-types/dts/reporters';

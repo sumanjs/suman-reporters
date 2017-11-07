@@ -5,16 +5,17 @@ var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
 var assert = require("assert");
 var path = require("path");
+var su = require("suman-utils");
 var _suman = global.__suman = (global.__suman || {});
 var suman_events_1 = require("suman-events");
-var logging_1 = require("../../lib/logging");
+var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
-var log = logging_1.getLogger(reporterName);
+var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
 var noop = function () {
 };
 var ret;
-exports.default = function (s, sumanOpts, expectations) {
+exports.default = function (s, sumanOpts) {
     if (ret) {
         return ret;
     }
@@ -25,7 +26,9 @@ exports.default = function (s, sumanOpts, expectations) {
         skipped: 0,
         stubbed: 0
     };
-    log.info("loading " + reporterName + ".");
+    if (su.vgt(5)) {
+        log.info("loading " + reporterName + ".");
+    }
     if (!sumanOpts) {
         sumanOpts = {};
         log.error('Suman implementation warning, no sumanOpts passed to reporter.');

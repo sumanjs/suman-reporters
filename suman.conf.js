@@ -15,7 +15,7 @@ module.exports = {
   //string
   testDir: 'test',
   testSrcDir: 'test',
-  sumanHelpersDir: '.suman',
+  sumanHelpersDir: 'test/.suman',
   uniqueAppName: '<your-app-name-here>',
   logsDir: process.env['SUMAN_LOGS_DIR'],
 

@@ -24,7 +24,7 @@ import * as chalk from 'chalk';
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
 import {events} from 'suman-events';
-import {getLogger} from "../../lib/logging";
+import {getLogger} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 
@@ -47,7 +47,7 @@ let ret: IRet;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) => {
+export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   if (ret) {
     // defensive programming construct, yay
@@ -62,7 +62,9 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
     stubbed: 0
   };
 
-  log.info(`loading ${reporterName}.`);
+  if (su.vgt(5)) {
+    log.info(`loading ${reporterName}.`);
+  }
 
   if (!sumanOpts) {
     sumanOpts = {} as Partial<ISumanOpts>;
@@ -133,7 +135,6 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
     ++results.stubbed;
     karma.result({id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: []});
   });
-
 
   // setTimeout(function(){
   //   karma.complete();

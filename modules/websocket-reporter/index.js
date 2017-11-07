@@ -6,9 +6,9 @@ var path = require("path");
 var events = require('suman-events').events;
 var su = require("suman-utils");
 var _suman = global.__suman = (global.__suman || {});
-var logging_1 = require("../../lib/logging");
+var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
-var log = logging_1.getLogger(reporterName);
+var log = utils_1.getLogger(reporterName);
 var count = 0;
 var ret;
 exports.default = function (s, opts, expectations, client) {

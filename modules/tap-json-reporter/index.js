@@ -7,7 +7,9 @@ var path = require("path");
 var suman_events_1 = require("suman-events");
 var su = require("suman-utils");
 var _suman = global.__suman = (global.__suman || {});
-var logging_1 = require("../../lib/logging");
+var utils_1 = require("../../lib/utils");
+var reporterName = path.basename(__dirname);
+var log = utils_1.getLogger(reporterName);
 function title(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
 }
@@ -29,19 +31,18 @@ var onAnyEvent = function () {
         return console.log.apply(console, args);
     }
 };
-var loaded = false;
-var reporterName = path.basename(__dirname);
-var log = logging_1.getLogger(reporterName);
+var ret = null;
 exports.default = function (s, opts) {
-    if (loaded) {
+    if (ret) {
         log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
-        return;
+        return ret;
     }
     if (_suman.inceptionLevel < 1) {
         log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
-    log.info("loading " + reporterName + ".");
-    loaded = true;
+    if (su.vgt(5)) {
+        log.info("loading " + reporterName + ".");
+    }
     var sumanOpts = _suman.sumanOpts;
     var level = _suman.inceptionLevel;
     var isColorable = function () {
@@ -108,4 +109,5 @@ exports.default = function (s, opts) {
             dateStarted: test.dateStarted
         }));
     });
+    return ret = {};
 };

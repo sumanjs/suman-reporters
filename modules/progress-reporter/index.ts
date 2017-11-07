@@ -16,14 +16,36 @@ import * as path from 'path';
 //npm
 const ProgressBar = require('progress');
 const {events} = require('suman-events');
+import su = require('suman-utils');
 
-////////////////////////////////////////
+//project
+import {getLogger} from "../../lib/utils";
+const reporterName = path.basename(__dirname);
+const log = getLogger(reporterName);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const onAnyEvent = function (data) {
   process.stdout.write(data);
 };
 
+let ret: IRet;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
+
+  if (ret) {
+    // defensive programming construct, yay
+    log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
+    return ret;
+  }
+
+
+  if (su.vgt(5)) {
+    log.info(`loading ${reporterName}.`);
+  }
+
 
   let progressBar;
 
@@ -61,5 +83,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
   s.on('suite-end', function onRunnerEnd() {
 
   });
+
+  return ret = {} as Partial<IRet>
 
 };

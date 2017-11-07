@@ -21,7 +21,7 @@ import su = require('suman-utils');
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
-import {getLogger} from "../../lib/logging";
+import {getLogger} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 
