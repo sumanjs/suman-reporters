@@ -5,7 +5,7 @@ var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
 var path = require("path");
 var su = require("suman-utils");
-var chalk = require("chalk");
+var chalk_1 = require("chalk");
 var _suman = global.__suman = (global.__suman || {});
 var suman_events_1 = require("suman-events");
 var logging_1 = require("../../lib/logging");
@@ -47,7 +47,7 @@ exports.default = function (s, sumanOpts, expectations) {
             first = false;
         }
         var args = Array.from(arguments).map(function (data) {
-            return typeof data === 'string' ? data : util.inspect(data);
+            return chalk_1.default.bold(typeof data === 'string' ? data : util.inspect(data));
         });
         if (!_suman.isTestMostRecentLog) {
             console.log();
@@ -67,19 +67,19 @@ exports.default = function (s, sumanOpts, expectations) {
         }
     };
     s.on(String(suman_events_1.events.SUMAN_CONTEXT_BLOCK), function (b) {
-        console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val), chalk.underline.gray.bold.italic("\u25B6 " + b.desc + " \u25B6\u25B7 "));
+        console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val), chalk_1.default.underline.gray.bold.italic("\u25B6 " + b.desc + " \u25B6\u25B7 "));
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);
     s.on(String(suman_events_1.events.FILE_IS_NOT_DOT_JS), function (dir) {
         onAnyEvent('\n => Warning -> Suman will attempt to execute the following file:\n "' +
-            chalk.cyan(dir) + '",\n (which is not a .js file).\n');
+            chalk_1.default.cyan(dir) + '",\n (which is not a .js file).\n');
     });
     s.on(String(suman_events_1.events.RUNNER_INITIAL_SET), function (forkedCPs, processes, suites) {
-        onAnyEvent('\n\n\t', chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
+        onAnyEvent('\n\n\t', chalk_1.default.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
             forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' '), '\n');
     });
     s.on(String(suman_events_1.events.RUNNER_OVERALL_SET), function (totalCount, processes, suites, addendum) {
-        onAnyEvent('\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  overall set => '
+        onAnyEvent('\t ' + chalk_1.default.bgBlue.yellow(' => [Suman runner] =>  overall set => '
             + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
     });
     s.on(String(suman_events_1.events.RUNNER_ASCII_LOGO), function (logo) {
@@ -92,25 +92,25 @@ exports.default = function (s, sumanOpts, expectations) {
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         console.log('');
         if (_suman.processIsRunner) {
-            onTestCaseEvent(chalk.bgYellow.black.bold(" [" + testCaseCount + "] \u2718  => test case fail ") + '  \'' +
-                (test.desc || test.name) + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
-                + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
+            onTestCaseEvent(chalk_1.default.bgYellow.black.bold(" [" + testCaseCount + "] \u2718  => test case fail ") + '  \'' +
+                (test.desc || test.name) + '\'\n ' + chalk_1.default.bgWhite.black(' Originating entry test path => ')
+                + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(test.errorDisplay || test.error || ''));
         }
         else {
-            onTestCaseEvent(chalk.bgWhite.black.bold(" [" + testCaseCount + "]  \u2718  => test fail ") + '  "' +
-                (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
+            onTestCaseEvent(chalk_1.default.bgWhite.black.bold(" [" + testCaseCount + "]  \u2718  => test fail ") + '  "' +
+                (test.desc || test.name) + '"\n' + chalk_1.default.yellow.bold(test.errorDisplay || test.error || ''));
         }
         console.log('');
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-        onTestCaseEvent(chalk.green(" [" + testCaseCount + "] " + chalk.bold('✔')) + " '" + (test.desc || test.name) + "' " + timeDiffStr);
+        onTestCaseEvent(chalk_1.default.green(" [" + testCaseCount + "] " + chalk_1.default.bold('✔')) + " '" + (test.desc || test.name) + "' " + timeDiffStr);
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] \u21AA") + " '" + (test.desc || test.name) + "' " + chalk.italic.grey('(skipped)'));
+        onTestCaseEvent(chalk_1.default.yellow(" [" + testCaseCount + "] \u21AA") + " '" + (test.desc || test.name) + "' " + chalk_1.default.italic.grey('(skipped)'));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        onTestCaseEvent(chalk.yellow(" [" + testCaseCount + "] \u2026") + " '" + (test.desc || test.name) + "' " + chalk.italic.grey('(stubbed)'));
+        onTestCaseEvent(chalk_1.default.yellow(" [" + testCaseCount + "] \u2026") + " '" + (test.desc || test.name) + "' " + chalk_1.default.italic.grey('(stubbed)'));
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_SIGNAL), function (signal) {
         onAnyEvent(['<::::::::::::::::::::: Runner Exit Signal => ' + signal + ' ::::::::::::::::::::::::>'].join('\n'));
@@ -121,7 +121,7 @@ exports.default = function (s, sumanOpts, expectations) {
                 ' :::::::::::::::::::::::::::::::::>', '\n'].join('\n'));
     });
     s.on(String(suman_events_1.events.ERRORS_ONLY_OPTION), function () {
-        onVerboseEvent('\n' + chalk.white.green.bold(' => ' + chalk.white.bold('"--errors-only"')
+        onVerboseEvent('\n' + chalk_1.default.white.green.bold(' => ' + chalk_1.default.white.bold('"--errors-only"')
             + ' option used, hopefully you don\'t see much output until the end :) '), '\n');
     });
     s.on(String(suman_events_1.events.USING_SERVER_MARKED_BY_HOSTNAME), onVerboseEvent);
@@ -148,9 +148,9 @@ exports.default = function (s, sumanOpts, expectations) {
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_IS_ZERO), noop);
     s.on(String(suman_events_1.events.RUNNER_TEST_PATHS_CONFIRMATION), function (files) {
         if (sumanOpts.verbosity > 5) {
-            onAnyEvent(['\n ' + chalk.bgBlack.white.bold(' Suman will attempt to execute test files with/within the following paths: '),
+            onAnyEvent(['\n ' + chalk_1.default.bgBlack.white.bold(' Suman will attempt to execute test files with/within the following paths: '),
                 '\n',
-                files.map(function (p, i) { return '\t ' + (i + 1) + ' => ' + chalk.bold('"' + p + '"'); }).join('\n') + '\n\n'].join(''));
+                files.map(function (p, i) { return '\t ' + (i + 1) + ' => ' + chalk_1.default.bold('"' + p + '"'); }).join('\n') + '\n\n'].join(''));
         }
     });
     if (!sumanOpts.no_tables) {
@@ -166,7 +166,7 @@ exports.default = function (s, sumanOpts, expectations) {
         s.on(String(suman_events_1.events.STANDARD_TABLE), function (table, code) {
             console.log('\n\n');
             var str = table.toString();
-            code > 0 ? (str = chalk.yellow.bold(str)) : (str = chalk.gray(str));
+            code > 0 ? (str = chalk_1.default.yellow.bold(str)) : (str = chalk_1.default.gray(str));
             str = '\t' + str;
             console.log(str.replace(/\n/g, '\n\t'));
             console.log('\n');

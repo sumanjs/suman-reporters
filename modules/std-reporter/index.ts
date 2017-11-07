@@ -20,7 +20,7 @@ import * as path from 'path';
 
 //npm
 import su = require("suman-utils");
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
@@ -78,6 +78,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
       return typeof data === 'string' ? data : util.inspect(data);
     });
 
+    // log.info(...args);
     console.log.apply(console, args);
   };
 
@@ -91,7 +92,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts, expectations: Object) =>
     }
 
     const args = Array.from(arguments).map(function (data) {
-      return typeof data === 'string' ? data : util.inspect(data);
+      return chalk.bold(typeof data === 'string' ? data : util.inspect(data));
     });
 
     if(!_suman.isTestMostRecentLog){
