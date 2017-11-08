@@ -1,4 +1,6 @@
 'use strict';
+
+//dts
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
 import {IRet, IRetContainer, IExpectedCounts} from 'suman-types/dts/reporters';

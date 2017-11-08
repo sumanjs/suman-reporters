@@ -7,7 +7,7 @@ import {ITestSuite} from 'suman-types/dts/test-suite';
 import {ITestDataObj} from "suman-types/dts/it";
 import {ISumanChildProcess} from "suman-types/dts/runner";
 import {ITableData} from "suman-types/dts/table-data";
-import {IRet} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IExpectedCounts} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -25,18 +25,11 @@ import chalk from 'chalk';
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
 import {events} from 'suman-events';
-import {getLogger} from "../../lib/utils";
+import {getLogger, wrapReporter} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
-
-////////////////////////////////////////////////////////////////////////
-
 const noColors = process.argv.indexOf('--no-color') > 0;
-
-////////////////////////////////////////////////////////////////////////
-
-const noop = function () {
-};
+const noop = function () {};
 
 interface IStringVarargs {
   (...args: string[]): void;
@@ -45,26 +38,11 @@ interface IStringVarargs {
 /////////////////////////////////////////////////////////////////////////////////////
 
 let testCaseCount = 0;
-let ret: IRet;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
-
-  if (ret) {
-    // defensive programming construct, yay
-    log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
-    return ret;
-  }
-
-  if (su.vgt(5)) {
-    log.info(`loading ${reporterName}.`);
-  }
-
-  if (!sumanOpts) {
-    sumanOpts = {} as Partial<ISumanOpts>;
-    log.error('Suman implementation warning, no sumanOpts passed to reporter.');
-  }
+export const loadReporter = wrapReporter(reporterName,
+  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
 
@@ -107,12 +85,9 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
     _suman.isTestMostRecentLog = true;
   };
 
-  let onVerboseEvent = function (data: any, value?: any) {
-    if (sumanOpts && sumanOpts.verbosity > 6) {
-      process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n');
-      if (value) {
-        process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n');
-      }
+  let onVerboseEvent = function (data: any) {
+    if (su.vgt(6)) {
+      log.info(typeof data === 'string' ? data : util.inspect(data));
     }
   };
 
@@ -154,32 +129,32 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
 
-    console.log(''); //
+    console.log();
 
     if (_suman.processIsRunner) {
       onTestCaseEvent(chalk.bgYellow.black.bold(` [${testCaseCount}] \u2718  => test case fail `) + '  \'' +
         (test.desc || test.name) + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
-        + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
+        + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
     }
     else {
       onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}]  \u2718  => test fail `) + '  "' +
-        (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
+        (test.desc) + '"\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
     }
 
-    console.log('');
+    console.log();
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
     let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-    onTestCaseEvent(`${chalk.green(` [${testCaseCount}] ${chalk.bold('✔')}`)} '${test.desc || test.name}' ${timeDiffStr}`);
+    onTestCaseEvent(`${chalk.green(` [${testCaseCount}] ${chalk.bold('✔')}`)} '${test.desc}' ${timeDiffStr}`);
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    onTestCaseEvent(`${chalk.yellow(` [${testCaseCount}] \u21AA`)} '${test.desc || test.name}' ${chalk.italic.grey('(skipped)')}`);
+    onTestCaseEvent(`${chalk.yellow(` [${testCaseCount}] \u21AA`)} '${test.desc}' ${chalk.italic.grey('(skipped)')}`);
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    onTestCaseEvent(`${chalk.yellow(` [${testCaseCount}] \u2026`)} '${test.desc || test.name}' ${chalk.italic.grey('(stubbed)')}`);
+    onTestCaseEvent(`${chalk.yellow(` [${testCaseCount}] \u2026`)} '${test.desc}' ${chalk.italic.grey('(stubbed)')}`);
   });
 
   s.on(String(events.RUNNER_EXIT_SIGNAL), function (signal: any) {
@@ -194,8 +169,7 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   //on verbose
   s.on(String(events.ERRORS_ONLY_OPTION), function () {
-    onVerboseEvent('\n' + chalk.white.green.bold(' => ' + chalk.white.bold('"--errors-only"')
-      + ' option used, hopefully you don\'t see much output until the end :) '), '\n');
+    onVerboseEvent(chalk.white.green.bold(` => ${chalk.white.bold('"--errors-only"')}  option used, hopefully you don't see much output until the end :) `));
   });
 
   s.on(String(events.USING_SERVER_MARKED_BY_HOSTNAME), onVerboseEvent);
@@ -203,18 +177,18 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
   s.on(String(events.USING_DEFAULT_SERVER), onVerboseEvent);
 
   s.on(String(events.FILENAME_DOES_NOT_MATCH_ANY), function (dir: string) {
-    onVerboseEvent('\n => You may have wanted to run file with this name:' + dir + ', ' +
-      'but it didnt match the regex(es) you passed in as input for "matchAny".');
+    onVerboseEvent(` => You may have wanted to run file/folder with this name: '${chalk.bold(dir)}',\n\t` +
+      `but it didnt match the regex(es) you passed in as input for "matchAny".`);
   });
 
   s.on(String(events.FILENAME_DOES_NOT_MATCH_NONE), function (dir: string) {
-    onVerboseEvent('\n => You may have wanted to run file with this name:' + dir + ', ' +
-      'but it didnt match the regex(es) you passed in as input for "matchNone".');
+    onVerboseEvent(` => You may have wanted to run file/folder with this name: '${chalk.bold(dir)}',\n\t` +
+      `but it didnt match the regex(es) you passed in as input for "matchNone".`);
   });
 
   s.on(String(events.FILENAME_DOES_NOT_MATCH_ALL), function (dir: string) {
-    onVerboseEvent('\n => You may have wanted to run file with this name:' + dir + ',' +
-      ' but it didnt match the regex(es) you passed in as input for "matchAll"');
+    onVerboseEvent(` => You may have wanted to run file/folder with this name: '${chalk.bold(dir)}',\n\t` +
+      `but it didnt match the regex(es) you passed in as input for "matchAll"`);
   });
 
   s.on(String(events.RUNNER_HIT_DIRECTORY_BUT_NOT_RECURSIVE), onVerboseEvent);
@@ -261,6 +235,8 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
   }
 
   // we can add values to ret as needed later
-  return ret = {} as IRet;
+  return retContainer.ret = {} as IRet;
 
-};
+});
+
+export default loadReporter;

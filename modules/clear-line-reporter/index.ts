@@ -23,14 +23,10 @@ import {wrapReporter, getLogger} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 
-function title(test) {
-  return String(test.title || test.desc || test.description).replace(/#/g, '');
-}
+////////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////
-
-export const loadReporter =
-  wrapReporter(reporterName, (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
+export const loadReporter = wrapReporter(reporterName,
+  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
 
 //TODO: allow printing of just one line of results, until a failure
 //readline.clearLine(process.stdout, 0);

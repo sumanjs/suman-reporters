@@ -12,22 +12,9 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
-var noop = function () {
-};
+var noop = function () { };
 var testCaseCount = 0;
-var ret;
-exports.default = function (s, sumanOpts) {
-    if (ret) {
-        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
-        return ret;
-    }
-    if (su.vgt(5)) {
-        log.info("loading " + reporterName + ".");
-    }
-    if (!sumanOpts) {
-        sumanOpts = {};
-        log.error('Suman implementation warning, no sumanOpts passed to reporter.');
-    }
+exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
     var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
     var first = true;
     if (_suman.inceptionLevel > 0) {
@@ -59,12 +46,9 @@ exports.default = function (s, sumanOpts) {
         _suman.isTestMostRecentLog = true;
         var _a;
     };
-    var onVerboseEvent = function (data, value) {
-        if (sumanOpts && sumanOpts.verbosity > 6) {
-            process.stdout.write(' => \n\t' + (typeof data === 'string' ? data : util.inspect(data)) + '\n');
-            if (value) {
-                process.stdout.write(' => \n\t' + (typeof value === 'string' ? value : util.inspect(value)) + '\n');
-            }
+    var onVerboseEvent = function (data) {
+        if (su.vgt(6)) {
+            log.info(typeof data === 'string' ? data : util.inspect(data));
         }
     };
     s.on(String(suman_events_1.events.SUMAN_CONTEXT_BLOCK), function (b) {
@@ -91,27 +75,27 @@ exports.default = function (s, sumanOpts) {
         testCaseCount++;
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
-        console.log('');
+        console.log();
         if (_suman.processIsRunner) {
             onTestCaseEvent(chalk_1.default.bgYellow.black.bold(" [" + testCaseCount + "] \u2718  => test case fail ") + '  \'' +
                 (test.desc || test.name) + '\'\n ' + chalk_1.default.bgWhite.black(' Originating entry test path => ')
-                + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(test.errorDisplay || test.error || ''));
+                + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
         else {
             onTestCaseEvent(chalk_1.default.bgWhite.black.bold(" [" + testCaseCount + "]  \u2718  => test fail ") + '  "' +
-                (test.desc || test.name) + '"\n' + chalk_1.default.yellow.bold(test.errorDisplay || test.error || ''));
+                (test.desc) + '"\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
-        console.log('');
+        console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-        onTestCaseEvent(chalk_1.default.green(" [" + testCaseCount + "] " + chalk_1.default.bold('✔')) + " '" + (test.desc || test.name) + "' " + timeDiffStr);
+        onTestCaseEvent(chalk_1.default.green(" [" + testCaseCount + "] " + chalk_1.default.bold('✔')) + " '" + test.desc + "' " + timeDiffStr);
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        onTestCaseEvent(chalk_1.default.yellow(" [" + testCaseCount + "] \u21AA") + " '" + (test.desc || test.name) + "' " + chalk_1.default.italic.grey('(skipped)'));
+        onTestCaseEvent(chalk_1.default.yellow(" [" + testCaseCount + "] \u21AA") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(skipped)'));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        onTestCaseEvent(chalk_1.default.yellow(" [" + testCaseCount + "] \u2026") + " '" + (test.desc || test.name) + "' " + chalk_1.default.italic.grey('(stubbed)'));
+        onTestCaseEvent(chalk_1.default.yellow(" [" + testCaseCount + "] \u2026") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(stubbed)'));
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_SIGNAL), function (signal) {
         onAnyEvent(['<::::::::::::::::::::: Runner Exit Signal => ' + signal + ' ::::::::::::::::::::::::>'].join('\n'));
@@ -122,23 +106,22 @@ exports.default = function (s, sumanOpts) {
                 ' :::::::::::::::::::::::::::::::::>', '\n'].join('\n'));
     });
     s.on(String(suman_events_1.events.ERRORS_ONLY_OPTION), function () {
-        onVerboseEvent('\n' + chalk_1.default.white.green.bold(' => ' + chalk_1.default.white.bold('"--errors-only"')
-            + ' option used, hopefully you don\'t see much output until the end :) '), '\n');
+        onVerboseEvent(chalk_1.default.white.green.bold(" => " + chalk_1.default.white.bold('"--errors-only"') + "  option used, hopefully you don't see much output until the end :) "));
     });
     s.on(String(suman_events_1.events.USING_SERVER_MARKED_BY_HOSTNAME), onVerboseEvent);
     s.on(String(suman_events_1.events.USING_FALLBACK_SERVER), onVerboseEvent);
     s.on(String(suman_events_1.events.USING_DEFAULT_SERVER), onVerboseEvent);
     s.on(String(suman_events_1.events.FILENAME_DOES_NOT_MATCH_ANY), function (dir) {
-        onVerboseEvent('\n => You may have wanted to run file with this name:' + dir + ', ' +
-            'but it didnt match the regex(es) you passed in as input for "matchAny".');
+        onVerboseEvent(" => You may have wanted to run file/folder with this name: '" + chalk_1.default.bold(dir) + "',\n\t" +
+            "but it didnt match the regex(es) you passed in as input for \"matchAny\".");
     });
     s.on(String(suman_events_1.events.FILENAME_DOES_NOT_MATCH_NONE), function (dir) {
-        onVerboseEvent('\n => You may have wanted to run file with this name:' + dir + ', ' +
-            'but it didnt match the regex(es) you passed in as input for "matchNone".');
+        onVerboseEvent(" => You may have wanted to run file/folder with this name: '" + chalk_1.default.bold(dir) + "',\n\t" +
+            "but it didnt match the regex(es) you passed in as input for \"matchNone\".");
     });
     s.on(String(suman_events_1.events.FILENAME_DOES_NOT_MATCH_ALL), function (dir) {
-        onVerboseEvent('\n => You may have wanted to run file with this name:' + dir + ',' +
-            ' but it didnt match the regex(es) you passed in as input for "matchAll"');
+        onVerboseEvent(" => You may have wanted to run file/folder with this name: '" + chalk_1.default.bold(dir) + "',\n\t" +
+            "but it didnt match the regex(es) you passed in as input for \"matchAll\"");
     });
     s.on(String(suman_events_1.events.RUNNER_HIT_DIRECTORY_BUT_NOT_RECURSIVE), onVerboseEvent);
     s.on(String(suman_events_1.events.RUNNER_STARTED), noop);
@@ -173,5 +156,6 @@ exports.default = function (s, sumanOpts) {
             console.log('\n');
         });
     }
-    return ret = {};
-};
+    return retContainer.ret = {};
+});
+exports.default = exports.loadReporter;

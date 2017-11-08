@@ -30,7 +30,7 @@ const log = getLogger(reporterName);
 const noColors = process.argv.indexOf('--no-color') > 0;
 const noop = function () {};
 
-/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 export const loadReporter = wrapReporter(reporterName,
   (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
