@@ -28,15 +28,8 @@ import {events} from 'suman-events';
 import {getLogger, wrapReporter} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
-
-////////////////////////////////////////////////////////////////////////
-
 const noColors = process.argv.indexOf('--no-color') > 0;
-
-////////////////////////////////////////////////////////////////////////
-
-const noop = function () {
-};
+const noop = function () {};
 
 interface IStringVarargs {
   (...args: string[]): void;
@@ -48,7 +41,8 @@ let testCaseCount = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
+export const loadReporter = wrapReporter(reporterName,
+  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
 
@@ -135,7 +129,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
 
-    console.log(''); //
+    console.log();
 
     if (_suman.processIsRunner) {
       onTestCaseEvent(chalk.bgYellow.black.bold(` [${testCaseCount}] \u2718  => test case fail `) + '  \'' +
@@ -147,7 +141,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
         (test.desc) + '"\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
     }
 
-    console.log('');
+    console.log();
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {

@@ -6,7 +6,7 @@ import EventEmitter = NodeJS.EventEmitter;
 import {ITestDataObj} from "suman-types/dts/it";
 import {ISumanChildProcess} from "suman-types/dts/runner";
 import {ITableData} from "suman-types/dts/table-data";
-import {IRet} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IExpectedCounts} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -24,35 +24,16 @@ import * as chalk from 'chalk';
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
 import {events} from 'suman-events';
-import {getLogger} from "../../lib/utils";
+import {getLogger, wrapReporter} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
-
-////////////////////////////////////////////////////////////////////////
-
 const noColors = process.argv.indexOf('--no-color') > 0;
-
-////////////////////////////////////////////////////////////////////////
-
-const noop = function () {
-};
-
-interface IStringVarargs {
-  (...args: string[]): void;
-}
+const noop = function () {};
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-let ret: IRet;
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
-
-  if (ret) {
-    // defensive programming construct, yay
-    return ret;
-  }
+export const loadReporter = wrapReporter(reporterName,
+  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   const results = {
     n: 0,
@@ -61,15 +42,6 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
     skipped: 0,
     stubbed: 0
   };
-
-  if (su.vgt(5)) {
-    log.info(`loading ${reporterName}.`);
-  }
-
-  if (!sumanOpts) {
-    sumanOpts = {} as Partial<ISumanOpts>;
-    log.error('Suman implementation warning, no sumanOpts passed to reporter.');
-  }
 
   if (_suman.inceptionLevel > 0) {
     log.info(`suman inception level greater than 0.`);
@@ -117,30 +89,58 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
     ++results.failures;
-    karma.result({id: String(test.testId), skipped: false, success: false, description: test.desc, log: [], suite: []});
+    karma.result({
+      id: String(test.testId),
+      skipped: false,
+      success: false,
+      description: test.desc,
+      log: [],
+      suite: []
+    });
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
     ++results.passes;
     let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-    karma.result({id: String(test.testId), skipped: false, success: true, description: test.desc, log: [], suite: []});
+    karma.result({
+      id: String(test.testId),
+      skipped: false,
+      success: true,
+      description: test.desc,
+      log: [],
+      suite: []
+    });
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
     ++results.skipped;
-    karma.result({id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: []});
+    karma.result({
+      id: String(test.testId),
+      skipped: true,
+      success: false,
+      description: test.desc,
+      log: [],
+      suite: []
+    });
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
     ++results.stubbed;
-    karma.result({id: String(test.testId), skipped: true, success: false, description: test.desc, log: [], suite: []});
+    karma.result({
+      id: String(test.testId),
+      skipped: true,
+      success: false,
+      description: test.desc,
+      log: [],
+      suite: []
+    });
   });
 
   // setTimeout(function(){
   //   karma.complete();
   // }, 3000);
 
-  return ret = {
+  return retContainer.ret = {
     results,
     reporterName,
     count: 0,
@@ -152,4 +152,6 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
     }
   };
 
-};
+});
+
+export default loadReporter;

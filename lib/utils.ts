@@ -5,7 +5,7 @@ import su = require('suman-utils');
 import {IRet} from "suman-types/dts/reporters";
 import EventEmitter = NodeJS.EventEmitter;
 import {ISumanOpts} from "suman-types/dts/global";
-import {IExpectedCounts, IReporterLoadFn} from "suman-types/dts/reporters";
+import {IExpectedCounts, IReporterLoadFn, IReporterLoadFnPre} from "suman-types/dts/reporters";
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ export const getLogger = function (reporterName: string) {
 };
 
 
-export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn) {
+export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn): IReporterLoadFnPre {
 
   if(calledReporters[reporterName]){
     throw new Error(`${wrapReporter.name}  called more than once for reporter with name ${reporterName}`);
@@ -46,7 +46,7 @@ export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn)
     ret: null as IRet
   };
 
-  return function (s: EventEmitter, sumanOpts: ISumanOpts, expectations?: IExpectedCounts, client?: SocketIOClient.Socket) : IRet {
+  return function (s, sumanOpts, expectations, client) {
 
     if (retContainer.ret) {
       // defensive programming construct, yay

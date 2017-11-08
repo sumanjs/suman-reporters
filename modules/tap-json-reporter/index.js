@@ -31,64 +31,63 @@ var onAnyEvent = function () {
         return console.log.apply(console, args);
     }
 };
-var ret = null;
-exports.default = function (s, opts) {
-    if (ret) {
-        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
-        return ret;
-    }
+var getTestFilePath = function (test) {
+    return test.testPath || test.filePath || test.filepath || test.testpath;
+};
+var getTestDesc = function (test) {
+    return test.desc || test.title || test.name;
+};
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
     if (_suman.inceptionLevel < 1) {
         log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
-    if (su.vgt(5)) {
-        log.info("loading " + reporterName + ".");
-    }
-    var sumanOpts = _suman.sumanOpts;
     var level = _suman.inceptionLevel;
     var isColorable = function () {
         return level < 1 && !sumanOpts.no_color;
     };
-    var n = 0;
-    var passes = 0;
-    var failures = 0;
-    var skipped = 0;
-    var stubbed = 0;
+    var results = {
+        n: 0,
+        passes: 0,
+        failures: 0,
+        skipped: 0,
+        stubbed: 0
+    };
     s.on(String(suman_events_1.events.TEST_CASE_END), function (test) {
-        ++n;
+        ++results.n;
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
-        failures++;
+        results.failures++;
         console.log(su.customStringify({
             '@tap-json': true,
             ok: false,
-            desc: test.desc || test.title || test.name,
-            filePath: test.testPath || test.filePath,
+            desc: getTestDesc(test),
+            filePath: getTestFilePath(test),
             error: test.errorDisplay || test.error,
-            id: n,
+            id: results.n,
             dateComplete: test.dateComplete,
             dateStarted: test.dateStarted
         }));
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
-        passes++;
+        results.passes++;
         console.log(su.customStringify({
             '@tap-json': true,
             ok: true,
-            filePath: test.testPath || test.filePath,
-            desc: test.desc || test.title || test.name,
-            id: n,
+            desc: getTestDesc(test),
+            filePath: getTestFilePath(test),
+            id: results.n,
             dateComplete: test.dateComplete,
             dateStarted: test.dateStarted
         }));
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        skipped++;
+        results.skipped++;
         console.log(su.customStringify({
             '@tap-json': true,
             ok: true,
-            desc: test.desc || test.title || test.name,
-            filePath: test.testPath || test.filePath,
-            id: n,
+            desc: getTestDesc(test),
+            filePath: getTestFilePath(test),
+            id: results.n,
             skipped: true,
             skip: true,
             dateComplete: test.dateComplete,
@@ -96,18 +95,21 @@ exports.default = function (s, opts) {
         }));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        stubbed++;
+        results.stubbed++;
         console.log(su.customStringify({
             '@tap-json': true,
             ok: true,
-            desc: test.desc || test.title || test.name,
-            filePath: test.testPath || test.filePath,
-            id: n,
+            desc: getTestDesc(test),
+            filePath: getTestFilePath(test),
+            id: results.n,
             stubbed: true,
             todo: true,
             dateComplete: test.dateComplete,
             dateStarted: test.dateStarted
         }));
     });
-    return ret = {};
-};
+    return retContainer.ret = {
+        results: results
+    };
+});
+exports.default = exports.loadreporter;

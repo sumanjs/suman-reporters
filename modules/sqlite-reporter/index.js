@@ -25,11 +25,14 @@ db.configure('busyTimeout', 4000);
 var noop = function () {
 };
 var ret;
-exports.default = function (s, sqlite3) {
-    if (ret) {
-        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
-        return ret;
-    }
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts, expectations) {
+    var results = {
+        n: 0,
+        passes: 0,
+        failures: 0,
+        skipped: 0,
+        stubbed: 0
+    };
     var runAsync = function (fn) {
         ret.count++;
         fn(function (err) {
@@ -129,9 +132,11 @@ exports.default = function (s, sqlite3) {
             });
         });
     });
-    return ret = {
+    return retContainer.ret = {
+        results: results,
         reporterName: reporterName,
         count: 0,
         cb: noop
     };
-};
+});
+exports.default = exports.loadreporter;

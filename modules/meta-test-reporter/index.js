@@ -11,7 +11,6 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
-var count = 0;
 var results = {
     TEST_CASE_FAIL: 0,
     TEST_CASE_PASS: 0,

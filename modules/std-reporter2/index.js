@@ -12,8 +12,7 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
-var noop = function () {
-};
+var noop = function () { };
 var testCaseCount = 0;
 exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
     var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
@@ -76,7 +75,7 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         testCaseCount++;
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
-        console.log('');
+        console.log();
         if (_suman.processIsRunner) {
             onTestCaseEvent(chalk_1.default.bgYellow.black.bold(" [" + testCaseCount + "] \u2718  => test case fail ") + '  \'' +
                 (test.desc || test.name) + '\'\n ' + chalk_1.default.bgWhite.black(' Originating entry test path => ')
@@ -86,7 +85,7 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
             onTestCaseEvent(chalk_1.default.bgWhite.black.bold(" [" + testCaseCount + "]  \u2718  => test fail ") + '  "' +
                 (test.desc) + '"\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
-        console.log('');
+        console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');

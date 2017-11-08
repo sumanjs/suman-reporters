@@ -23,14 +23,8 @@ import isEqual = require('lodash.isequal');
 import {getLogger, wrapReporter} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
-
-////////////////////////////////////////////////////////////////////////
-
 const noColors = process.argv.indexOf('--no-color') > 0;
 
-///////////////////////////////////////////////////////////////////////////////
-
-let count = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,9 +36,8 @@ const results: IExpectedCounts = {
 };
 
 
-//README: note that just for reference, all events are included here; many are noop'ed because of this
-export const loadreporter =
-  wrapReporter(reporterName, (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
+export const loadreporter = wrapReporter(reporterName,
+  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
 
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {

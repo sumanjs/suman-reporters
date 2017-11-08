@@ -3,7 +3,7 @@
 //dts
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
-import {IRet} from 'suman-types/dts/reporters';
+import {IRet, IExpectedCounts, IRetContainer} from 'suman-types/dts/reporters';
 import {ITestDataObj} from "suman-types/dts/it";
 
 //polyfills
@@ -20,7 +20,7 @@ import su = require('suman-utils');
 
 //project
 import {events} from 'suman-events';
-import {getLogger} from "../../lib/utils";
+import {getLogger, wrapReporter} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 
@@ -55,128 +55,134 @@ let ret: IRet;
 
 /////////////////////////////////////////////////////////////
 
-export default (s: EventEmitter, sqlite3: Object) => {
+export const loadreporter = wrapReporter(reporterName,
+  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
 
-  if (ret) {
-    // defensive programming construct, yay
-    log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
-    return ret;
-  }
+    const results = {
+      n: 0,
+      passes: 0,
+      failures: 0,
+      skipped: 0,
+      stubbed: 0
+    };
 
-  const runAsync = function (fn: Function) {
-    ret.count++;
-    fn(function (err: Error) {
-      err && console.error(err.stack || err);
-      ret.count--;
-      if (ret.count < 1) {
-        // ret.cb starts off as a noop, but the suman framework
-        // will reassign the value in the future and it will signal that we are done
-        ret.cb();
-      }
-    });
-  };
-
-  const runPromise = function (promise: Promise<any>) {
-    ret.count++;
-    return promise
-    .catch(err => err && console.error(err.stack || err))
-    .then(function () {
-      ret.count--;
-      ret.count < 1 && ret.cb();
-    });
-  };
-
-  s.on(String(events.FATAL_TEST_ERROR), function (val: any) {
-
-    runAsync(function (cb: Function) {
-      db.serialize(function () {
-        db.run('CREATE TABLE lorem (info TEXT)');
-        let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-        for (let i = 0; i < 10; i++) {
-          stmt.run('Ipsum ' + i);
+    const runAsync = function (fn: Function) {
+      ret.count++;
+      fn(function (err: Error) {
+        err && console.error(err.stack || err);
+        ret.count--;
+        if (ret.count < 1) {
+          // ret.cb starts off as a noop, but the suman framework
+          // will reassign the value in the future and it will signal that we are done
+          ret.cb();
         }
-        stmt.finalize();
-        db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          log.info('rows count => ', rows.length);
-          cb()
+      });
+    };
+
+    const runPromise = function (promise: Promise<any>) {
+      ret.count++;
+      return promise
+      .catch(err => err && console.error(err.stack || err))
+      .then(function () {
+        ret.count--;
+        ret.count < 1 && ret.cb();
+      });
+    };
+
+    s.on(String(events.FATAL_TEST_ERROR), function (val: any) {
+
+      runAsync(function (cb: Function) {
+        db.serialize(function () {
+          db.run('CREATE TABLE lorem (info TEXT)');
+          let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+          for (let i = 0; i < 10; i++) {
+            stmt.run('Ipsum ' + i);
+          }
+          stmt.finalize();
+          db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
+            log.info('rows count => ', rows.length);
+            cb()
+          });
         });
       });
     });
-  });
 
-  s.on(String(events.TEST_CASE_END), function (val: any) {
-    runAsync(function (cb: Function) {
-      db.serialize(function () {
-        db.run('CREATE TABLE lorem (info TEXT)');
-        let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-        for (let i = 0; i < 1; i++) {
-          stmt.run('Ipsum ' + i);
-        }
-        stmt.finalize();
-        db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          log.info('rows count => ', rows.length);
-          cb()
+    s.on(String(events.TEST_CASE_END), function (val: any) {
+      runAsync(function (cb: Function) {
+        db.serialize(function () {
+          db.run('CREATE TABLE lorem (info TEXT)');
+          let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+          for (let i = 0; i < 1; i++) {
+            stmt.run('Ipsum ' + i);
+          }
+          stmt.finalize();
+          db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
+            log.info('rows count => ', rows.length);
+            cb()
+          });
         });
       });
     });
-  });
 
-  s.on(String(events.TEST_CASE_PASS), function (val: any) {
-    runAsync(function (cb: Function) {
-      db.serialize(function () {
-        db.run('CREATE TABLE lorem (info TEXT)');
-        let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-        for (let i = 0; i < 1; i++) {
-          stmt.run('Ipsum ' + i);
-        }
-        stmt.finalize();
-        db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          log.info('rows count => ', rows.length);
-          cb()
+    s.on(String(events.TEST_CASE_PASS), function (val: any) {
+      runAsync(function (cb: Function) {
+        db.serialize(function () {
+          db.run('CREATE TABLE lorem (info TEXT)');
+          let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+          for (let i = 0; i < 1; i++) {
+            stmt.run('Ipsum ' + i);
+          }
+          stmt.finalize();
+          db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
+            log.info('rows count => ', rows.length);
+            cb()
+          });
         });
-      });
 
-    });
-  });
-
-  s.on(String(events.TEST_CASE_SKIPPED), function (val: any) {
-    runAsync(function (cb: Function) {
-      db.serialize(function () {
-        db.run('CREATE TABLE lorem (info TEXT)');
-        let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-        for (let i = 0; i < 1; i++) {
-          stmt.run('Ipsum ' + i);
-        }
-        stmt.finalize();
-        db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          log.info('rows count => ', rows.length);
-          cb()
-        });
       });
     });
-  });
 
-  s.on(String(events.TEST_CASE_STUBBED), function (val: any) {
-    runAsync(function (cb: Function) {
-      db.serialize(function () {
-        db.run('CREATE TABLE lorem (info TEXT)');
-        let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-        for (let i = 0; i < 1; i++) {
-          stmt.run('Ipsum ' + i);
-        }
-        stmt.finalize();
-        db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
-          log.info('rows count => ', rows.length);
-          cb()
+    s.on(String(events.TEST_CASE_SKIPPED), function (val: any) {
+      runAsync(function (cb: Function) {
+        db.serialize(function () {
+          db.run('CREATE TABLE lorem (info TEXT)');
+          let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+          for (let i = 0; i < 1; i++) {
+            stmt.run('Ipsum ' + i);
+          }
+          stmt.finalize();
+          db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
+            log.info('rows count => ', rows.length);
+            cb()
+          });
         });
       });
     });
+
+    s.on(String(events.TEST_CASE_STUBBED), function (val: any) {
+      runAsync(function (cb: Function) {
+        db.serialize(function () {
+          db.run('CREATE TABLE lorem (info TEXT)');
+          let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+          for (let i = 0; i < 1; i++) {
+            stmt.run('Ipsum ' + i);
+          }
+          stmt.finalize();
+          db.all('SELECT rowid AS id, info FROM lorem', function (err: Error, rows: Array<any>) {
+            log.info('rows count => ', rows.length);
+            cb()
+          });
+        });
+      });
+    });
+
+    return retContainer.ret = {
+      results,
+      reporterName,
+      count: 0,
+      cb: noop
+    };
+
   });
 
-  return ret = {
-    reporterName,
-    count: 0,
-    cb: noop
-  };
-
-};
+export default loadreporter;

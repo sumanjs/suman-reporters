@@ -9,21 +9,14 @@ var _suman = global.__suman = (global.__suman || {});
 var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
-var count = 0;
-var ret;
-exports.default = function (s, opts, expectations, client) {
-    if (ret) {
-        log.warning("implementation warning => \"" + reporterName + "\" loaded more than once.");
-        return ret;
-    }
-    log.info("loading " + reporterName + ".");
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, opts, expectations, client) {
     var runAsync = function (fn) {
-        ret.count++;
+        retContainer.ret.count++;
         fn(function (err) {
             err && log.error(err.stack || err);
-            ret.count--;
-            if (ret.count < 1) {
-                ret.cb && ret.cb();
+            retContainer.ret.count--;
+            if (retContainer.ret.count < 1) {
+                retContainer.ret.cb && retContainer.ret.cb();
             }
         });
     };
@@ -91,10 +84,11 @@ exports.default = function (s, opts, expectations, client) {
             client.emit('LOG_RESULT', JSON.parse(str), cb);
         });
     });
-    return ret = {
+    return retContainer.ret = {
         results: results,
         reporterName: reporterName,
         count: 0,
         cb: null
     };
-};
+});
+exports.default = exports.loadreporter;
