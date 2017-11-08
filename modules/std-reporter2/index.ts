@@ -140,11 +140,11 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     if (_suman.processIsRunner) {
       onTestCaseEvent(chalk.bgYellow.black.bold(` [${testCaseCount}] \u2718  => test case fail `) + '  \'' +
         (test.desc || test.name) + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
-        + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
+        + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
     }
     else {
       onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}]  \u2718  => test fail `) + '  "' +
-        (test.desc || test.name) + '"\n' + chalk.yellow.bold(test.errorDisplay || test.error || ''));
+        (test.desc) + '"\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
     }
 
     console.log('');

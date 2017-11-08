@@ -3,7 +3,7 @@
 //dts
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
-import {IRet} from 'suman-types/dts/reporters';
+import {IRet, IExpectedCounts, IRetContainer} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -19,6 +19,9 @@ const {events} = require('suman-events');
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
+import {wrapReporter, getLogger} from "../../lib/utils";
+const reporterName = path.basename(__dirname);
+const log = getLogger(reporterName);
 
 function title(test) {
   return String(test.title || test.desc || test.description).replace(/#/g, '');
@@ -26,11 +29,17 @@ function title(test) {
 
 //////////////////////////////////////////////////////////
 
-export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
+export const loadReporter =
+  wrapReporter(reporterName, (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
 
 //TODO: allow printing of just one line of results, until a failure
 //readline.clearLine(process.stdout, 0);
 //process.stdout.write('\r' + chalk.green('Pass count: ' + successCount));
 
-};
 
+  return retContainer.ret = {} as IRet;
+
+});
+
+
+export default loadReporter;

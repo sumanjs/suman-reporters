@@ -46,7 +46,7 @@ export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn)
     ret: null as IRet
   };
 
-  return function (s: EventEmitter, sumanOpts: ISumanOpts, expectations?: IExpectedCounts, client?: SocketIOClient.Socket) {
+  return function (s: EventEmitter, sumanOpts: ISumanOpts, expectations?: IExpectedCounts, client?: SocketIOClient.Socket) : IRet {
 
     if (retContainer.ret) {
       // defensive programming construct, yay
@@ -59,7 +59,7 @@ export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn)
     }
 
     if (!sumanOpts) {
-      sumanOpts = {} as Partial<ISumanOpts>;
+      sumanOpts = {} as ISumanOpts;
       log.error('Suman implementation warning, no sumanOpts passed to reporter.');
     }
 

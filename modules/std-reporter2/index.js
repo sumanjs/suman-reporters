@@ -80,11 +80,11 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         if (_suman.processIsRunner) {
             onTestCaseEvent(chalk_1.default.bgYellow.black.bold(" [" + testCaseCount + "] \u2718  => test case fail ") + '  \'' +
                 (test.desc || test.name) + '\'\n ' + chalk_1.default.bgWhite.black(' Originating entry test path => ')
-                + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(test.errorDisplay || test.error || ''));
+                + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
         else {
             onTestCaseEvent(chalk_1.default.bgWhite.black.bold(" [" + testCaseCount + "]  \u2718  => test fail ") + '  "' +
-                (test.desc || test.name) + '"\n' + chalk_1.default.yellow.bold(test.errorDisplay || test.error || ''));
+                (test.desc) + '"\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
         console.log('');
     });

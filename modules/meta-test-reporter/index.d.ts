@@ -1,6 +1,7 @@
 /// <reference types="node" />
+/// <reference types="socket.io-client" />
 import { ISumanOpts } from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
-import { IExpectedCounts } from "suman-types/dts/reporters";
-declare const _default: (s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => void;
-export default _default;
+import { IRet, IExpectedCounts } from 'suman-types/dts/reporters';
+export declare const loadreporter: (s: EventEmitter, sumanOpts: ISumanOpts, expectations?: IExpectedCounts, client?: SocketIOClient.Socket) => IRet;
+export default loadreporter;
