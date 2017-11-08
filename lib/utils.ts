@@ -7,7 +7,6 @@ import EventEmitter = NodeJS.EventEmitter;
 import {ISumanOpts} from "suman-types/dts/global";
 import {IExpectedCounts, IReporterLoadFn, IReporterLoadFnPre} from "suman-types/dts/reporters";
 
-
 /////////////////////////////////////////////////////////////////////////////////////
 
 const loggers = {} as any;
@@ -15,7 +14,7 @@ const calledReporters = {} as any;
 
 export const getLogger = function (reporterName: string) {
 
-  if(loggers[reporterName]){
+  if (loggers[reporterName]) {
     return loggers[reporterName];
   }
 
@@ -32,11 +31,10 @@ export const getLogger = function (reporterName: string) {
 
 };
 
-
 export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn): IReporterLoadFnPre {
 
-  if(calledReporters[reporterName]){
-    throw new Error(`${wrapReporter.name}  called more than once for reporter with name ${reporterName}`);
+  if (calledReporters[reporterName]) {
+    throw new Error(`"${wrapReporter.name}" called more than once for reporter with name ${reporterName}`);
   }
 
   calledReporters[reporterName] = true;
@@ -63,9 +61,7 @@ export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn)
       log.error('Suman implementation warning, no sumanOpts passed to reporter.');
     }
 
-
     return fn.apply(null, [retContainer, s, sumanOpts, expectations, client]);
-
   }
 
 };
