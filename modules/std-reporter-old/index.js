@@ -173,5 +173,7 @@ exports.default = function (s, sumanOpts) {
             console.log('\n');
         });
     }
-    return ret = {};
+    return ret = {
+        reporterName: reporterName
+    };
 };

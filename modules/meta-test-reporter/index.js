@@ -40,6 +40,8 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
             process.exit(1);
         }
     });
-    return retContainer.ret = {};
+    return retContainer.ret = {
+        reporterName: reporterName
+    };
 });
 exports.default = exports.loadreporter;

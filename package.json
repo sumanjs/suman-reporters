@@ -30,6 +30,7 @@
   "dependencies": {
     "chalk": "^2.0.1",
     "lodash.isequal": "^4.5.0",
+    "progress": "^2.0.0",
     "suman-browser-polyfills": "latest",
     "suman-events": "latest",
     "suman-utils": "latest"

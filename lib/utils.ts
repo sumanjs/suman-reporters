@@ -18,15 +18,15 @@ export const getLogger = function (reporterName: string) {
     return loggers[reporterName];
   }
 
-  reporterName = reporterName || 'browser-reporting';
+  reporterName = reporterName || `browser-reporting`;
+  let stdReporterName = ` [suman '${reporterName}'] `;
 
   return loggers[reporterName] = {
-    reporterName: reporterName,
-    info: console.log.bind(console, chalk.gray.bold(` [suman @${reporterName}] `)),
-    warning: console.error.bind(console, chalk.yellow(` [suman @${reporterName}] `)),
-    error: console.error.bind(console, chalk.red(` [suman @${reporterName}] `)),
-    good: console.error.bind(console, chalk.cyan(` [suman @${reporterName}] `)),
-    veryGood: console.log.bind(console, chalk.green(` [suman @${reporterName}] `))
+    info: console.log.bind(console, chalk.gray.bold(stdReporterName)),
+    warning: console.error.bind(console, chalk.yellow(stdReporterName)),
+    error: console.error.bind(console, chalk.red(stdReporterName)),
+    good: console.error.bind(console, chalk.cyan(stdReporterName)),
+    veryGood: console.log.bind(console, chalk.green(stdReporterName))
   }
 
 };

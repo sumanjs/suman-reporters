@@ -122,6 +122,9 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
             onAnyEvent(overallResultsTableString.replace(/\n/g, '\n\t') + '\n\n');
         });
     }
-    return retContainer.ret = { results: results };
+    return retContainer.ret = {
+        reporterName: reporterName,
+        results: results
+    };
 });
 exports.default = exports.loadreporter;

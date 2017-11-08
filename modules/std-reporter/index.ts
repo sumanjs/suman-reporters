@@ -191,6 +191,10 @@ export const loadReporter = wrapReporter(reporterName,
       `but it didnt match the regex(es) you passed in as input for "matchAll"`);
   });
 
+  s.on(String(events.RUNNER_SAYS_FILE_HAS_JUST_STARTED_RUNNING), function(file: string){
+    log.info(chalk.black('File has just started running =>'), chalk.grey.bold(`'${file}'`));
+  });
+
   s.on(String(events.RUNNER_HIT_DIRECTORY_BUT_NOT_RECURSIVE), onVerboseEvent);
 
   //ignore these
@@ -235,7 +239,9 @@ export const loadReporter = wrapReporter(reporterName,
   }
 
   // we can add values to ret as needed later
-  return retContainer.ret = {} as IRet;
+  return retContainer.ret = {
+    reporterName
+  } as IRet;
 
 });
 

@@ -123,6 +123,9 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         onVerboseEvent(" => You may have wanted to run file/folder with this name: '" + chalk_1.default.bold(dir) + "',\n\t" +
             "but it didnt match the regex(es) you passed in as input for \"matchAll\"");
     });
+    s.on(String(suman_events_1.events.RUNNER_SAYS_FILE_HAS_JUST_STARTED_RUNNING), function (file) {
+        log.info(chalk_1.default.black('File has just started running =>'), chalk_1.default.grey.bold("'" + file + "'"));
+    });
     s.on(String(suman_events_1.events.RUNNER_HIT_DIRECTORY_BUT_NOT_RECURSIVE), onVerboseEvent);
     s.on(String(suman_events_1.events.RUNNER_STARTED), noop);
     s.on(String(suman_events_1.events.RUNNER_ENDED), noop);
@@ -156,6 +159,8 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
             console.log('\n');
         });
     }
-    return retContainer.ret = {};
+    return retContainer.ret = {
+        reporterName: reporterName
+    };
 });
 exports.default = exports.loadReporter;

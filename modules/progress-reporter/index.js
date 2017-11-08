@@ -9,31 +9,33 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 var onAnyEvent = function (data) {
-    process.stdout.write(data);
+    process.stdout.write(String(data));
 };
 exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts, expectations) {
     var progressBar;
     s.on(events.RUNNER_STARTED, function onRunnerStart(totalNumTests) {
-        console.log('\n');
+        log.info('runner has started.');
         progressBar = new ProgressBar(' => progress [:bar] :percent :current :token1 :token2', {
             total: totalNumTests,
             width: 120
         });
     });
-    s.on(events.TEST_FILE_CHILD_PROCESS_EXITED, function onTestEnd(d) {
+    s.on(String(events.TEST_FILE_CHILD_PROCESS_EXITED), function onTestEnd(d) {
+        if (!progressBar) {
+            log.error('progress bar was not yet initialized.');
+            return;
+        }
         progressBar.tick({
             'token1': "",
             'token2': ""
         });
     });
-    s.on(events.RUNNER_EXIT_CODE, onAnyEvent);
+    s.on(String(events.RUNNER_EXIT_CODE), onAnyEvent);
     s.on(events.RUNNER_ENDED, function onRunnerEnd() {
-        console.log('\n => Runner end event fired.');
+        log.good('Runner has ended.');
     });
-    s.on('suite-skipped', function onRunnerEnd() {
-    });
-    s.on('suite-end', function onRunnerEnd() {
-    });
-    return retContainer.ret = {};
+    return retContainer.ret = {
+        reporterName: reporterName
+    };
 });
 exports.default = exports.loadreporter;

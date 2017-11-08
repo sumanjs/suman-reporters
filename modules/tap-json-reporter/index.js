@@ -109,6 +109,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         }));
     });
     return retContainer.ret = {
+        reporterName: reporterName,
         results: results
     };
 });

@@ -176,7 +176,10 @@ export const loadreporter = wrapReporter(reporterName,
 
     }
 
-    return retContainer.ret = {results} as IRet;
+    return retContainer.ret = {
+      reporterName,
+      results
+    } as IRet;
 
   });
 

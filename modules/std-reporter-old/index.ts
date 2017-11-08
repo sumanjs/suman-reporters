@@ -261,6 +261,8 @@ export default (s: EventEmitter, sumanOpts: ISumanOpts) => {
   }
 
   // we can add values to ret as needed later
-  return ret = {} as IRet;
+  return ret = {
+    reporterName
+  } as IRet;
 
 };

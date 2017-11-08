@@ -33,7 +33,9 @@ export const loadReporter = wrapReporter(reporterName,
 //process.stdout.write('\r' + chalk.green('Pass count: ' + successCount));
 
 
-  return retContainer.ret = {} as IRet;
+  return retContainer.ret = {
+    reporterName
+  } as IRet;
 
 });
 

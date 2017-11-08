@@ -9,6 +9,8 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
-    return retContainer.ret = {};
+    return retContainer.ret = {
+        reporterName: reporterName
+    };
 });
 exports.default = exports.loadReporter;

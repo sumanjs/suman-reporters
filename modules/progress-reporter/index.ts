@@ -28,7 +28,7 @@ const log = getLogger(reporterName);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const onAnyEvent = function (data: string) {
-  process.stdout.write(data);
+  process.stdout.write(String(data));
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,17 +39,20 @@ export const loadreporter = wrapReporter(reporterName,
     let progressBar: any;
 
     s.on(events.RUNNER_STARTED, function onRunnerStart(totalNumTests) {
-
-      console.log('\n');
-
+      log.info('runner has started.');
       progressBar = new ProgressBar(' => progress [:bar] :percent :current :token1 :token2', {
-          total: totalNumTests,
-          width: 120
-        }
-      );
+        total: totalNumTests,
+        width: 120
+      });
     });
 
-    s.on(events.TEST_FILE_CHILD_PROCESS_EXITED, function onTestEnd(d) {
+    s.on(String(events.TEST_FILE_CHILD_PROCESS_EXITED), function onTestEnd(d) {
+
+      if (!progressBar) {
+        log.error('progress bar was not yet initialized.');
+        return;
+      }
+
       // process.stdout.write('\n\n');
       // process.stdout.write(' Test finished with exit code = ' + d.exitCode + ' => path => ' + d.testPath);
       // process.stdout.write('\n\n');
@@ -59,21 +62,15 @@ export const loadreporter = wrapReporter(reporterName,
       });
     });
 
-    s.on(events.RUNNER_EXIT_CODE, onAnyEvent);
+    s.on(String(events.RUNNER_EXIT_CODE), onAnyEvent);
 
     s.on(events.RUNNER_ENDED, function onRunnerEnd() {
-      console.log('\n => Runner end event fired.');
+      log.good('Runner has ended.');
     });
 
-    s.on('suite-skipped', function onRunnerEnd() {
-
-    });
-
-    s.on('suite-end', function onRunnerEnd() {
-
-    });
-
-    return retContainer.ret = {} as IRet
+    return retContainer.ret = {
+      reporterName
+    } as IRet
 
   });
 
