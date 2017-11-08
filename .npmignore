@@ -4,6 +4,8 @@ node_modules
 .idea
 test
 scripts
+.vscode
+.vs_code
 
 ### files
 .npmignore
