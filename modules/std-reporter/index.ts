@@ -7,7 +7,7 @@ import {ITestSuite} from 'suman-types/dts/test-suite';
 import {ITestDataObj} from "suman-types/dts/it";
 import {ISumanChildProcess} from "suman-types/dts/runner";
 import {ITableData} from "suman-types/dts/table-data";
-import {IRet, IRetContainer, IExpectedCounts} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IExpectedCounts, IResultsObj} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -29,22 +29,19 @@ import {getLogger, wrapReporter} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 const noColors = process.argv.indexOf('--no-color') > 0;
-const noop = function () {};
+const noop = function () {
+};
 
 interface IStringVarargs {
   (...args: string[]): void;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 
-let testCaseCount = 0;
+export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj,
+                                                        s: EventEmitter, sumanOpts: ISumanOpts) => {
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-export const loadReporter = wrapReporter(reporterName,
-  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
-
-  const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
+  const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {val: 0};
 
   let first = true;
 
@@ -124,20 +121,21 @@ export const loadReporter = wrapReporter(reporterName,
   s.on(String(events.FATAL_TEST_ERROR), onAnyEvent);
 
   s.on(String(events.TEST_CASE_END), function () {
-    testCaseCount++;
+    results.n++;
   });
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
+    results.failures++;
 
     console.log();
 
     if (_suman.processIsRunner) {
-      onTestCaseEvent(chalk.bgYellow.black.bold(` [${testCaseCount}] \u2718  => test case fail `) + '  \'' +
+      onTestCaseEvent(chalk.bgYellow.black.bold(` [${results.n}] \u2718  => test case fail `) + '  \'' +
         (test.desc || test.name) + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
         + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
     }
     else {
-      onTestCaseEvent(chalk.bgWhite.black.bold(` [${testCaseCount}]  \u2718  => test fail `) + '  "' +
+      onTestCaseEvent(chalk.bgWhite.black.bold(` [${results.n}]  \u2718  => test fail `) + '  "' +
         (test.desc) + '"\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
     }
 
@@ -145,16 +143,19 @@ export const loadReporter = wrapReporter(reporterName,
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
+    results.passes++;
     let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-    onTestCaseEvent(`${chalk.green(` [${testCaseCount}] ${chalk.bold('✔')}`)} '${test.desc}' ${timeDiffStr}`);
+    onTestCaseEvent(`${chalk.green(` [${results.n}] ${chalk.bold('✔')}`)} '${test.desc}' ${timeDiffStr}`);
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    onTestCaseEvent(`${chalk.yellow(` [${testCaseCount}] \u21AA`)} '${test.desc}' ${chalk.italic.grey('(skipped)')}`);
+    results.skipped++;
+    onTestCaseEvent(`${chalk.yellow(` [${results.n}] \u21AA`)} '${test.desc}' ${chalk.italic.grey('(skipped)')}`);
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    onTestCaseEvent(`${chalk.yellow(` [${testCaseCount}] \u2026`)} '${test.desc}' ${chalk.italic.grey('(stubbed)')}`);
+    results.stubbed++;
+    onTestCaseEvent(`${chalk.yellow(` [${results.n}] \u2026`)} '${test.desc}' ${chalk.italic.grey('(stubbed)')}`);
   });
 
   s.on(String(events.RUNNER_EXIT_SIGNAL), function (signal: any) {
@@ -191,7 +192,7 @@ export const loadReporter = wrapReporter(reporterName,
       `but it didnt match the regex(es) you passed in as input for "matchAll"`);
   });
 
-  s.on(String(events.RUNNER_SAYS_FILE_HAS_JUST_STARTED_RUNNING), function(file: string){
+  s.on(String(events.RUNNER_SAYS_FILE_HAS_JUST_STARTED_RUNNING), function (file: string) {
     log.info(chalk.black('File has just started running =>'), chalk.grey.bold(`'${file}'`));
   });
 
@@ -239,9 +240,10 @@ export const loadReporter = wrapReporter(reporterName,
   }
 
   // we can add values to ret as needed later
-  return retContainer.ret = {
+  return retContainer.ret = <IRet>{
+    results,
     reporterName
-  } as IRet;
+  };
 
 });
 

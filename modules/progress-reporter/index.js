@@ -11,7 +11,7 @@ var log = utils_1.getLogger(reporterName);
 var onAnyEvent = function (data) {
     process.stdout.write(String(data));
 };
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts, expectations) {
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts, expectations) {
     var progressBar;
     s.on(events.RUNNER_STARTED, function onRunnerStart(totalNumTests) {
         log.info('runner has started.');

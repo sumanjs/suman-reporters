@@ -12,10 +12,10 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
-var noop = function () { };
-var testCaseCount = 0;
-exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
-    var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {};
+var noop = function () {
+};
+exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
+    var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || { val: 0 };
     var first = true;
     if (_suman.inceptionLevel > 0) {
         log.info("suman inception level greater than 0.");
@@ -72,30 +72,34 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
     });
     s.on(String(suman_events_1.events.FATAL_TEST_ERROR), onAnyEvent);
     s.on(String(suman_events_1.events.TEST_CASE_END), function () {
-        testCaseCount++;
+        results.n++;
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
+        results.failures++;
         console.log();
         if (_suman.processIsRunner) {
-            onTestCaseEvent(chalk_1.default.bgYellow.black.bold(" [" + testCaseCount + "] \u2718  => test case fail ") + '  \'' +
+            onTestCaseEvent(chalk_1.default.bgYellow.black.bold(" [" + results.n + "] \u2718  => test case fail ") + '  \'' +
                 (test.desc || test.name) + '\'\n ' + chalk_1.default.bgWhite.black(' Originating entry test path => ')
                 + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
         else {
-            onTestCaseEvent(chalk_1.default.bgWhite.black.bold(" [" + testCaseCount + "]  \u2718  => test fail ") + '  "' +
+            onTestCaseEvent(chalk_1.default.bgWhite.black.bold(" [" + results.n + "]  \u2718  => test fail ") + '  "' +
                 (test.desc) + '"\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
         console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
+        results.passes++;
         var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-        onTestCaseEvent(chalk_1.default.green(" [" + testCaseCount + "] " + chalk_1.default.bold('✔')) + " '" + test.desc + "' " + timeDiffStr);
+        onTestCaseEvent(chalk_1.default.green(" [" + results.n + "] " + chalk_1.default.bold('✔')) + " '" + test.desc + "' " + timeDiffStr);
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        onTestCaseEvent(chalk_1.default.yellow(" [" + testCaseCount + "] \u21AA") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(skipped)'));
+        results.skipped++;
+        onTestCaseEvent(chalk_1.default.yellow(" [" + results.n + "] \u21AA") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(skipped)'));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        onTestCaseEvent(chalk_1.default.yellow(" [" + testCaseCount + "] \u2026") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(stubbed)'));
+        results.stubbed++;
+        onTestCaseEvent(chalk_1.default.yellow(" [" + results.n + "] \u2026") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(stubbed)'));
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_SIGNAL), function (signal) {
         onAnyEvent(['<::::::::::::::::::::: Runner Exit Signal => ' + signal + ' ::::::::::::::::::::::::>'].join('\n'));
@@ -160,6 +164,7 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         });
     }
     return retContainer.ret = {
+        results: results,
         reporterName: reporterName
     };
 });

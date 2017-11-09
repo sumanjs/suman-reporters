@@ -3,7 +3,7 @@
 //dts
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
-import {IRet, IRetContainer, IExpectedCounts} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IExpectedCounts, IResultsObj} from 'suman-types/dts/reporters';
 import {ITestDataObj} from "suman-types/dts/it";
 
 //polyfills
@@ -25,46 +25,34 @@ const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 const noColors = process.argv.indexOf('--no-color') > 0;
 
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-const results: IExpectedCounts = {
-  TEST_CASE_FAIL: 0,
-  TEST_CASE_PASS: 0,
-  TEST_CASE_SKIPPED: 0,
-  TEST_CASE_STUBBED: 0
-};
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
-
-export const loadreporter = wrapReporter(reporterName,
-  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
-
-
-  s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
-    results.TEST_CASE_FAIL++;
-  });
+export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj, s: EventEmitter,
+                                                        sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
-    results.TEST_CASE_PASS++;
+    results.passes++;
+  });
+
+  s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
+    results.failures++;
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    results.TEST_CASE_SKIPPED++;
+    results.skipped++;
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    results.TEST_CASE_STUBBED++;
+    results.stubbed++;
   });
 
   s.on(String(events.META_TEST_ENDED), function (test: ITestDataObj) {
 
-    console.log('META_TEST_ENDED => ', test);
+    log.info('Suman "META_TEST_ENDED" event ', test);
 
     try {
       assert(isEqual(results, expectations), 'expectations and results are not equal.');
+      log.veryGood('Suman "meta-test-reporter" has passed its primary test. Good news.');
     }
     catch (err) {
       console.error(err.stack || err);
@@ -73,11 +61,10 @@ export const loadreporter = wrapReporter(reporterName,
 
   });
 
-
-  return retContainer.ret = {
+  return retContainer.ret = <IRet>{
+    results,
     reporterName
-  } as IRet;
-
+  };
 
 });
 

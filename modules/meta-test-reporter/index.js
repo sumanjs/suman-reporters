@@ -11,29 +11,24 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
-var results = {
-    TEST_CASE_FAIL: 0,
-    TEST_CASE_PASS: 0,
-    TEST_CASE_SKIPPED: 0,
-    TEST_CASE_STUBBED: 0
-};
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts, expectations) {
-    s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
-        results.TEST_CASE_FAIL++;
-    });
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts, expectations) {
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
-        results.TEST_CASE_PASS++;
+        results.passes++;
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
+        results.failures++;
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        results.TEST_CASE_SKIPPED++;
+        results.skipped++;
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        results.TEST_CASE_STUBBED++;
+        results.stubbed++;
     });
     s.on(String(suman_events_1.events.META_TEST_ENDED), function (test) {
-        console.log('META_TEST_ENDED => ', test);
+        log.info('Suman "META_TEST_ENDED" event ', test);
         try {
             assert(isEqual(results, expectations), 'expectations and results are not equal.');
+            log.veryGood('Suman "meta-test-reporter" has passed its primary test. Good news.');
         }
         catch (err) {
             console.error(err.stack || err);
@@ -41,6 +36,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         }
     });
     return retContainer.ret = {
+        results: results,
         reporterName: reporterName
     };
 });

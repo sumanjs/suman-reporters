@@ -11,7 +11,7 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 function getCleanTitle(test) {
-    return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
+    return String(test.title || test.desc || test.description || test.name).replace(/#/g, '').trim();
 }
 function logDebug() {
     var debug;
@@ -31,20 +31,13 @@ var onAnyEvent = function () {
         return console.log.apply(console, args);
     }
 };
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
     if (global.__suman.inceptionLevel < 1) {
         log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
     var level = _suman.inceptionLevel;
     var isColorable = function () {
         return level < 1 && !sumanOpts.no_color;
-    };
-    var results = {
-        n: 0,
-        passes: 0,
-        failures: 0,
-        skipped: 0,
-        stubbed: 0
     };
     s.on(String(suman_events_1.events.RUNNER_INITIAL_SET), function (forkedCPs, processes, suites) {
         onAnyEvent('\n\n\t ' + chalk_1.default.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
@@ -58,7 +51,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         onAnyEvent('\n\n' + logo + '\n\n');
     });
     s.on(String(suman_events_1.events.RUNNER_STARTED), function () {
-        _suman.log.info('Suman runner has started.\n');
+        _suman.log.info('Suman runner has started.');
     });
     s.on(String(suman_events_1.events.RUNNER_ENDED), function () {
         console.log('# tests ' + (results.passes + results.failures));
@@ -68,10 +61,10 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         console.log('# skipped ' + results.failures);
     });
     s.on(String(suman_events_1.events.TAP_COMPLETE), function (data) {
-        console.log('all TAP input received.');
+        log.info('All TAP input received.');
     });
     s.on(String(suman_events_1.events.TEST_CASE_END), function (test) {
-        ++results.n;
+        results.n++;
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         results.failures++;

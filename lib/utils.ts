@@ -44,6 +44,7 @@ export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn)
     ret: null as IRet
   };
 
+
   return function (s, sumanOpts, expectations, client) {
 
     if (retContainer.ret) {
@@ -51,6 +52,14 @@ export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn)
       log.warning(`implementation warning => "${reporterName}" loaded more than once.`);
       return retContainer.ret;
     }
+
+    const results = {
+      n: 0,
+      passes: 0,
+      failures: 0,
+      skipped: 0,
+      stubbed: 0
+    };
 
     if (su.vgt(5)) {
       log.info(`loading ${reporterName}.`);
@@ -61,7 +70,7 @@ export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn)
       log.error('Suman implementation warning, no sumanOpts passed to reporter.');
     }
 
-    return fn.apply(null, [retContainer, s, sumanOpts, expectations, client]);
+    return fn.apply(null, [retContainer, results, s, sumanOpts, expectations, client]);
   }
 
 };

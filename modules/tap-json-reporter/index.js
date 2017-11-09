@@ -11,7 +11,7 @@ var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 function title(test) {
-    return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
+    return String(test.title || test.desc || test.description || test.name).replace(/#/g, '').trim();
 }
 var logDebug = function () {
     var debug;
@@ -32,25 +32,18 @@ var onAnyEvent = function () {
     }
 };
 var getTestFilePath = function (test) {
-    return test.testPath || test.filePath || test.filepath || test.testpath;
+    return String(test.testPath || test.filePath || test.filepath || test.testpath).trim();
 };
 var getTestDesc = function (test) {
-    return test.desc || test.title || test.name;
+    return String(test.desc || test.title || test.name).trim();
 };
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
     if (_suman.inceptionLevel < 1) {
         log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
     var level = _suman.inceptionLevel;
     var isColorable = function () {
         return level < 1 && !sumanOpts.no_color;
-    };
-    var results = {
-        n: 0,
-        passes: 0,
-        failures: 0,
-        skipped: 0,
-        stubbed: 0
     };
     s.on(String(suman_events_1.events.TEST_CASE_END), function (test) {
         ++results.n;

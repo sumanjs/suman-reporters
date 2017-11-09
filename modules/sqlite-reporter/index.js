@@ -24,32 +24,24 @@ db.on('error', function (err) {
 db.configure('busyTimeout', 4000);
 var noop = function () {
 };
-var ret;
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts, expectations) {
-    var results = {
-        n: 0,
-        passes: 0,
-        failures: 0,
-        skipped: 0,
-        stubbed: 0
-    };
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts, expectations) {
     var runAsync = function (fn) {
-        ret.count++;
+        retContainer.ret.count++;
         fn(function (err) {
-            err && console.error(err.stack || err);
-            ret.count--;
-            if (ret.count < 1) {
-                ret.cb();
+            err && log.error(err.stack || err);
+            retContainer.ret.count--;
+            if (retContainer.ret.count < 1) {
+                retContainer.ret.cb();
             }
         });
     };
     var runPromise = function (promise) {
-        ret.count++;
+        retContainer.ret.count++;
         return promise
-            .catch(function (err) { return err && console.error(err.stack || err); })
+            .catch(function (err) { return err && log.error(err.stack || err); })
             .then(function () {
-            ret.count--;
-            ret.count < 1 && ret.cb();
+            retContainer.ret.count--;
+            retContainer.ret.count < 1 && retContainer.ret.cb();
         });
     };
     s.on(String(suman_events_1.events.FATAL_TEST_ERROR), function (val) {

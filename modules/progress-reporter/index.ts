@@ -3,7 +3,7 @@
 //dts
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import EventEmitter = NodeJS.EventEmitter;
-import {IRet, IRetContainer, IExpectedCounts} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IExpectedCounts, IResultsObj} from 'suman-types/dts/reporters';
 import {ITestDataObj} from "suman-types/dts/it";
 
 //polyfills
@@ -34,7 +34,7 @@ const onAnyEvent = function (data: string) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const loadreporter = wrapReporter(reporterName,
-  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
+  (retContainer: IRetContainer, results: IResultsObj, s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
 
     let progressBar: any;
 
@@ -68,9 +68,9 @@ export const loadreporter = wrapReporter(reporterName,
       log.good('Runner has ended.');
     });
 
-    return retContainer.ret = {
+    return retContainer.ret = <IRet>{
       reporterName
-    } as IRet
+    };
 
   });
 

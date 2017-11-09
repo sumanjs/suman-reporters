@@ -9,7 +9,7 @@ var _suman = global.__suman = (global.__suman || {});
 var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, s, opts, expectations, client) {
+exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, opts, expectations, client) {
     var runAsync = function (fn) {
         retContainer.ret.count++;
         fn(function (err) {
@@ -20,15 +20,8 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
             }
         });
     };
-    var results = {
-        n: 0,
-        passes: 0,
-        failures: 0,
-        skipped: 0,
-        stubbed: 0
-    };
     s.on(events.RUNNER_STARTED, function () {
-        console.log(' => Suman runner has started.\n');
+        log.info('Suman runner has started.\n');
     });
     s.on(events.RUNNER_ENDED, function () {
         console.log('# tests ' + (results.n));

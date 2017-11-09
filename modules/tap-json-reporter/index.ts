@@ -4,7 +4,7 @@
 import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import {ITestDataObj} from "suman-types/dts/it";
 import EventEmitter = NodeJS.EventEmitter;
-import {IRet, IRetContainer, IExpectedCounts} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IExpectedCounts, IResultsObj} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -29,7 +29,7 @@ const log = getLogger(reporterName);
 ///////////////////////////////////////////////////////////
 
 function title(test: ITestDataObj) {
-  return String(test.title || test.desc || test.description || test.name).replace(/#/g, '');
+  return String(test.title || test.desc || test.description || test.name).replace(/#/g, '').trim();
 }
 
 //////////////////////////////////////////////////////////
@@ -58,104 +58,96 @@ let onAnyEvent: IStringVarargs = function () {
   }
 };
 
-let getTestFilePath = function(test: ITestDataObj){
-  return test.testPath || test.filePath || test.filepath || test.testpath;
+let getTestFilePath = function (test: ITestDataObj) {
+  return String(test.testPath || test.filePath || test.filepath || test.testpath).trim();
 };
 
-let getTestDesc = function(test: ITestDataObj){
- return test.desc || test.title || test.name;
+let getTestDesc = function (test: ITestDataObj) {
+  return String(test.desc || test.title || test.name).trim();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-export const loadreporter = wrapReporter(reporterName,
-  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
+export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj,
+                                                        s: EventEmitter, sumanOpts: ISumanOpts) => {
 
-    if (_suman.inceptionLevel < 1) {
-      log.warning(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
-    }
+  if (_suman.inceptionLevel < 1) {
+    log.warning(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
+  }
 
-    let level = _suman.inceptionLevel;
+  let level = _suman.inceptionLevel;
 
-    let isColorable = function (): boolean {
-      return level < 1 && !sumanOpts.no_color;
-    };
+  let isColorable = function (): boolean {
+    return level < 1 && !sumanOpts.no_color;
+  };
 
-    const results = {
-      n: 0,
-      passes: 0,
-      failures: 0,
-      skipped: 0,
-      stubbed: 0
-    };
+  s.on(String(events.TEST_CASE_END), function (test: ITestDataObj) {
+    ++results.n;
+  });
 
-    s.on(String(events.TEST_CASE_END), function (test: ITestDataObj) {
-      ++results.n;
-    });
+  s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
+    results.failures++;
+    console.log(su.customStringify({
+      '@tap-json': true,
+      ok: false,
+      desc: getTestDesc(test),
+      filePath: getTestFilePath(test),
+      error: test.errorDisplay || test.error,
+      id: results.n,
+      dateComplete: test.dateComplete,
+      dateStarted: test.dateStarted
+    }));
+  });
 
-    s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
-      results.failures++;
-      console.log(su.customStringify({
-        '@tap-json': true,
-        ok: false,
-        desc: getTestDesc(test),
-        filePath: getTestFilePath(test),
-        error: test.errorDisplay || test.error,
-        id: results.n,
-        dateComplete: test.dateComplete,
-        dateStarted: test.dateStarted
-      }));
-    });
+  s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
+    results.passes++;
+    console.log(su.customStringify({
+      '@tap-json': true,
+      ok: true,
+      desc: getTestDesc(test),
+      filePath: getTestFilePath(test),
+      id: results.n,
+      dateComplete: test.dateComplete,
+      dateStarted: test.dateStarted
+    }));
+  });
 
-    s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
-      results.passes++;
-      console.log(su.customStringify({
-        '@tap-json': true,
-        ok: true,
-        desc: getTestDesc(test),
-        filePath: getTestFilePath(test),
-        id: results.n,
-        dateComplete: test.dateComplete,
-        dateStarted: test.dateStarted
-      }));
-    });
+  s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
+    results.skipped++;
+    console.log(su.customStringify({
+      '@tap-json': true,
+      ok: true,
+      desc: getTestDesc(test),
+      filePath: getTestFilePath(test),
+      id: results.n,
+      skipped: true,
+      skip: true,
+      dateComplete: test.dateComplete,
+      dateStarted: test.dateStarted
+    }));
+  });
 
-    s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-      results.skipped++;
-      console.log(su.customStringify({
-        '@tap-json': true,
-        ok: true,
-        desc: getTestDesc(test),
-        filePath: getTestFilePath(test),
-        id: results.n,
-        skipped: true,
-        skip: true,
-        dateComplete: test.dateComplete,
-        dateStarted: test.dateStarted
-      }));
-    });
-
-    s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-      results.stubbed++;
-      console.log(su.customStringify({
-        '@tap-json': true,
-        ok: true,
-        desc: getTestDesc(test),
-        filePath: getTestFilePath(test),
-        id: results.n,
-        stubbed: true,
-        todo: true,
-        dateComplete: test.dateComplete,
-        dateStarted: test.dateStarted
-      }));
-
-    });
-
-    return retContainer.ret = {
-      reporterName,
-      results
-    } as IRet;
+  s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
+    results.stubbed++;
+    console.log(su.customStringify({
+      '@tap-json': true,
+      ok: true,
+      desc: getTestDesc(test),
+      filePath: getTestFilePath(test),
+      id: results.n,
+      stubbed: true,
+      todo: true,
+      dateComplete: test.dateComplete,
+      dateStarted: test.dateStarted
+    }));
 
   });
+
+  return retContainer.ret = <IRet>{
+    reporterName,
+    results
+  };
+
+});
 
 export default loadreporter;
