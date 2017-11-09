@@ -40,10 +40,13 @@ export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn)
   calledReporters[reporterName] = true;
   const log = getLogger(reporterName);
 
+  if (su.vgt(5)) {
+    log.info(`file was loaded for reporter with name '${reporterName}'.`)
+  }
+
   const retContainer = {
     ret: null as IRet
   };
-
 
   return function (s, sumanOpts, expectations, client) {
 

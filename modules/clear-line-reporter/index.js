@@ -8,8 +8,9 @@ var _suman = global.__suman = (global.__suman || {});
 var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
-exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
+exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
     return retContainer.ret = {
+        results: results,
         reporterName: reporterName
     };
 });
