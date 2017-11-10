@@ -52,7 +52,10 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         }
     };
     s.on(String(suman_events_1.events.SUMAN_CONTEXT_BLOCK), function (b) {
-        console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val), chalk_1.default.underline.gray.bold.italic("\u25B6 " + b.desc + " \u25B6\u25B7 "));
+        console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val), chalk_1.default.gray.bold.italic(" \u25B6 group: '" + b.desc + "' \u25B6 "));
+    });
+    s.on(String(suman_events_1.events.SUMAN_CONTEXT_BLOCK_TAP_JSON), function (b) {
+        console.log('\n', su.padWithXSpaces(b.padding), chalk_1.default.gray.bold.italic(b.message));
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);
     s.on(String(suman_events_1.events.FILE_IS_NOT_DOT_JS), function (dir) {
@@ -100,6 +103,28 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
         results.stubbed++;
         onTestCaseEvent(chalk_1.default.yellow(" [" + results.n + "] \u2026") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(stubbed)'));
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_FAIL_TAP_JSON), function (d) {
+        results.failures++;
+        var padding = su.padWithXSpaces(d.padding || 0);
+        console.log();
+        console.log.call(console, padding, ' => test case fail tap json', d.testCase.desc);
+        console.log();
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_PASS_TAP_JSON), function (d) {
+        results.passes++;
+        var padding = su.padWithXSpaces(d.padding || 0);
+        console.log.call(console, padding, ' => test case pass tap json', d.testCase.desc);
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_SKIPPED_TAP_JSON), function (d) {
+        results.skipped++;
+        var padding = su.padWithXSpaces(d.padding || 0);
+        console.log.call(console, padding, ' => test case skip tap json', d.testCase.desc);
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_STUBBED_TAP_JSON), function (d) {
+        results.stubbed++;
+        var padding = su.padWithXSpaces(d.padding || 0);
+        console.log.call(console, padding, '  => test case stubbed tap json', d.testCase.desc);
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_SIGNAL), function (signal) {
         onAnyEvent(['<::::::::::::::::::::: Runner Exit Signal => ' + signal + ' ::::::::::::::::::::::::>'].join('\n'));

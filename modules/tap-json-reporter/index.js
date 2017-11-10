@@ -6,6 +6,7 @@ var util = require("util");
 var path = require("path");
 var suman_events_1 = require("suman-events");
 var su = require("suman-utils");
+var jsonStdio = require("json-stdio");
 var _suman = global.__suman = (global.__suman || {});
 var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
@@ -45,62 +46,110 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
     var isColorable = function () {
         return level < 1 && !sumanOpts.no_color;
     };
+    var getPaddingCount = function () {
+        return _suman.currentPaddingCount ? _suman.currentPaddingCount.val || 0 : 0;
+    };
+    var getTAPJSONType = function (eventName) {
+        return String(eventName) + '_TAP_JSON';
+    };
+    {
+        var eventName_1 = String(suman_events_1.events.SUMAN_CONTEXT_BLOCK);
+        s.on(eventName_1, function (b) {
+            jsonStdio.logToStdout({
+                messageType: getTAPJSONType(eventName_1),
+                padding: getPaddingCount(),
+                message: " \u25B6 group: '" + b.desc + "' \u25B6 "
+            });
+        });
+    }
     s.on(String(suman_events_1.events.TEST_CASE_END), function (test) {
         ++results.n;
     });
-    s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
-        results.failures++;
-        console.log(su.customStringify({
-            '@tap-json': true,
-            ok: false,
-            desc: getTestDesc(test),
-            filePath: getTestFilePath(test),
-            error: test.errorDisplay || test.error,
-            id: results.n,
-            dateComplete: test.dateComplete,
-            dateStarted: test.dateStarted
-        }));
-    });
-    s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
-        results.passes++;
-        console.log(su.customStringify({
-            '@tap-json': true,
-            ok: true,
-            desc: getTestDesc(test),
-            filePath: getTestFilePath(test),
-            id: results.n,
-            dateComplete: test.dateComplete,
-            dateStarted: test.dateStarted
-        }));
-    });
-    s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        results.skipped++;
-        console.log(su.customStringify({
-            '@tap-json': true,
-            ok: true,
-            desc: getTestDesc(test),
-            filePath: getTestFilePath(test),
-            id: results.n,
-            skipped: true,
-            skip: true,
-            dateComplete: test.dateComplete,
-            dateStarted: test.dateStarted
-        }));
-    });
-    s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        results.stubbed++;
-        console.log(su.customStringify({
-            '@tap-json': true,
-            ok: true,
-            desc: getTestDesc(test),
-            filePath: getTestFilePath(test),
-            id: results.n,
-            stubbed: true,
-            todo: true,
-            dateComplete: test.dateComplete,
-            dateStarted: test.dateStarted
-        }));
-    });
+    {
+        var eventName_2 = String(suman_events_1.events.TEST_CASE_FAIL);
+        s.on(eventName_2, function (test) {
+            results.failures++;
+            console.log(su.customStringify({
+                '@tap-json': true,
+                '@json-stdio': true,
+                messageType: getTAPJSONType(eventName_2),
+                padding: getPaddingCount(),
+                testCase: {
+                    ok: false,
+                    desc: getTestDesc(test),
+                    filePath: getTestFilePath(test),
+                    error: test.errorDisplay || test.error,
+                    id: results.n,
+                    dateComplete: test.dateComplete,
+                    dateStarted: test.dateStarted
+                }
+            }));
+        });
+    }
+    {
+        var eventName_3 = String(suman_events_1.events.TEST_CASE_PASS);
+        s.on(eventName_3, function (test) {
+            results.passes++;
+            console.log(su.customStringify({
+                '@tap-json': true,
+                '@json-stdio': true,
+                messageType: getTAPJSONType(eventName_3),
+                padding: getPaddingCount(),
+                testCase: {
+                    ok: true,
+                    desc: getTestDesc(test),
+                    filePath: getTestFilePath(test),
+                    id: results.n,
+                    dateComplete: test.dateComplete,
+                    dateStarted: test.dateStarted
+                }
+            }));
+        });
+    }
+    {
+        var eventName_4 = String(suman_events_1.events.TEST_CASE_SKIPPED);
+        s.on(eventName_4, function (test) {
+            results.skipped++;
+            console.log(su.customStringify({
+                '@tap-json': true,
+                '@json-stdio': true,
+                messageType: getTAPJSONType(eventName_4),
+                padding: getPaddingCount(),
+                testCase: {
+                    ok: true,
+                    desc: getTestDesc(test),
+                    filePath: getTestFilePath(test),
+                    id: results.n,
+                    skipped: true,
+                    skip: true,
+                    dateComplete: test.dateComplete,
+                    dateStarted: test.dateStarted
+                }
+            }));
+        });
+    }
+    {
+        var eventName_5 = String(suman_events_1.events.TEST_CASE_STUBBED);
+        s.on(eventName_5, function (test) {
+            results.stubbed++;
+            console.log(su.customStringify({
+                '@tap-json': true,
+                '@json-stdio': true,
+                padding: getPaddingCount(),
+                messageType: getTAPJSONType(eventName_5),
+                testCase: {
+                    ok: true,
+                    desc: getTestDesc(test),
+                    filePath: getTestFilePath(test),
+                    id: results.n,
+                    stubbed: true,
+                    todo: true,
+                    dateComplete: test.dateComplete,
+                    dateStarted: test.dateStarted
+                }
+            }));
+        });
+    }
     return retContainer.ret = {
         reporterName: reporterName,
         results: results

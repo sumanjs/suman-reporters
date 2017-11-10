@@ -29,6 +29,7 @@
   "homepage": "https://github.com/sumanjs/suman-reporters#readme",
   "dependencies": {
     "chalk": "^2.0.1",
+    "json-stdio": "latest",
     "lodash.isequal": "^4.5.0",
     "progress": "^2.0.0",
     "suman-browser-polyfills": "latest",

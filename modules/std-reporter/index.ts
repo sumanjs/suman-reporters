@@ -7,7 +7,7 @@ import {ITestSuite} from 'suman-types/dts/test-suite';
 import {ITestDataObj} from "suman-types/dts/it";
 import {ISumanChildProcess} from "suman-types/dts/runner";
 import {ITableData} from "suman-types/dts/table-data";
-import {IRet, IRetContainer, IExpectedCounts, IResultsObj} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IExpectedCounts, IResultsObj, ITAPJSONTestCase} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -90,7 +90,11 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
 
   s.on(String(events.SUMAN_CONTEXT_BLOCK), function (b: ITestSuite) {
     console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val),
-      chalk.underline.gray.bold.italic(`▶ ${b.desc} ▶▷ `));
+      chalk.gray.bold.italic(` ▶ group: '${b.desc}' ▶ `));
+  });
+
+  s.on(String(events.SUMAN_CONTEXT_BLOCK_TAP_JSON), function (b: Object) {
+    console.log('\n', su.padWithXSpaces(b.padding), chalk.gray.bold.italic(b.message));
   });
 
   //on error
@@ -156,6 +160,32 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
     results.stubbed++;
     onTestCaseEvent(`${chalk.yellow(` [${results.n}] \u2026`)} '${test.desc}' ${chalk.italic.grey('(stubbed)')}`);
+  });
+
+  s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
+    results.failures++;
+    const padding = su.padWithXSpaces(d.padding || 0);
+    console.log();
+    console.log.call(console, padding, ' => test case fail tap json', d.testCase.desc);
+    console.log();
+  });
+
+  s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
+    results.passes++;
+    const padding = su.padWithXSpaces(d.padding || 0);
+    console.log.call(console, padding, ' => test case pass tap json', d.testCase.desc);
+  });
+
+  s.on(String(events.TEST_CASE_SKIPPED_TAP_JSON), function (d: ITAPJSONTestCase) {
+    results.skipped++;
+    const padding = su.padWithXSpaces(d.padding || 0);
+    console.log.call(console, padding, ' => test case skip tap json', d.testCase.desc);
+  });
+
+  s.on(String(events.TEST_CASE_STUBBED_TAP_JSON), function (d: ITAPJSONTestCase) {
+    results.stubbed++;
+    const padding = su.padWithXSpaces(d.padding || 0);
+    console.log.call(console, padding, '  => test case stubbed tap json', d.testCase.desc);
   });
 
   s.on(String(events.RUNNER_EXIT_SIGNAL), function (signal: any) {
