@@ -70,15 +70,17 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
 
     const args = Array.from(arguments).map(function (data) {
       return chalk.bold(typeof data === 'string' ? data : util.inspect(data));
-    });
-
-    if (!_suman.isTestMostRecentLog) {
-      console.log();  // log a new line
-    }
+    })
+    .join(' ');
 
     let amount = currentPaddingCount.val || 0;
-    const padding = su.padWithXSpaces(amount);
-    console.log.call(console, padding, ...args);
+    printTestCaseEvent(args, amount);
+  };
+
+  let printTestCaseEvent = function (str: string, paddingCount: number) {
+    if (!_suman.isTestMostRecentLog) console.log();  // log a new line
+    const padding = su.padWithXSpaces(paddingCount);
+    console.log.call(console, padding, str);
     _suman.isTestMostRecentLog = true;
   };
 
@@ -89,18 +91,15 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   };
 
   s.on(String(events.SUMAN_CONTEXT_BLOCK), function (b: ITestSuite) {
-    console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val),
-      chalk.gray.bold.italic(` ▶ group: '${b.desc}' ▶ `));
+    console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val), chalk.gray.bold.italic(` ▶ group: '${b.desc}' ▶ `));
   });
 
   s.on(String(events.SUMAN_CONTEXT_BLOCK_TAP_JSON), function (b: Object) {
     console.log('\n', su.padWithXSpaces(b.padding), chalk.gray.bold.italic(b.message));
   });
 
-  //on error
   s.on(String(events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);
 
-  //on any event
   s.on(String(events.FILE_IS_NOT_DOT_JS), function (dir: string) {
     onAnyEvent('\n => Warning -> Suman will attempt to execute the following file:\n "' +
       chalk.cyan(dir) + '",\n (which is not a .js file).\n');
@@ -124,68 +123,90 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
 
   s.on(String(events.FATAL_TEST_ERROR), onAnyEvent);
 
-  s.on(String(events.TEST_CASE_END), function () {
+
+
+  let onTestCaseFailed = function (test: ITestDataObj): string {
+    results.failures++;
+
+    let str: string;
+
+    if (_suman.processIsRunner) {
+      str = chalk.bgYellow.black.bold(` [${results.n}] \u2718  => test case fail `) + '  \'' +
+        test.desc + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
+        + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || ''));
+    }
+    else {
+      str = chalk.bgWhite.black.bold(` [${results.n}]  \u2718  => test fail `) + '  "' +
+        (test.desc) + '"\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || ''));
+    }
+
+    return str;
+  };
+
+  let onTestCasePass = function (test: ITestDataObj): string {
+    results.passes++;
+    let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
+    return `${chalk.green(` [${results.n}] ${chalk.bold('✔')}`)} '${test.desc}' ${timeDiffStr}`;
+  };
+
+  let onTestCaseSkipped = function (test: ITestDataObj): string {
+    results.skipped++;
+    return `${chalk.yellow(` [${results.n}] \u21AA`)} '${test.desc}' ${chalk.italic.grey('(skipped)')}`
+  };
+
+  let onTestCaseStubbed = function (test: ITestDataObj): string {
+    results.stubbed++;
+    return `${chalk.yellow(` [${results.n}] \u2026`)} '${test.desc}' ${chalk.italic.grey('(stubbed)')}`
+  };
+
+  let onTestCaseEnd = function(){
     results.n++;
+  };
+
+  s.on(String(events.TEST_CASE_END), function () {
+    onTestCaseEnd();
   });
 
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
-    results.failures++;
-
     console.log();
-
-    if (_suman.processIsRunner) {
-      onTestCaseEvent(chalk.bgYellow.black.bold(` [${results.n}] \u2718  => test case fail `) + '  \'' +
-        (test.desc || test.name) + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
-        + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
-    }
-    else {
-      onTestCaseEvent(chalk.bgWhite.black.bold(` [${results.n}]  \u2718  => test fail `) + '  "' +
-        (test.desc) + '"\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
-    }
-
+    onTestCaseEvent(onTestCaseFailed(test));
     console.log();
   });
 
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
-    results.passes++;
-    let timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-    onTestCaseEvent(`${chalk.green(` [${results.n}] ${chalk.bold('✔')}`)} '${test.desc}' ${timeDiffStr}`);
+    onTestCaseEvent(onTestCasePass(test));
   });
 
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    results.skipped++;
-    onTestCaseEvent(`${chalk.yellow(` [${results.n}] \u21AA`)} '${test.desc}' ${chalk.italic.grey('(skipped)')}`);
+    onTestCaseEvent(onTestCaseSkipped(test));
   });
 
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    results.stubbed++;
-    onTestCaseEvent(`${chalk.yellow(` [${results.n}] \u2026`)} '${test.desc}' ${chalk.italic.grey('(stubbed)')}`);
+    onTestCaseEvent(onTestCaseStubbed(test));
+  });
+
+  s.on(String(events.TEST_CASE_END_TAP_JSON), function () {
+    onTestCaseEnd();
   });
 
   s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
-    results.failures++;
-    const padding = su.padWithXSpaces(d.padding || 0);
-    console.log();
-    console.log.call(console, padding, ' => test case fail tap json', d.testCase.desc);
-    console.log();
+    const str = onTestCaseFailed(d.testCase as any);
+    printTestCaseEvent(str, d.padding);
   });
 
   s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
-    results.passes++;
-    const padding = su.padWithXSpaces(d.padding || 0);
-    console.log.call(console, padding, ' => test case pass tap json', d.testCase.desc);
+    const str = onTestCasePass(d.testCase as any);
+    printTestCaseEvent(str, d.padding);
   });
 
   s.on(String(events.TEST_CASE_SKIPPED_TAP_JSON), function (d: ITAPJSONTestCase) {
-    results.skipped++;
-    const padding = su.padWithXSpaces(d.padding || 0);
-    console.log.call(console, padding, ' => test case skip tap json', d.testCase.desc);
+    const str = onTestCaseSkipped(d.testCase as any);
+    printTestCaseEvent(str, d.padding);
   });
 
   s.on(String(events.TEST_CASE_STUBBED_TAP_JSON), function (d: ITAPJSONTestCase) {
-    results.stubbed++;
-    const padding = su.padWithXSpaces(d.padding || 0);
-    console.log.call(console, padding, '  => test case stubbed tap json', d.testCase.desc);
+    const str = onTestCaseStubbed(d.testCase as any);
+    printTestCaseEvent(str, d.padding);
   });
 
   s.on(String(events.RUNNER_EXIT_SIGNAL), function (signal: any) {

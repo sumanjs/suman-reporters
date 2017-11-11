@@ -57,19 +57,21 @@ let onAnyEvent: IStringVarargs = function () {
   }
 };
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+let isTTY = process.stdout.isTTY;
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj,
                                                         s: EventEmitter, sumanOpts: ISumanOpts) => {
 
-  if (global.__suman.inceptionLevel < 1) {
+  if (_suman.inceptionLevel < 1 && !isTTY) {
     log.warning(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
   }
 
-  let level = _suman.inceptionLevel;
-
   let isColorable = function (): boolean {
-    return level < 1 && !sumanOpts.no_color;
+    return _suman.inceptionLevel < 1 && !sumanOpts.no_color;
   };
 
   s.on(String(events.RUNNER_INITIAL_SET), function (forkedCPs: Array<any>, processes: string, suites: string) {

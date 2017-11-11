@@ -31,13 +31,13 @@ var onAnyEvent = function () {
         return console.log.apply(console, args);
     }
 };
+var isTTY = process.stdout.isTTY;
 exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
-    if (global.__suman.inceptionLevel < 1) {
+    if (_suman.inceptionLevel < 1 && !isTTY) {
         log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
-    var level = _suman.inceptionLevel;
     var isColorable = function () {
-        return level < 1 && !sumanOpts.no_color;
+        return _suman.inceptionLevel < 1 && !sumanOpts.no_color;
     };
     s.on(String(suman_events_1.events.RUNNER_INITIAL_SET), function (forkedCPs, processes, suites) {
         onAnyEvent('\n\n\t ' + chalk_1.default.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +

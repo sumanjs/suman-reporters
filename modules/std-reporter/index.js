@@ -36,15 +36,17 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         }
         var args = Array.from(arguments).map(function (data) {
             return chalk_1.default.bold(typeof data === 'string' ? data : util.inspect(data));
-        });
-        if (!_suman.isTestMostRecentLog) {
-            console.log();
-        }
+        })
+            .join(' ');
         var amount = currentPaddingCount.val || 0;
-        var padding = su.padWithXSpaces(amount);
-        (_a = console.log).call.apply(_a, [console, padding].concat(args));
+        printTestCaseEvent(args, amount);
+    };
+    var printTestCaseEvent = function (str, paddingCount) {
+        if (!_suman.isTestMostRecentLog)
+            console.log();
+        var padding = su.padWithXSpaces(paddingCount);
+        console.log.call(console, padding, str);
         _suman.isTestMostRecentLog = true;
-        var _a;
     };
     var onVerboseEvent = function (data) {
         if (su.vgt(6)) {
@@ -74,57 +76,71 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         onAnyEvent(logo, '\n');
     });
     s.on(String(suman_events_1.events.FATAL_TEST_ERROR), onAnyEvent);
-    s.on(String(suman_events_1.events.TEST_CASE_END), function () {
-        results.n++;
-    });
-    s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
+    var onTestCaseFailed = function (test) {
         results.failures++;
-        console.log();
+        var str;
         if (_suman.processIsRunner) {
-            onTestCaseEvent(chalk_1.default.bgYellow.black.bold(" [" + results.n + "] \u2718  => test case fail ") + '  \'' +
-                (test.desc || test.name) + '\'\n ' + chalk_1.default.bgWhite.black(' Originating entry test path => ')
-                + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
+            str = chalk_1.default.bgYellow.black.bold(" [" + results.n + "] \u2718  => test case fail ") + '  \'' +
+                test.desc + '\'\n ' + chalk_1.default.bgWhite.black(' Originating entry test path => ')
+                + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || ''));
         }
         else {
-            onTestCaseEvent(chalk_1.default.bgWhite.black.bold(" [" + results.n + "]  \u2718  => test fail ") + '  "' +
-                (test.desc) + '"\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
+            str = chalk_1.default.bgWhite.black.bold(" [" + results.n + "]  \u2718  => test fail ") + '  "' +
+                (test.desc) + '"\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || ''));
         }
+        return str;
+    };
+    var onTestCasePass = function (test) {
+        results.passes++;
+        var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
+        return chalk_1.default.green(" [" + results.n + "] " + chalk_1.default.bold('✔')) + " '" + test.desc + "' " + timeDiffStr;
+    };
+    var onTestCaseSkipped = function (test) {
+        results.skipped++;
+        return chalk_1.default.yellow(" [" + results.n + "] \u21AA") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(skipped)');
+    };
+    var onTestCaseStubbed = function (test) {
+        results.stubbed++;
+        return chalk_1.default.yellow(" [" + results.n + "] \u2026") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(stubbed)');
+    };
+    var onTestCaseEnd = function () {
+        results.n++;
+    };
+    s.on(String(suman_events_1.events.TEST_CASE_END), function () {
+        onTestCaseEnd();
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
+        console.log();
+        onTestCaseEvent(onTestCaseFailed(test));
         console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
-        results.passes++;
-        var timeDiffStr = (test.dateComplete ? '(' + ((test.dateComplete - test.dateStarted) || '< 1') + 'ms)' : '');
-        onTestCaseEvent(chalk_1.default.green(" [" + results.n + "] " + chalk_1.default.bold('✔')) + " '" + test.desc + "' " + timeDiffStr);
+        onTestCaseEvent(onTestCasePass(test));
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        results.skipped++;
-        onTestCaseEvent(chalk_1.default.yellow(" [" + results.n + "] \u21AA") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(skipped)'));
+        onTestCaseEvent(onTestCaseSkipped(test));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        results.stubbed++;
-        onTestCaseEvent(chalk_1.default.yellow(" [" + results.n + "] \u2026") + " '" + test.desc + "' " + chalk_1.default.italic.grey('(stubbed)'));
+        onTestCaseEvent(onTestCaseStubbed(test));
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_END_TAP_JSON), function () {
+        onTestCaseEnd();
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL_TAP_JSON), function (d) {
-        results.failures++;
-        var padding = su.padWithXSpaces(d.padding || 0);
-        console.log();
-        console.log.call(console, padding, ' => test case fail tap json', d.testCase.desc);
-        console.log();
+        var str = onTestCaseFailed(d.testCase);
+        printTestCaseEvent(str, d.padding);
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS_TAP_JSON), function (d) {
-        results.passes++;
-        var padding = su.padWithXSpaces(d.padding || 0);
-        console.log.call(console, padding, ' => test case pass tap json', d.testCase.desc);
+        var str = onTestCasePass(d.testCase);
+        printTestCaseEvent(str, d.padding);
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED_TAP_JSON), function (d) {
-        results.skipped++;
-        var padding = su.padWithXSpaces(d.padding || 0);
-        console.log.call(console, padding, ' => test case skip tap json', d.testCase.desc);
+        var str = onTestCaseSkipped(d.testCase);
+        printTestCaseEvent(str, d.padding);
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED_TAP_JSON), function (d) {
-        results.stubbed++;
-        var padding = su.padWithXSpaces(d.padding || 0);
-        console.log.call(console, padding, '  => test case stubbed tap json', d.testCase.desc);
+        var str = onTestCaseStubbed(d.testCase);
+        printTestCaseEvent(str, d.padding);
     });
     s.on(String(suman_events_1.events.RUNNER_EXIT_SIGNAL), function (signal) {
         onAnyEvent(['<::::::::::::::::::::: Runner Exit Signal => ' + signal + ' ::::::::::::::::::::::::>'].join('\n'));

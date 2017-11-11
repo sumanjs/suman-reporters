@@ -70,10 +70,14 @@ let getTestDesc = function (test: ITestDataObj) {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
+let isTTY = process.stdout.isTTY;
+
+////////////////////////////////////////////////////////////////////////////////////////
+
 export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj,
                                                         s: EventEmitter, sumanOpts: ISumanOpts) => {
 
-  if (_suman.inceptionLevel < 1) {
+  if (_suman.inceptionLevel < 1 && !isTTY) {
     log.warning(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
   }
 
@@ -102,9 +106,15 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
     });
   }
 
-  s.on(String(events.TEST_CASE_END), function (test: ITestDataObj) {
-    ++results.n;
-  });
+  {
+    let eventName = String(events.TEST_CASE_END);
+    s.on(eventName, function (b: ITestSuite) {
+      ++results.n;
+      jsonStdio.logToStdout({
+        messageType: getTAPJSONType(eventName),
+      });
+    });
+  }
 
   {
 
