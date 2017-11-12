@@ -5,7 +5,7 @@ import {IGlobalSumanObj, ISumanOpts} from 'suman-types/dts/global';
 import {ITestDataObj} from "suman-types/dts/it";
 import EventEmitter = NodeJS.EventEmitter;
 import {ITestSuite} from 'suman-types/dts/test-suite';
-import {IRet, IRetContainer, IExpectedCounts, IResultsObj} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IExpectedCounts, IResultsObj, ITAPJSONTestCase} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -20,7 +20,7 @@ import * as path from 'path';
 import chalk = require('chalk');
 import {events} from 'suman-events';
 import su =  require('suman-utils');
-import jsonStdio = require('json-stdio');
+import JSONStdio = require('json-stdio');
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
@@ -81,10 +81,8 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
     log.warning(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
   }
 
-  let level = _suman.inceptionLevel;
-
   let isColorable = function (): boolean {
-    return level < 1 && !sumanOpts.no_color;
+    return _suman.inceptionLevel < 1 && !sumanOpts.no_color;
   };
 
   let getPaddingCount = function () {
@@ -95,10 +93,81 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
     return String(eventName) + '_TAP_JSON';
   };
 
+
+  s.on(String(events.TEST_CASE_END_TAP_JSON), function (d: ITAPJSONTestCase) {
+    ++results.n;
+    JSONStdio.logToStdout(d);
+  });
+
+  s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
+    results.failures++;
+    JSONStdio.logToStdout(d);
+    // const test = d.testCase;
+    // console.log(su.customStringify({
+    //   '@tap-json': true,
+    //   ok: false,
+    //   desc: getTestDesc(test),
+    //   filePath: getTestFilePath(test),
+    //   error: test.errorDisplay || test.error,
+    //   id: results.n,
+    //   dateComplete: test.dateComplete,
+    //   dateStarted: test.dateStarted
+    // }));
+  });
+
+  s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
+    results.passes++;
+    JSONStdio.logToStdout(d);
+    // const test = d.testCase;
+    // console.log(su.customStringify({
+    //   '@tap-json': true,
+    //   ok: true,
+    //   desc: getTestDesc(test),
+    //   filePath: getTestFilePath(test),
+    //   id: results.n,
+    //   dateComplete: test.dateComplete,
+    //   dateStarted: test.dateStarted
+    // }));
+  });
+
+  s.on(String(events.TEST_CASE_SKIPPED_TAP_JSON), function (d: ITAPJSONTestCase) {
+    results.skipped++;
+    JSONStdio.logToStdout(d);
+    // const test = d.testCase;
+    // console.log(su.customStringify({
+    //   '@tap-json': true,
+    //   ok: true,
+    //   desc: getTestDesc(test),
+    //   filePath: getTestFilePath(test),
+    //   id: results.n,
+    //   skipped: true,
+    //   skip: true,
+    //   dateComplete: test.dateComplete,
+    //   dateStarted: test.dateStarted
+    // }));
+  });
+
+  s.on(String(events.TEST_CASE_STUBBED_TAP_JSON), function (d: ITAPJSONTestCase) {
+    results.stubbed++;
+    JSONStdio.logToStdout(d);
+    // const test = d.testCase;
+    // console.log(su.customStringify({
+    //   '@tap-json': true,
+    //   ok: true,
+    //   desc: getTestDesc(test),
+    //   filePath: getTestFilePath(test),
+    //   id: results.n,
+    //   stubbed: true,
+    //   todo: true,
+    //   dateComplete: test.dateComplete,
+    //   dateStarted: test.dateStarted
+    // }));
+  });
+
   {
     let eventName = String(events.SUMAN_CONTEXT_BLOCK);
     s.on(eventName, function (b: ITestSuite) {
-      jsonStdio.logToStdout({
+      JSONStdio.logToStdout({
         messageType: getTAPJSONType(eventName),
         padding: getPaddingCount(),
         message: ` ▶ group: '${b.desc}' ▶ `
@@ -110,14 +179,13 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
     let eventName = String(events.TEST_CASE_END);
     s.on(eventName, function (b: ITestSuite) {
       ++results.n;
-      jsonStdio.logToStdout({
+      JSONStdio.logToStdout({
         messageType: getTAPJSONType(eventName),
       });
     });
   }
 
   {
-
     let eventName = String(events.TEST_CASE_FAIL);
     s.on(eventName, function (test: ITestDataObj) {
       results.failures++;
@@ -137,7 +205,6 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
         }
       }));
     });
-
   }
 
   {
@@ -159,11 +226,9 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
         }
       }));
     });
-
   }
 
   {
-
     let eventName = String(events.TEST_CASE_SKIPPED);
     s.on(eventName, function (test: ITestDataObj) {
       results.skipped++;
@@ -172,7 +237,7 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
         '@json-stdio': true,
         messageType: getTAPJSONType(eventName),
         padding: getPaddingCount(),
-        testCase :{
+        testCase: {
           ok: true,
           desc: getTestDesc(test),
           filePath: getTestFilePath(test),
@@ -196,7 +261,7 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
         '@json-stdio': true,
         padding: getPaddingCount(),
         messageType: getTAPJSONType(eventName),
-        testCase : {
+        testCase: {
           ok: true,
           desc: getTestDesc(test),
           filePath: getTestFilePath(test),

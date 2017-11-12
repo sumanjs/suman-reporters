@@ -38,13 +38,14 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
             return chalk_1.default.bold(typeof data === 'string' ? data : util.inspect(data));
         })
             .join(' ');
-        var amount = currentPaddingCount.val || 0;
+        var amount = _suman.processIsRunner ? 0 : (currentPaddingCount.val || 0);
         printTestCaseEvent(args, amount);
     };
     var printTestCaseEvent = function (str, paddingCount) {
         if (!_suman.isTestMostRecentLog)
             console.log();
-        var padding = su.padWithXSpaces(paddingCount);
+        paddingCount = paddingCount || 0;
+        var padding = _suman.processIsRunner ? su.padWithXSpaces(0) : su.padWithXSpaces(paddingCount + 4);
         console.log.call(console, padding, str);
         _suman.isTestMostRecentLog = true;
     };
@@ -80,13 +81,15 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         results.failures++;
         var str;
         if (_suman.processIsRunner) {
-            str = chalk_1.default.bgYellow.black.bold(" [" + results.n + "] \u2718  => test case fail ") + '  \'' +
-                test.desc + '\'\n ' + chalk_1.default.bgWhite.black(' Originating entry test path => ')
-                + chalk_1.default.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || ''));
+            var testPath = " " + (test.filePath || test.filepath || '(uknown test path)') + " ";
+            str = " " + chalk_1.default.bgYellow.black.bold(" [" + results.n + "] \u2718 test case fail => ") + chalk_1.default.bgBlack.white(" \"" + test.desc + "\" ") + " \n" +
+                ("  " + chalk_1.default.gray.bold(' Originating entry test path => ')) +
+                (chalk_1.default.black.bold(testPath) + "\n") +
+                ("" + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
         else {
-            str = chalk_1.default.bgWhite.black.bold(" [" + results.n + "]  \u2718  => test fail ") + '  "' +
-                (test.desc) + '"\n' + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || ''));
+            str = " " + chalk_1.default.bgWhite.black.bold(" [" + results.n + "]  \u2718  => test fail ") +
+                (" \"" + test.desc + "\"\n  " + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
         return str;
     };
@@ -128,7 +131,9 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL_TAP_JSON), function (d) {
         var str = onTestCaseFailed(d.testCase);
+        console.log();
         printTestCaseEvent(str, d.padding);
+        console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS_TAP_JSON), function (d) {
         var str = onTestCasePass(d.testCase);

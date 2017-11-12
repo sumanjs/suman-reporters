@@ -6,7 +6,7 @@ var util = require("util");
 var path = require("path");
 var suman_events_1 = require("suman-events");
 var su = require("suman-utils");
-var jsonStdio = require("json-stdio");
+var JSONStdio = require("json-stdio");
 var _suman = global.__suman = (global.__suman || {});
 var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
@@ -43,9 +43,8 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
     if (_suman.inceptionLevel < 1 && !isTTY) {
         log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
-    var level = _suman.inceptionLevel;
     var isColorable = function () {
-        return level < 1 && !sumanOpts.no_color;
+        return _suman.inceptionLevel < 1 && !sumanOpts.no_color;
     };
     var getPaddingCount = function () {
         return _suman.currentPaddingCount ? _suman.currentPaddingCount.val || 0 : 0;
@@ -53,10 +52,30 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
     var getTAPJSONType = function (eventName) {
         return String(eventName) + '_TAP_JSON';
     };
+    s.on(String(suman_events_1.events.TEST_CASE_END_TAP_JSON), function (d) {
+        ++results.n;
+        JSONStdio.logToStdout(d);
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_FAIL_TAP_JSON), function (d) {
+        results.failures++;
+        JSONStdio.logToStdout(d);
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_PASS_TAP_JSON), function (d) {
+        results.passes++;
+        JSONStdio.logToStdout(d);
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_SKIPPED_TAP_JSON), function (d) {
+        results.skipped++;
+        JSONStdio.logToStdout(d);
+    });
+    s.on(String(suman_events_1.events.TEST_CASE_STUBBED_TAP_JSON), function (d) {
+        results.stubbed++;
+        JSONStdio.logToStdout(d);
+    });
     {
         var eventName_1 = String(suman_events_1.events.SUMAN_CONTEXT_BLOCK);
         s.on(eventName_1, function (b) {
-            jsonStdio.logToStdout({
+            JSONStdio.logToStdout({
                 messageType: getTAPJSONType(eventName_1),
                 padding: getPaddingCount(),
                 message: " \u25B6 group: '" + b.desc + "' \u25B6 "
@@ -67,7 +86,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         var eventName_2 = String(suman_events_1.events.TEST_CASE_END);
         s.on(eventName_2, function (b) {
             ++results.n;
-            jsonStdio.logToStdout({
+            JSONStdio.logToStdout({
                 messageType: getTAPJSONType(eventName_2),
             });
         });

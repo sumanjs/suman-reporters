@@ -73,13 +73,14 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     })
     .join(' ');
 
-    let amount = currentPaddingCount.val || 0;
+    let amount = _suman.processIsRunner ? 0 : (currentPaddingCount.val || 0);
     printTestCaseEvent(args, amount);
   };
 
   let printTestCaseEvent = function (str: string, paddingCount: number) {
     if (!_suman.isTestMostRecentLog) console.log();  // log a new line
-    const padding = su.padWithXSpaces(paddingCount);
+    paddingCount = paddingCount || 0;
+    const padding = _suman.processIsRunner ? su.padWithXSpaces(0) : su.padWithXSpaces(paddingCount + 4);
     console.log.call(console, padding, str);
     _suman.isTestMostRecentLog = true;
   };
@@ -123,21 +124,20 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
 
   s.on(String(events.FATAL_TEST_ERROR), onAnyEvent);
 
-
-
   let onTestCaseFailed = function (test: ITestDataObj): string {
     results.failures++;
 
     let str: string;
-
     if (_suman.processIsRunner) {
-      str = chalk.bgYellow.black.bold(` [${results.n}] \u2718  => test case fail `) + '  \'' +
-        test.desc + '\'\n ' + chalk.bgWhite.black(' Originating entry test path => ')
-        + chalk.bgWhite.black.bold(test.filePath + ' ') + '\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || ''));
+      let testPath = ` ${test.filePath || test.filepath || '(uknown test path)'} `;
+      str = ` ${chalk.bgYellow.black.bold(` [${results.n}] \u2718 test case fail => `)}${chalk.bgBlack.white(` "${test.desc}" `)} \n` +
+        `  ${chalk.gray.bold(' Originating entry test path => ')}` +
+        `${chalk.black.bold(testPath)}\n` +
+        `${chalk.yellow.bold(String(test.errorDisplay || test.error || ''))}`;
     }
     else {
-      str = chalk.bgWhite.black.bold(` [${results.n}]  \u2718  => test fail `) + '  "' +
-        (test.desc) + '"\n' + chalk.yellow.bold(String(test.errorDisplay || test.error || ''));
+      str = ` ${chalk.bgWhite.black.bold(` [${results.n}]  \u2718  => test fail `)}` +
+        ` "${test.desc}"\n  ${chalk.yellow.bold(String(test.errorDisplay || test.error || ''))}`;
     }
 
     return str;
@@ -159,7 +159,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     return `${chalk.yellow(` [${results.n}] \u2026`)} '${test.desc}' ${chalk.italic.grey('(stubbed)')}`
   };
 
-  let onTestCaseEnd = function(){
+  let onTestCaseEnd = function () {
     results.n++;
   };
 
@@ -191,7 +191,9 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
 
   s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
     const str = onTestCaseFailed(d.testCase as any);
+    console.log();
     printTestCaseEvent(str, d.padding);
+    console.log();
   });
 
   s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
