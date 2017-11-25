@@ -20,7 +20,7 @@ import * as path from 'path';
 
 //npm
 import su = require("suman-utils");
-import chalk from 'chalk';
+import chalk = require('chalk');
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
@@ -29,8 +29,7 @@ import {getLogger, wrapReporter} from "../../lib/utils";
 const reporterName = path.basename(__dirname);
 const log = getLogger(reporterName);
 const noColors = process.argv.indexOf('--no-color') > 0;
-const noop = function () {
-};
+const noop = function () {};
 
 interface IStringVarargs {
   (...args: string[]): void;

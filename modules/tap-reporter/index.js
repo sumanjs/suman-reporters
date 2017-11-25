@@ -4,7 +4,7 @@ var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
 var path = require("path");
-var chalk_1 = require("chalk");
+var chalk = require("chalk");
 var suman_events_1 = require("suman-events");
 var _suman = global.__suman = (global.__suman || {});
 var utils_1 = require("../../lib/utils");
@@ -40,11 +40,11 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         return _suman.inceptionLevel < 1 && !sumanOpts.no_color;
     };
     s.on(String(suman_events_1.events.RUNNER_INITIAL_SET), function (forkedCPs, processes, suites) {
-        onAnyEvent('\n\n\t ' + chalk_1.default.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
+        onAnyEvent('\n\n\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  initial set => ' +
             forkedCPs.length + ' ' + processes + ' running ' + forkedCPs.length + ' ' + suites + ' ') + '\n');
     });
     s.on(String(suman_events_1.events.RUNNER_OVERALL_SET), function (totalCount, processes, suites, addendum) {
-        onAnyEvent('\t ' + chalk_1.default.bgBlue.yellow(' => [Suman runner] =>  overall set => '
+        onAnyEvent('\t ' + chalk.bgBlue.yellow(' => [Suman runner] =>  overall set => '
             + totalCount + ' ' + processes + ' will run ' + totalCount + ' ' + (suites + addendum) + ' ') + '\n\n\n');
     });
     s.on(String(suman_events_1.events.RUNNER_ASCII_LOGO), function (logo) {
@@ -69,7 +69,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
         results.failures++;
         if (false && isColorable()) {
-            console.log(chalk_1.default.red("not ok " + results.n + " " + getCleanTitle(test)));
+            console.log(chalk.red("not ok " + results.n + " " + getCleanTitle(test)));
         }
         else {
             console.log("not ok " + results.n + " " + getCleanTitle(test));
@@ -78,7 +78,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         results.passes++;
         if (false && isColorable()) {
-            console.log(chalk_1.default.green("ok " + results.n + " " + getCleanTitle(test)));
+            console.log(chalk.green("ok " + results.n + " " + getCleanTitle(test)));
         }
         else {
             console.log("ok " + results.n + " " + getCleanTitle(test));
