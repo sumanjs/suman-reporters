@@ -1,6 +1,6 @@
 'use strict';
 
-import chalk from 'chalk';
+import chalk = require('chalk');
 import su = require('suman-utils');
 import {IRet} from "suman-types/dts/reporters";
 import EventEmitter = NodeJS.EventEmitter;

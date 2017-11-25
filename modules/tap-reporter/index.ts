@@ -16,7 +16,7 @@ import * as assert from 'assert';
 import * as path from 'path';
 
 //npm
-import chalk from 'chalk';
+import chalk = require('chalk');
 import {events} from 'suman-events';
 
 //project
