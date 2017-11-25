@@ -131,7 +131,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     if (_suman.processIsRunner) {
       let testPath = ` ${test.filePath || test.filepath || '(uknown test path)'} `;
       str = ` ${chalk.bgYellow.black.bold(` [${results.n}] \u2718 test case fail => `)}${chalk.bgBlack.white(` "${test.desc}" `)} \n` +
-        `  ${chalk.gray.bold(' Originating entry test path => ')}` +
+        `  ${chalk.gray.bold.underline(' Originating entry test path => ')}` +
         `${chalk.black.bold(testPath)}\n` +
         `${chalk.yellow.bold(String(test.errorDisplay || test.error || ''))}`;
     }

@@ -83,7 +83,7 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         if (_suman.processIsRunner) {
             var testPath = " " + (test.filePath || test.filepath || '(uknown test path)') + " ";
             str = " " + chalk_1.default.bgYellow.black.bold(" [" + results.n + "] \u2718 test case fail => ") + chalk_1.default.bgBlack.white(" \"" + test.desc + "\" ") + " \n" +
-                ("  " + chalk_1.default.gray.bold(' Originating entry test path => ')) +
+                ("  " + chalk_1.default.gray.bold.underline(' Originating entry test path => ')) +
                 (chalk_1.default.black.bold(testPath) + "\n") +
                 ("" + chalk_1.default.yellow.bold(String(test.errorDisplay || test.error || '')));
         }
