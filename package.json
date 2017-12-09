@@ -1,6 +1,6 @@
 {
   "name": "suman-reporters",
-  "version": "0.0.1010",
+  "version": "0.0.1011",
   "description": "Suman standard reporters",
   "main": "index.js",
   "scripts": {
