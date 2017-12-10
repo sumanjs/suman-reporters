@@ -271,7 +271,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   s.on(String(events.RUNNER_ENDED), function (date: any) {
     
     if (testCaseFailures.length) {
-      log.info(chalk.red.bold('You have at least one test case failure. Complete list of test case failures:'));
+      log.info(chalk.red.bold.underline('You have at least one test case failure. Complete list of test case failures:'));
     }
     
     testCaseFailures.forEach(function (d: ITestDataObj, i: number) {

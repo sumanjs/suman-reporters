@@ -95,11 +95,16 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
 
 
   s.on(String(events.TEST_CASE_END_TAP_JSON), function (d: ITAPJSONTestCase) {
-    ++results.n;
+    
+    debugger;
+    results.n++;
+    // console.error('TEST_CASE_END_TAP_JSON',d);
+    // d.messageType = String(events.TEST_CASE_END_TAP_JSON);
     JSONStdio.logToStdout(d);
   });
 
   s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
+    debugger;
     results.failures++;
     JSONStdio.logToStdout(d);
     // const test = d.testCase;
@@ -116,7 +121,10 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
 
   s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
+  
+    debugger;
     results.passes++;
+    console.error('TEST_CASE_PASS_TAP_JSON',d);
     JSONStdio.logToStdout(d);
     // const test = d.testCase;
     // console.log(su.customStringify({
@@ -131,6 +139,7 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
 
   s.on(String(events.TEST_CASE_SKIPPED_TAP_JSON), function (d: ITAPJSONTestCase) {
+    debugger;
     results.skipped++;
     JSONStdio.logToStdout(d);
     // const test = d.testCase;
@@ -148,6 +157,7 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
 
   s.on(String(events.TEST_CASE_STUBBED_TAP_JSON), function (d: ITAPJSONTestCase) {
+    debugger;
     results.stubbed++;
     JSONStdio.logToStdout(d);
     // const test = d.testCase;
@@ -178,7 +188,8 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   {
     let eventName = String(events.TEST_CASE_END);
     s.on(eventName, function (b: ITestSuite) {
-      ++results.n;
+      debugger;
+      results.n++;
       JSONStdio.logToStdout({
         messageType: getTAPJSONType(eventName),
       });
@@ -210,6 +221,7 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   {
     let eventName = String(events.TEST_CASE_PASS);
     s.on(eventName, function (test: ITestDataObj) {
+      debugger;
       results.passes++;
       console.log(su.customStringify({
         '@tap-json': true,
@@ -271,7 +283,6 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
           dateComplete: test.dateComplete,
           dateStarted: test.dateStarted
         }
-
       }));
 
     });

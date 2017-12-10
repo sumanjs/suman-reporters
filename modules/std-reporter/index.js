@@ -191,7 +191,7 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
     s.on(String(suman_events_1.events.RUNNER_STARTED), noop);
     s.on(String(suman_events_1.events.RUNNER_ENDED), function (date) {
         if (testCaseFailures.length) {
-            log.info(chalk.red.bold('You have at least one test case failure. Complete list of test case failures:'));
+            log.info(chalk.red.bold.underline('You have at least one test case failure. Complete list of test case failures:'));
         }
         testCaseFailures.forEach(function (d, i) {
             var str = getTestCaseFailedSummaryStr(d, i + 1);
