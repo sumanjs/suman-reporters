@@ -95,8 +95,6 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
 
 
   s.on(String(events.TEST_CASE_END_TAP_JSON), function (d: ITAPJSONTestCase) {
-    
-    debugger;
     results.n++;
     // console.error('TEST_CASE_END_TAP_JSON',d);
     // d.messageType = String(events.TEST_CASE_END_TAP_JSON);
@@ -104,7 +102,6 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
 
   s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
-    debugger;
     results.failures++;
     JSONStdio.logToStdout(d);
     // const test = d.testCase;
@@ -121,10 +118,8 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
 
   s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
-  
-    debugger;
     results.passes++;
-    console.error('TEST_CASE_PASS_TAP_JSON',d);
+    // console.error('TEST_CASE_PASS_TAP_JSON',d);
     JSONStdio.logToStdout(d);
     // const test = d.testCase;
     // console.log(su.customStringify({
@@ -139,7 +134,6 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
 
   s.on(String(events.TEST_CASE_SKIPPED_TAP_JSON), function (d: ITAPJSONTestCase) {
-    debugger;
     results.skipped++;
     JSONStdio.logToStdout(d);
     // const test = d.testCase;
@@ -157,7 +151,6 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
 
   s.on(String(events.TEST_CASE_STUBBED_TAP_JSON), function (d: ITAPJSONTestCase) {
-    debugger;
     results.stubbed++;
     JSONStdio.logToStdout(d);
     // const test = d.testCase;
@@ -175,10 +168,10 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
 
   {
-    let eventName = String(events.SUMAN_CONTEXT_BLOCK);
-    s.on(eventName, function (b: ITestSuite) {
+    let evn = String(events.SUMAN_CONTEXT_BLOCK);
+    s.on(evn, function (b: ITestSuite) {
       JSONStdio.logToStdout({
-        messageType: getTAPJSONType(eventName),
+        messageType: getTAPJSONType(evn),
         padding: getPaddingCount(),
         message: ` ▶ group: '${b.desc}' ▶ `
       });
@@ -186,24 +179,23 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   }
 
   {
-    let eventName = String(events.TEST_CASE_END);
-    s.on(eventName, function (b: ITestSuite) {
-      debugger;
+    let evn = String(events.TEST_CASE_END);
+    s.on(evn, function (b: ITestSuite) {
       results.n++;
       JSONStdio.logToStdout({
-        messageType: getTAPJSONType(eventName),
+        messageType: getTAPJSONType(evn),
       });
     });
   }
 
   {
-    let eventName = String(events.TEST_CASE_FAIL);
-    s.on(eventName, function (test: ITestDataObj) {
+    let evn = String(events.TEST_CASE_FAIL);
+    s.on(evn, function (test: ITestDataObj) {
       results.failures++;
       console.log(su.customStringify({
         '@tap-json': true,
         '@json-stdio': true,
-        messageType: getTAPJSONType(eventName),
+        messageType: getTAPJSONType(evn),
         padding: getPaddingCount(),
         testCase: {
           ok: false,
@@ -219,14 +211,13 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   }
 
   {
-    let eventName = String(events.TEST_CASE_PASS);
-    s.on(eventName, function (test: ITestDataObj) {
-      debugger;
+    let evn = String(events.TEST_CASE_PASS);
+    s.on(evn, function (test: ITestDataObj) {
       results.passes++;
       console.log(su.customStringify({
         '@tap-json': true,
         '@json-stdio': true,
-        messageType: getTAPJSONType(eventName),
+        messageType: getTAPJSONType(evn),
         padding: getPaddingCount(),
         testCase: {
           ok: true,
@@ -241,13 +232,13 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   }
 
   {
-    let eventName = String(events.TEST_CASE_SKIPPED);
-    s.on(eventName, function (test: ITestDataObj) {
+    let evn = String(events.TEST_CASE_SKIPPED);
+    s.on(evn, function (test: ITestDataObj) {
       results.skipped++;
       console.log(su.customStringify({
         '@tap-json': true,
         '@json-stdio': true,
-        messageType: getTAPJSONType(eventName),
+        messageType: getTAPJSONType(evn),
         padding: getPaddingCount(),
         testCase: {
           ok: true,
@@ -265,14 +256,14 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
 
   {
 
-    let eventName = String(events.TEST_CASE_STUBBED);
-    s.on(eventName, function (test: ITestDataObj) {
+    let evn = String(events.TEST_CASE_STUBBED);
+    s.on(evn, function (test: ITestDataObj) {
       results.stubbed++;
       console.log(su.customStringify({
         '@tap-json': true,
         '@json-stdio': true,
         padding: getPaddingCount(),
-        messageType: getTAPJSONType(eventName),
+        messageType: getTAPJSONType(evn),
         testCase: {
           ok: true,
           desc: getTestDesc(test),

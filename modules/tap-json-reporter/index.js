@@ -53,59 +53,52 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         return String(eventName) + '_TAP_JSON';
     };
     s.on(String(suman_events_1.events.TEST_CASE_END_TAP_JSON), function (d) {
-        debugger;
         results.n++;
         JSONStdio.logToStdout(d);
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL_TAP_JSON), function (d) {
-        debugger;
         results.failures++;
         JSONStdio.logToStdout(d);
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS_TAP_JSON), function (d) {
-        debugger;
         results.passes++;
-        console.error('TEST_CASE_PASS_TAP_JSON', d);
         JSONStdio.logToStdout(d);
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED_TAP_JSON), function (d) {
-        debugger;
         results.skipped++;
         JSONStdio.logToStdout(d);
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED_TAP_JSON), function (d) {
-        debugger;
         results.stubbed++;
         JSONStdio.logToStdout(d);
     });
     {
-        var eventName_1 = String(suman_events_1.events.SUMAN_CONTEXT_BLOCK);
-        s.on(eventName_1, function (b) {
+        var evn_1 = String(suman_events_1.events.SUMAN_CONTEXT_BLOCK);
+        s.on(evn_1, function (b) {
             JSONStdio.logToStdout({
-                messageType: getTAPJSONType(eventName_1),
+                messageType: getTAPJSONType(evn_1),
                 padding: getPaddingCount(),
                 message: " \u25B6 group: '" + b.desc + "' \u25B6 "
             });
         });
     }
     {
-        var eventName_2 = String(suman_events_1.events.TEST_CASE_END);
-        s.on(eventName_2, function (b) {
-            debugger;
+        var evn_2 = String(suman_events_1.events.TEST_CASE_END);
+        s.on(evn_2, function (b) {
             results.n++;
             JSONStdio.logToStdout({
-                messageType: getTAPJSONType(eventName_2),
+                messageType: getTAPJSONType(evn_2),
             });
         });
     }
     {
-        var eventName_3 = String(suman_events_1.events.TEST_CASE_FAIL);
-        s.on(eventName_3, function (test) {
+        var evn_3 = String(suman_events_1.events.TEST_CASE_FAIL);
+        s.on(evn_3, function (test) {
             results.failures++;
             console.log(su.customStringify({
                 '@tap-json': true,
                 '@json-stdio': true,
-                messageType: getTAPJSONType(eventName_3),
+                messageType: getTAPJSONType(evn_3),
                 padding: getPaddingCount(),
                 testCase: {
                     ok: false,
@@ -120,14 +113,13 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         });
     }
     {
-        var eventName_4 = String(suman_events_1.events.TEST_CASE_PASS);
-        s.on(eventName_4, function (test) {
-            debugger;
+        var evn_4 = String(suman_events_1.events.TEST_CASE_PASS);
+        s.on(evn_4, function (test) {
             results.passes++;
             console.log(su.customStringify({
                 '@tap-json': true,
                 '@json-stdio': true,
-                messageType: getTAPJSONType(eventName_4),
+                messageType: getTAPJSONType(evn_4),
                 padding: getPaddingCount(),
                 testCase: {
                     ok: true,
@@ -141,13 +133,13 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         });
     }
     {
-        var eventName_5 = String(suman_events_1.events.TEST_CASE_SKIPPED);
-        s.on(eventName_5, function (test) {
+        var evn_5 = String(suman_events_1.events.TEST_CASE_SKIPPED);
+        s.on(evn_5, function (test) {
             results.skipped++;
             console.log(su.customStringify({
                 '@tap-json': true,
                 '@json-stdio': true,
-                messageType: getTAPJSONType(eventName_5),
+                messageType: getTAPJSONType(evn_5),
                 padding: getPaddingCount(),
                 testCase: {
                     ok: true,
@@ -163,14 +155,14 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         });
     }
     {
-        var eventName_6 = String(suman_events_1.events.TEST_CASE_STUBBED);
-        s.on(eventName_6, function (test) {
+        var evn_6 = String(suman_events_1.events.TEST_CASE_STUBBED);
+        s.on(evn_6, function (test) {
             results.stubbed++;
             console.log(su.customStringify({
                 '@tap-json': true,
                 '@json-stdio': true,
                 padding: getPaddingCount(),
-                messageType: getTAPJSONType(eventName_6),
+                messageType: getTAPJSONType(evn_6),
                 testCase: {
                     ok: true,
                     desc: getTestDesc(test),

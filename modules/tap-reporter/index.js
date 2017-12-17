@@ -4,6 +4,7 @@ var process = require('suman-browser-polyfills/modules/process');
 var global = require('suman-browser-polyfills/modules/global');
 var util = require("util");
 var path = require("path");
+var su = require("suman-utils");
 var chalk = require("chalk");
 var suman_events_1 = require("suman-events");
 var _suman = global.__suman = (global.__suman || {});
@@ -61,12 +62,15 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         console.log('# skipped ' + results.failures);
     });
     s.on(String(suman_events_1.events.TAP_COMPLETE), function (data) {
-        log.info('All TAP input received.');
+        if (su.vgt(6)) {
+            log.info('All TAP input received.');
+        }
     });
-    s.on(String(suman_events_1.events.TEST_CASE_END), function (test) {
+    var onTestCaseEnd = function () {
         results.n++;
-    });
-    s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
+    };
+    var onTestCaseFail = function (test) {
+        test = test.testpoint || test;
         results.failures++;
         if (false && isColorable()) {
             console.log(chalk.red("not ok " + results.n + " " + getCleanTitle(test)));
@@ -74,8 +78,9 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         else {
             console.log("not ok " + results.n + " " + getCleanTitle(test));
         }
-    });
-    s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
+    };
+    var onTestCasePass = function (test) {
+        test = test.testpoint || test;
         results.passes++;
         if (false && isColorable()) {
             console.log(chalk.green("ok " + results.n + " " + getCleanTitle(test)));
@@ -83,15 +88,27 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         else {
             console.log("ok " + results.n + " " + getCleanTitle(test));
         }
-    });
-    s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
+    };
+    var onTestCaseSkipped = function (test) {
+        test = test.testpoint || test;
         results.skipped++;
         console.log('ok %d %s # SKIP -', results.n, getCleanTitle(test));
-    });
-    s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
+    };
+    var onTestCaseStubbed = function (test) {
+        test = test.testpoint || test;
         results.stubbed++;
         console.log('ok %d %s # STUBBED -', results.n, getCleanTitle(test));
-    });
+    };
+    s.on(String(suman_events_1.events.TEST_CASE_END_TAP_JSON), onTestCaseEnd);
+    s.on(String(suman_events_1.events.TEST_CASE_END), onTestCaseEnd);
+    s.on(String(suman_events_1.events.TEST_CASE_FAIL_TAP_JSON), onTestCaseFail);
+    s.on(String(suman_events_1.events.TEST_CASE_FAIL), onTestCaseFail);
+    s.on(String(suman_events_1.events.TEST_CASE_PASS_TAP_JSON), onTestCasePass);
+    s.on(String(suman_events_1.events.TEST_CASE_PASS), onTestCasePass);
+    s.on(String(suman_events_1.events.TEST_CASE_SKIPPED_TAP_JSON), onTestCaseSkipped);
+    s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), onTestCaseSkipped);
+    s.on(String(suman_events_1.events.TEST_CASE_STUBBED_TAP_JSON), onTestCaseStubbed);
+    s.on(String(suman_events_1.events.TEST_CASE_STUBBED), onTestCaseStubbed);
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE), function (code) {
         onAnyEvent(['\n  ',
             ' <::::::::::::::::::::::::::::::::: Suman runner exiting with exit code: ' + code +
