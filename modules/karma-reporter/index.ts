@@ -35,12 +35,7 @@ const noop = function () {};
 export const loadReporter = wrapReporter(reporterName,
   (retContainer: IRetContainer, results: IResultsObj, s: EventEmitter, sumanOpts: ISumanOpts) => {
   
-
-  if (_suman.inceptionLevel > 0) {
-    log.info(`suman inception level greater than 0.`);
-    return;
-  }
-
+  
   const karma = global.__karma__;
   assert(karma, 'karma object not exposed at global.__karma___ or window.__karma__');
 

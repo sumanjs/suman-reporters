@@ -35,9 +35,9 @@ const onAnyEvent = function (data: string) {
 
 export const loadreporter = wrapReporter(reporterName,
   (retContainer: IRetContainer, results: IResultsObj, s: EventEmitter, sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
-
+    
     let progressBar: any;
-
+    
     s.on(events.RUNNER_STARTED, function onRunnerStart(totalNumTests) {
       log.info('runner has started.');
       progressBar = new ProgressBar(' => progress [:bar] :percent :current :token1 :token2', {
@@ -45,14 +45,14 @@ export const loadreporter = wrapReporter(reporterName,
         width: 120
       });
     });
-
+    
     s.on(String(events.TEST_FILE_CHILD_PROCESS_EXITED), function onTestEnd(d) {
-
+      
       if (!progressBar) {
         log.error('progress bar was not yet initialized.');
         return;
       }
-
+      
       // process.stdout.write('\n\n');
       // process.stdout.write(' Test finished with exit code = ' + d.exitCode + ' => path => ' + d.testPath);
       // process.stdout.write('\n\n');
@@ -61,17 +61,17 @@ export const loadreporter = wrapReporter(reporterName,
         'token2': ""
       });
     });
-
+    
     s.on(String(events.RUNNER_EXIT_CODE), onAnyEvent);
-
+    
     s.on(events.RUNNER_ENDED, function onRunnerEnd() {
       log.good('Runner has ended.');
     });
-
+    
     return retContainer.ret = <IRet>{
       reporterName
     };
-
+    
   });
 
 export default loadreporter;

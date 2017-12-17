@@ -13,10 +13,6 @@ var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
 var noop = function () { };
 exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
-    if (_suman.inceptionLevel > 0) {
-        log.info("suman inception level greater than 0.");
-        return;
-    }
     var karma = global.__karma__;
     assert(karma, 'karma object not exposed at global.__karma___ or window.__karma__');
     s.on(String(suman_events_1.events.RUNNER_EXIT_CODE_GREATER_THAN_ZERO), noop);

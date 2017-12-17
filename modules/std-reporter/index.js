@@ -16,10 +16,6 @@ var noop = function () { };
 exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
     var testCaseFailures = [];
     var first = true;
-    if (_suman.inceptionLevel > 0) {
-        log.info("suman inception level greater than 0.");
-        return;
-    }
     var onAnyEvent = function () {
         var args = Array.from(arguments).map(function (data) {
             return typeof data === 'string' ? data : util.inspect(data);

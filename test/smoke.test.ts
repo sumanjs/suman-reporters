@@ -27,6 +27,15 @@ const e = new EE();
 const suman = require('suman');
 const {Test} = suman.init(module);
 
+const _suman = global.__suman;
+const sumanOpts = _suman.sumanOpts;
+
+const util = require('util');
+// console.log('_suman',util.inspect(_suman));
+// console.log('sumanOpts',util.inspect(sumanOpts));
+
+
+
 Test.create(function (it) {
   
   ////////
@@ -42,7 +51,7 @@ Test.create(function (it) {
   ]
   .forEach(function (ret: IRet, index: number) {
 
-    it(`tests return value signature, reporterName: ${ret.reporterName}`, t => {
+    it(`tests return value signature, reporterName: ${ret && ret.reporterName}`, t => {
       assert(su.isObject(ret));
       assert.equal(typeof ret.reporterName, 'string', 'reporter return value does not include a "reporterName" property.');
     });

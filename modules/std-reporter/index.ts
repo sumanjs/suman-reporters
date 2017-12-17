@@ -43,10 +43,6 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   const testCaseFailures: Array<ITestDataObj> = [];
   let first = true;
   
-  if (_suman.inceptionLevel > 0) {
-    log.info(`suman inception level greater than 0.`);
-    return;
-  }
   
   let onAnyEvent: IStringVarargs = function () {
     const args = Array.from(arguments).map(function (data) {
