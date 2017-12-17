@@ -112,7 +112,7 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   };
   
   let onTestCaseFail = function (test: ITestDataObj | ITAPJSONTestCase) {
-    test = test.testpoint || test;
+    test = test.testCase || test;
     results.failures++;
     if (false && isColorable()) {
       console.log(chalk.red(`not ok ${results.n} ${getCleanTitle(test)}`));
@@ -123,7 +123,7 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   };
   
   let onTestCasePass = function (test: ITestDataObj | ITAPJSONTestCase) {
-    test = test.testpoint || test;
+    test = test.testCase || test;
     results.passes++;
     if (false && isColorable()) {
       console.log(chalk.green(`ok ${results.n} ${getCleanTitle(test)}`));
@@ -134,13 +134,13 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
   };
   
   let onTestCaseSkipped = function (test: ITestDataObj) {
-    test = test.testpoint || test;
+    test = test.testCase || test;
     results.skipped++;
     console.log('ok %d %s # SKIP -', results.n, getCleanTitle(test));
   };
   
   let onTestCaseStubbed = function (test: ITestDataObj) {
-    test = test.testpoint || test;
+    test = test.testCase || test;
     results.stubbed++;
     console.log('ok %d %s # STUBBED -', results.n, getCleanTitle(test));
   };

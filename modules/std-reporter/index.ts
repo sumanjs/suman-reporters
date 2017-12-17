@@ -167,20 +167,27 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
   
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
+    debugger;
+    test = test.testpoint || test.testCase || test;
     console.log();
     onTestCaseEvent(onTestCaseFailed(test));
     console.log();
   });
   
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
+    debugger;
+    test = test.testpoint || test.testCase || test;
+    debugger;
     onTestCaseEvent(onTestCasePass(test));
   });
   
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
+    test = test.testpoint || test.testCase || test;
     onTestCaseEvent(onTestCaseSkipped(test));
   });
   
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
+    test = test.testpoint || test.testCase || test;
     onTestCaseEvent(onTestCaseStubbed(test));
   });
   
@@ -189,6 +196,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
   
   s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
+    debugger;
     const str = onTestCaseFailed(d.testCase as any);
     console.log();
     printTestCaseEvent(str, d.padding);
@@ -196,6 +204,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
   
   s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
+    debugger;
     const str = onTestCasePass(d.testCase as any);
     printTestCaseEvent(str, d.padding);
   });

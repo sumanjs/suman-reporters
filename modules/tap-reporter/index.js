@@ -70,7 +70,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         results.n++;
     };
     var onTestCaseFail = function (test) {
-        test = test.testpoint || test;
+        test = test.testCase || test;
         results.failures++;
         if (false && isColorable()) {
             console.log(chalk.red("not ok " + results.n + " " + getCleanTitle(test)));
@@ -80,7 +80,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         }
     };
     var onTestCasePass = function (test) {
-        test = test.testpoint || test;
+        test = test.testCase || test;
         results.passes++;
         if (false && isColorable()) {
             console.log(chalk.green("ok " + results.n + " " + getCleanTitle(test)));
@@ -90,12 +90,12 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         }
     };
     var onTestCaseSkipped = function (test) {
-        test = test.testpoint || test;
+        test = test.testCase || test;
         results.skipped++;
         console.log('ok %d %s # SKIP -', results.n, getCleanTitle(test));
     };
     var onTestCaseStubbed = function (test) {
-        test = test.testpoint || test;
+        test = test.testCase || test;
         results.stubbed++;
         console.log('ok %d %s # STUBBED -', results.n, getCleanTitle(test));
     };

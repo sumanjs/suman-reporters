@@ -112,29 +112,38 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         onTestCaseEnd();
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
+        debugger;
+        test = test.testpoint || test.testCase || test;
         console.log();
         onTestCaseEvent(onTestCaseFailed(test));
         console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
+        debugger;
+        test = test.testpoint || test.testCase || test;
+        debugger;
         onTestCaseEvent(onTestCasePass(test));
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
+        test = test.testpoint || test.testCase || test;
         onTestCaseEvent(onTestCaseSkipped(test));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
+        test = test.testpoint || test.testCase || test;
         onTestCaseEvent(onTestCaseStubbed(test));
     });
     s.on(String(suman_events_1.events.TEST_CASE_END_TAP_JSON), function () {
         onTestCaseEnd();
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL_TAP_JSON), function (d) {
+        debugger;
         var str = onTestCaseFailed(d.testCase);
         console.log();
         printTestCaseEvent(str, d.padding);
         console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS_TAP_JSON), function (d) {
+        debugger;
         var str = onTestCasePass(d.testCase);
         printTestCaseEvent(str, d.padding);
     });
