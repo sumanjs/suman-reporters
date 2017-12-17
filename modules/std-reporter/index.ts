@@ -40,8 +40,7 @@ interface IStringVarargs {
 export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj,
                                                         s: EventEmitter, sumanOpts: ISumanOpts) => {
   
-  const currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || {val: 0};
-  
+  const testCaseFailures: Array<ITestDataObj> = [];
   let first = true;
   
   if (_suman.inceptionLevel > 0) {
@@ -61,10 +60,10 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   let onTestCaseEvent: IStringVarargs = function () {
     
     if (first) {
-      if (!('val' in currentPaddingCount) && sumanOpts.series) {
+      first = false;
+      if (!('val' in _suman.currentPaddingCount) && sumanOpts.series) {
         log.warning(`'${reporterName}' reporter may be unable to properly indent output.\n`);
       }
-      first = false;
     }
     
     const args = Array.from(arguments).map(function (data) {
@@ -72,22 +71,52 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     })
     .join(' ');
     
-    let amount = _suman.processIsRunner ? 0 : (currentPaddingCount.val || 0);
+    let amount = _suman.processIsRunner || !_suman.currentPaddingCount ? 0 : (_suman.currentPaddingCount.val || 0);
     printTestCaseEvent(args, amount);
   };
   
   let printTestCaseEvent = function (str: string, paddingCount: number) {
-    if (!_suman.isTestMostRecentLog) console.log();  // log a new line
+    if (!_suman.isTestMostRecentLog) {
+      _suman.isTestMostRecentLog = true;
+      console.log(); // log a new line
+    }
     paddingCount = paddingCount || 0;
     const padding = _suman.processIsRunner ? su.padWithXSpaces(0) : su.padWithXSpaces(paddingCount + 4);
     console.log.call(console, padding, str);
-    _suman.isTestMostRecentLog = true;
+    
   };
   
   let onVerboseEvent = function (data: any) {
     if (su.vgt(6)) {
       log.info(typeof data === 'string' ? data : util.inspect(data));
     }
+  };
+  
+  let getTestCaseFailedStr = function (test: ITestDataObj): string {
+    
+    let str: string;
+    if (_suman.processIsRunner) {
+      let testPath = ` ${test.filePath || test.filepath || '(unknown test path)'} `;
+      str = ` ${chalk.bgYellow.black.bold(` [${results.n}] \u2718 test case fail => `)}${chalk.bgBlack.white.bold(` "${test.desc}" `)} \n` +
+        `  ${chalk.gray.bold.underline(' Originating entry test path => ')}` +
+        `${chalk.gray.bold(testPath)}\n` +
+        `${chalk.yellow.bold(String(test.errorDisplay || test.error || ''))}`;
+    }
+    else {
+      str = ` ${chalk.bgWhite.black.bold(` [${results.n}]  \u2718  => test case fail `)}` +
+        ` "${test.desc}"\n  ${chalk.yellow.bold(String(test.errorDisplay || test.error || ''))}`;
+    }
+    
+    return str;
+  };
+  
+  let getTestCaseFailedSummaryStr = function (test: ITestDataObj, count: number): string {
+    
+    let testPath = ` ${test.filePath || test.filepath || '(unknown test path)'} `;
+    return ` ${chalk.bgRed.white.bold(` \u2718 Failure number: ${count} => `)}${chalk.bgBlack.white.bold(` "${test.desc}" `)} \n` +
+      `  ${chalk.gray.bold.underline(' Originating entry test path => ')}` +
+      `${chalk.black.bold(testPath)}\n` +
+      `${chalk.yellow.bold(String(test.errorDisplay || test.error || ''))}`;
   };
   
   s.on(String(events.SUMAN_CONTEXT_BLOCK), function (b: ITestSuite) {
@@ -118,7 +147,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     });
   
   s.on(String(events.RUNNER_ASCII_LOGO), function (logo: string) {
-    onAnyEvent(logo, '\n')
+    onAnyEvent(logo, '\n');
   });
   
   s.on(String(events.FATAL_TEST_ERROR), onAnyEvent);
@@ -166,28 +195,34 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     onTestCaseEnd();
   });
   
+  // s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
+  //   test =  test.testCase || test;
+  //   console.log();
+  //   onTestCaseEvent(onTestCaseFailed(test));
+  //   console.log();
+  // });
+  
   s.on(String(events.TEST_CASE_FAIL), function (test: ITestDataObj) {
-    debugger;
-    test = test.testpoint || test.testCase || test;
+    test =  test.testCase || test;
+    results.failures++;
+    testCaseFailures.push(test);
     console.log();
-    onTestCaseEvent(onTestCaseFailed(test));
+    onTestCaseEvent(getTestCaseFailedStr(test));
     console.log();
   });
   
   s.on(String(events.TEST_CASE_PASS), function (test: ITestDataObj) {
-    debugger;
-    test = test.testpoint || test.testCase || test;
-    debugger;
+    test = test.testCase || test;
     onTestCaseEvent(onTestCasePass(test));
   });
   
   s.on(String(events.TEST_CASE_SKIPPED), function (test: ITestDataObj) {
-    test = test.testpoint || test.testCase || test;
+    test =  test.testCase || test;
     onTestCaseEvent(onTestCaseSkipped(test));
   });
   
   s.on(String(events.TEST_CASE_STUBBED), function (test: ITestDataObj) {
-    test = test.testpoint || test.testCase || test;
+    test = test.testCase || test;
     onTestCaseEvent(onTestCaseStubbed(test));
   });
   
@@ -195,16 +230,23 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     onTestCaseEnd();
   });
   
+  // s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
+  //   const str = onTestCaseFailed(d.testCase as any);
+  //   console.log();
+  //   printTestCaseEvent(str, d.padding);
+  //   console.log();
+  // });
+  
   s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
-    debugger;
-    const str = onTestCaseFailed(d.testCase as any);
+    results.failures++;
+    testCaseFailures.push(d.testCase as any);
+    const str = getTestCaseFailedStr(d.testCase as any);
     console.log();
     printTestCaseEvent(str, d.padding);
     console.log();
   });
   
   s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
-    debugger;
     const str = onTestCasePass(d.testCase as any);
     printTestCaseEvent(str, d.padding);
   });
@@ -254,14 +296,28 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
   
   s.on(String(events.RUNNER_SAYS_FILE_HAS_JUST_STARTED_RUNNING), function (file: string) {
-    log.info(chalk.black('File has just started running =>'), chalk.grey.bold(`'${file}'`));
+    log.info(chalk.bold('File has just started running =>'), chalk.grey.bold(`'${file}'`));
   });
   
   s.on(String(events.RUNNER_HIT_DIRECTORY_BUT_NOT_RECURSIVE), onVerboseEvent);
   
   //ignore these
   s.on(String(events.RUNNER_STARTED), noop);
-  s.on(String(events.RUNNER_ENDED), noop);
+  
+  s.on(String(events.RUNNER_ENDED), function (date: any) {
+    
+    if (testCaseFailures.length) {
+      log.info(chalk.red.bold.underline('You have at least one test case failure. Complete list of test case failures:'));
+    }
+    
+    testCaseFailures.forEach(function (d: ITestDataObj, i: number) {
+      const str = getTestCaseFailedSummaryStr(d as any, i + 1);
+      console.log();
+      printTestCaseEvent(str, 0);
+      console.log();
+    });
+  });
+  
   s.on(String(events.SUITE_SKIPPED), noop);
   s.on(String(events.SUITE_END), noop);
   s.on(String(events.TEST_END), noop);
@@ -292,12 +348,11 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     s.on(String(events.STANDARD_TABLE), function (table: ITableData, code: number) {
       console.log('\n\n');
       let str = table.toString();
-      code > 0 ? (str = chalk.yellow.bold(str)) : (str = chalk.gray(str));
+      str = code > 0 ? chalk.yellow.bold(str) : chalk.gray(str);
       str = '\t' + str;
       console.log(str.replace(/\n/g, '\n\t'));
       console.log('\n');
     });
-    
   }
   
   // we can add values to ret as needed later

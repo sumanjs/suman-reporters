@@ -14,7 +14,7 @@ var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
 var noop = function () { };
 exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
-    var currentPaddingCount = _suman.currentPaddingCount = _suman.currentPaddingCount || { val: 0 };
+    var testCaseFailures = [];
     var first = true;
     if (_suman.inceptionLevel > 0) {
         log.info("suman inception level greater than 0.");
@@ -28,30 +28,53 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
     };
     var onTestCaseEvent = function () {
         if (first) {
-            if (!('val' in currentPaddingCount) && sumanOpts.series) {
+            first = false;
+            if (!('val' in _suman.currentPaddingCount) && sumanOpts.series) {
                 log.warning("'" + reporterName + "' reporter may be unable to properly indent output.\n");
             }
-            first = false;
         }
         var args = Array.from(arguments).map(function (data) {
             return chalk.bold(typeof data === 'string' ? data : util.inspect(data));
         })
             .join(' ');
-        var amount = _suman.processIsRunner ? 0 : (currentPaddingCount.val || 0);
+        var amount = _suman.processIsRunner || !_suman.currentPaddingCount ? 0 : (_suman.currentPaddingCount.val || 0);
         printTestCaseEvent(args, amount);
     };
     var printTestCaseEvent = function (str, paddingCount) {
-        if (!_suman.isTestMostRecentLog)
+        if (!_suman.isTestMostRecentLog) {
+            _suman.isTestMostRecentLog = true;
             console.log();
+        }
         paddingCount = paddingCount || 0;
         var padding = _suman.processIsRunner ? su.padWithXSpaces(0) : su.padWithXSpaces(paddingCount + 4);
         console.log.call(console, padding, str);
-        _suman.isTestMostRecentLog = true;
     };
     var onVerboseEvent = function (data) {
         if (su.vgt(6)) {
             log.info(typeof data === 'string' ? data : util.inspect(data));
         }
+    };
+    var getTestCaseFailedStr = function (test) {
+        var str;
+        if (_suman.processIsRunner) {
+            var testPath = " " + (test.filePath || test.filepath || '(unknown test path)') + " ";
+            str = " " + chalk.bgYellow.black.bold(" [" + results.n + "] \u2718 test case fail => ") + chalk.bgBlack.white.bold(" \"" + test.desc + "\" ") + " \n" +
+                ("  " + chalk.gray.bold.underline(' Originating entry test path => ')) +
+                (chalk.gray.bold(testPath) + "\n") +
+                ("" + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
+        }
+        else {
+            str = " " + chalk.bgWhite.black.bold(" [" + results.n + "]  \u2718  => test case fail ") +
+                (" \"" + test.desc + "\"\n  " + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
+        }
+        return str;
+    };
+    var getTestCaseFailedSummaryStr = function (test, count) {
+        var testPath = " " + (test.filePath || test.filepath || '(unknown test path)') + " ";
+        return " " + chalk.bgRed.white.bold(" \u2718 Failure number: " + count + " => ") + chalk.bgBlack.white.bold(" \"" + test.desc + "\" ") + " \n" +
+            ("  " + chalk.gray.bold.underline(' Originating entry test path => ')) +
+            (chalk.black.bold(testPath) + "\n") +
+            ("" + chalk.yellow.bold(String(test.errorDisplay || test.error || '')));
     };
     s.on(String(suman_events_1.events.SUMAN_CONTEXT_BLOCK), function (b) {
         console.log('\n', su.padWithXSpaces(_suman.currentPaddingCount.val), chalk.gray.bold.italic(" \u25B6 group: '" + b.desc + "' \u25B6 "));
@@ -112,38 +135,37 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         onTestCaseEnd();
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL), function (test) {
-        debugger;
-        test = test.testpoint || test.testCase || test;
+        test = test.testCase || test;
+        results.failures++;
+        testCaseFailures.push(test);
         console.log();
-        onTestCaseEvent(onTestCaseFailed(test));
+        onTestCaseEvent(getTestCaseFailedStr(test));
         console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
-        debugger;
-        test = test.testpoint || test.testCase || test;
-        debugger;
+        test = test.testCase || test;
         onTestCaseEvent(onTestCasePass(test));
     });
     s.on(String(suman_events_1.events.TEST_CASE_SKIPPED), function (test) {
-        test = test.testpoint || test.testCase || test;
+        test = test.testCase || test;
         onTestCaseEvent(onTestCaseSkipped(test));
     });
     s.on(String(suman_events_1.events.TEST_CASE_STUBBED), function (test) {
-        test = test.testpoint || test.testCase || test;
+        test = test.testCase || test;
         onTestCaseEvent(onTestCaseStubbed(test));
     });
     s.on(String(suman_events_1.events.TEST_CASE_END_TAP_JSON), function () {
         onTestCaseEnd();
     });
     s.on(String(suman_events_1.events.TEST_CASE_FAIL_TAP_JSON), function (d) {
-        debugger;
-        var str = onTestCaseFailed(d.testCase);
+        results.failures++;
+        testCaseFailures.push(d.testCase);
+        var str = getTestCaseFailedStr(d.testCase);
         console.log();
         printTestCaseEvent(str, d.padding);
         console.log();
     });
     s.on(String(suman_events_1.events.TEST_CASE_PASS_TAP_JSON), function (d) {
-        debugger;
         var str = onTestCasePass(d.testCase);
         printTestCaseEvent(str, d.padding);
     });
@@ -182,11 +204,21 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
             "but it didnt match the regex(es) you passed in as input for \"matchAll\"");
     });
     s.on(String(suman_events_1.events.RUNNER_SAYS_FILE_HAS_JUST_STARTED_RUNNING), function (file) {
-        log.info(chalk.black('File has just started running =>'), chalk.grey.bold("'" + file + "'"));
+        log.info(chalk.bold('File has just started running =>'), chalk.grey.bold("'" + file + "'"));
     });
     s.on(String(suman_events_1.events.RUNNER_HIT_DIRECTORY_BUT_NOT_RECURSIVE), onVerboseEvent);
     s.on(String(suman_events_1.events.RUNNER_STARTED), noop);
-    s.on(String(suman_events_1.events.RUNNER_ENDED), noop);
+    s.on(String(suman_events_1.events.RUNNER_ENDED), function (date) {
+        if (testCaseFailures.length) {
+            log.info(chalk.red.bold.underline('You have at least one test case failure. Complete list of test case failures:'));
+        }
+        testCaseFailures.forEach(function (d, i) {
+            var str = getTestCaseFailedSummaryStr(d, i + 1);
+            console.log();
+            printTestCaseEvent(str, 0);
+            console.log();
+        });
+    });
     s.on(String(suman_events_1.events.SUITE_SKIPPED), noop);
     s.on(String(suman_events_1.events.SUITE_END), noop);
     s.on(String(suman_events_1.events.TEST_END), noop);
@@ -211,7 +243,7 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         s.on(String(suman_events_1.events.STANDARD_TABLE), function (table, code) {
             console.log('\n\n');
             var str = table.toString();
-            code > 0 ? (str = chalk.yellow.bold(str)) : (str = chalk.gray(str));
+            str = code > 0 ? chalk.yellow.bold(str) : chalk.gray(str);
             str = '\t' + str;
             console.log(str.replace(/\n/g, '\n\t'));
             console.log('\n');

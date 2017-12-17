@@ -12,14 +12,7 @@ var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
 var noColors = process.argv.indexOf('--no-color') > 0;
 var noop = function () { };
-exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, s, sumanOpts) {
-    var results = {
-        n: 0,
-        passes: 0,
-        failures: 0,
-        skipped: 0,
-        stubbed: 0
-    };
+exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
     if (_suman.inceptionLevel > 0) {
         log.info("suman inception level greater than 0.");
         return;

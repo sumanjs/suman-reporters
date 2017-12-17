@@ -32,7 +32,6 @@ function getCleanTitle(test: ITestDataObj) {
   return String(test.title || test.desc || test.description || test.name).replace(/#/g, '').trim();
 }
 
-//////////////////////////////////////////////////////////
 
 function logDebug() {
   let debug;
@@ -191,10 +190,10 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
     
   }
   
-  return retContainer.ret = {
+  return retContainer.ret = <IRet>{
     reporterName,
     results
-  } as IRet;
+  };
   
 });
 

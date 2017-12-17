@@ -6,7 +6,7 @@ import EventEmitter = NodeJS.EventEmitter;
 import {ITestDataObj} from "suman-types/dts/it";
 import {ISumanChildProcess} from "suman-types/dts/runner";
 import {ITableData} from "suman-types/dts/table-data";
-import {IRet, IRetContainer, IExpectedCounts} from 'suman-types/dts/reporters';
+import {IRet, IRetContainer, IResultsObj, IExpectedCounts} from 'suman-types/dts/reporters';
 
 //polyfills
 const process = require('suman-browser-polyfills/modules/process');
@@ -33,15 +33,8 @@ const noop = function () {};
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 export const loadReporter = wrapReporter(reporterName,
-  (retContainer: IRetContainer, s: EventEmitter, sumanOpts: ISumanOpts) => {
-
-  const results = {
-    n: 0,
-    passes: 0,
-    failures: 0,
-    skipped: 0,
-    stubbed: 0
-  };
+  (retContainer: IRetContainer, results: IResultsObj, s: EventEmitter, sumanOpts: ISumanOpts) => {
+  
 
   if (_suman.inceptionLevel > 0) {
     log.info(`suman inception level greater than 0.`);
@@ -140,7 +133,7 @@ export const loadReporter = wrapReporter(reporterName,
   //   karma.complete();
   // }, 3000);
 
-  return retContainer.ret = {
+  return retContainer.ret = <IRet>{
     results,
     reporterName,
     count: 0,

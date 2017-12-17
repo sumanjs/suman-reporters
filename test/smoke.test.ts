@@ -1,3 +1,4 @@
+#!/usr/bin/env ts-node
 'use strict';
 
 import {IRet, IExpectedCounts} from "suman-types/dts/reporters";
@@ -27,6 +28,8 @@ const suman = require('suman');
 const {Test} = suman.init(module);
 
 Test.create(function (it) {
+  
+  ////////
 
   [
     clearLineReporter(e, {} as any),
@@ -45,9 +48,7 @@ Test.create(function (it) {
     });
   });
 
-  it('test counts', {
-
-    },
+  it('test counts', {},
     t => {
 
       const reportersRoot = path.resolve(__dirname + '/../modules');

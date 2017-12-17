@@ -107,7 +107,7 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
     });
   });
 
-  return retContainer.ret = {
+  return retContainer.ret = <IRet>{
     results,
     reporterName,
     count: 0,

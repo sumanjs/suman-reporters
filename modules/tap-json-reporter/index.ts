@@ -275,7 +275,6 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
           dateStarted: test.dateStarted
         }
       }));
-
     });
 
   }
