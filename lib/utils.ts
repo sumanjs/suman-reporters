@@ -1,11 +1,19 @@
 'use strict';
 
-import chalk = require('chalk');
-import su = require('suman-utils');
-import {IRet} from "suman-types/dts/reporters";
-import EventEmitter = NodeJS.EventEmitter;
+//dts
 import {ISumanOpts} from "suman-types/dts/global";
 import {IExpectedCounts, IReporterLoadFn, IReporterLoadFnPre} from "suman-types/dts/reporters";
+import EventEmitter = NodeJS.EventEmitter;
+import {IRet} from "suman-types/dts/reporters";
+
+//polyfills
+const process = require('suman-browser-polyfills/modules/process');
+const global = require('suman-browser-polyfills/modules/global');
+
+//npm
+import chalk from 'chalk';
+import su = require('suman-utils');
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +42,7 @@ export const getLogger = function (reporterName: string) {
 export const wrapReporter = function (reporterName: string, fn: IReporterLoadFn): IReporterLoadFnPre {
 
   if (calledReporters[reporterName]) {
-    throw new Error(`"${wrapReporter.name}" called more than once for reporter with name ${reporterName}`);
+    console.error(new Error(`"${wrapReporter.name}" called more than once for reporter with name ${reporterName}`).stack);
   }
 
   calledReporters[reporterName] = true;

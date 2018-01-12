@@ -24,7 +24,7 @@ db.on('error', function (err) {
 db.configure('busyTimeout', 4000);
 var noop = function () {
 };
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts, expectations) {
+exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts, expectations) {
     var runAsync = function (fn) {
         retContainer.ret.count++;
         fn(function (err) {
@@ -131,4 +131,4 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         cb: noop
     };
 });
-exports.default = exports.loadreporter;
+exports.default = exports.loadReporter;

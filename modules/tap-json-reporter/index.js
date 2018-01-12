@@ -39,7 +39,7 @@ var getTestDesc = function (test) {
     return String(test.desc || test.title || test.name).trim();
 };
 var isTTY = process.stdout.isTTY;
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
+exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
     if (_suman.inceptionLevel < 1 && !isTTY) {
         log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
     }
@@ -181,4 +181,4 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         results: results
     };
 });
-exports.default = exports.loadreporter;
+exports.default = exports.loadReporter;

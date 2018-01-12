@@ -9,7 +9,7 @@ var _suman = global.__suman = (global.__suman || {});
 var utils_1 = require("../../lib/utils");
 var reporterName = path.basename(__dirname);
 var log = utils_1.getLogger(reporterName);
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, opts, expectations, client) {
+exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, opts, expectations, client) {
     var runAsync = function (fn) {
         retContainer.ret.count++;
         fn(function (err) {
@@ -84,4 +84,4 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         cb: null
     };
 });
-exports.default = exports.loadreporter;
+exports.default = exports.loadReporter;

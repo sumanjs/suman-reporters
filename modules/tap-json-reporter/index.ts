@@ -74,7 +74,7 @@ let isTTY = process.stdout.isTTY;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj,
+export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj,
                                                         s: EventEmitter, sumanOpts: ISumanOpts) => {
 
   if (_suman.inceptionLevel < 1 && !isTTY) {
@@ -286,4 +286,4 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
 
 });
 
-export default loadreporter;
+export default loadReporter;

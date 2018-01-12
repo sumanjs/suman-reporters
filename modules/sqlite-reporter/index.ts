@@ -55,7 +55,7 @@ const noop = function () {
 
 /////////////////////////////////////////////////////////////
 
-export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj, s: EventEmitter,
+export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContainer, results: IResultsObj, s: EventEmitter,
                                                         sumanOpts: ISumanOpts, expectations: IExpectedCounts) => {
 
   const runAsync = function (fn: Function) {
@@ -177,4 +177,4 @@ export const loadreporter = wrapReporter(reporterName, (retContainer: IRetContai
 
 });
 
-export default loadreporter;
+export default loadReporter;
