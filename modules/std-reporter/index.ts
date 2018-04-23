@@ -20,7 +20,7 @@ import * as path from 'path';
 
 //npm
 import su = require("suman-utils");
-import chalk = require('chalk');
+import chalk from 'chalk';
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});

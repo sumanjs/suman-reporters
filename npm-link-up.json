@@ -13,5 +13,6 @@
     "suman-events",
     "suman-browser-polyfills",
     "suman-utils"
-  ]
+  ],
+  "comments":[]
 }

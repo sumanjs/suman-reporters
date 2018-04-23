@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/sumanjs/suman-reporters#readme",
   "dependencies": {
-    "chalk": "^2.0.1",
+    "chalk": "^2.4.0",
     "json-stdio": "latest",
     "lodash.isequal": "^4.5.0",
     "progress": "^2.0.0",
@@ -37,7 +37,6 @@
     "suman-utils": "latest"
   },
   "devDependencies": {
-    "@types/chalk": "^0.4.31",
     "@types/core-js": "^0.9.42",
     "@types/lodash.isequal": "^4.5.2",
     "@types/node": "^8.0.7",
