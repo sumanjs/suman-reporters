@@ -1,16 +1,16 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-var process = require('suman-browser-polyfills/modules/process');
-var global = require('suman-browser-polyfills/modules/global');
-var path = require("path");
-var sqlite3 = require('sqlite3').verbose();
-var suman_events_1 = require("suman-events");
-var utils_1 = require("../../lib/utils");
-var reporterName = path.basename(__dirname);
-var log = utils_1.getLogger(reporterName);
-var p = path.resolve(process.env.HOME + '/.suman/global/node_modules/sqlite3');
-var dbPth = path.resolve(process.env.HOME + '/.suman/db');
-var db = new sqlite3.Database(dbPth, function (err) {
+const process = require('suman-browser-polyfills/modules/process');
+const global = require('suman-browser-polyfills/modules/global');
+const path = require("path");
+const sqlite3 = require('sqlite3').verbose();
+const suman_events_1 = require("suman-events");
+const utils_1 = require("../../lib/utils");
+const reporterName = path.basename(__dirname);
+const log = utils_1.getLogger(reporterName);
+const p = path.resolve(process.env.HOME + '/.suman/global/node_modules/sqlite3');
+const dbPth = path.resolve(process.env.HOME + '/.suman/db');
+let db = new sqlite3.Database(dbPth, function (err) {
     if (err) {
         log.error(err);
     }
@@ -22,10 +22,10 @@ db.on('error', function (err) {
     log.error(' => sqlite error => ', err);
 });
 db.configure('busyTimeout', 4000);
-var noop = function () {
+const noop = function () {
 };
-exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts, expectations) {
-    var runAsync = function (fn) {
+exports.loadReporter = utils_1.wrapReporter(reporterName, (retContainer, results, s, sumanOpts, expectations) => {
+    const runAsync = function (fn) {
         retContainer.ret.count++;
         fn(function (err) {
             err && log.error(err.stack || err);
@@ -35,10 +35,10 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
             }
         });
     };
-    var runPromise = function (promise) {
+    const runPromise = function (promise) {
         retContainer.ret.count++;
         return promise
-            .catch(function (err) { return err && log.error(err.stack || err); })
+            .catch(err => err && log.error(err.stack || err))
             .then(function () {
             retContainer.ret.count--;
             retContainer.ret.count < 1 && retContainer.ret.cb();
@@ -48,8 +48,8 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         runAsync(function (cb) {
             db.serialize(function () {
                 db.run('CREATE TABLE lorem (info TEXT)');
-                var stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-                for (var i = 0; i < 10; i++) {
+                let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+                for (let i = 0; i < 10; i++) {
                     stmt.run('Ipsum ' + i);
                 }
                 stmt.finalize();
@@ -64,8 +64,8 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         runAsync(function (cb) {
             db.serialize(function () {
                 db.run('CREATE TABLE lorem (info TEXT)');
-                var stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-                for (var i = 0; i < 1; i++) {
+                let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+                for (let i = 0; i < 1; i++) {
                     stmt.run('Ipsum ' + i);
                 }
                 stmt.finalize();
@@ -80,8 +80,8 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         runAsync(function (cb) {
             db.serialize(function () {
                 db.run('CREATE TABLE lorem (info TEXT)');
-                var stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-                for (var i = 0; i < 1; i++) {
+                let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+                for (let i = 0; i < 1; i++) {
                     stmt.run('Ipsum ' + i);
                 }
                 stmt.finalize();
@@ -96,8 +96,8 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         runAsync(function (cb) {
             db.serialize(function () {
                 db.run('CREATE TABLE lorem (info TEXT)');
-                var stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-                for (var i = 0; i < 1; i++) {
+                let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+                for (let i = 0; i < 1; i++) {
                     stmt.run('Ipsum ' + i);
                 }
                 stmt.finalize();
@@ -112,8 +112,8 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         runAsync(function (cb) {
             db.serialize(function () {
                 db.run('CREATE TABLE lorem (info TEXT)');
-                var stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-                for (var i = 0; i < 1; i++) {
+                let stmt = db.prepare('INSERT INTO lorem VALUES (?)');
+                for (let i = 0; i < 1; i++) {
                     stmt.run('Ipsum ' + i);
                 }
                 stmt.finalize();
@@ -125,8 +125,8 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, function (retContainer
         });
     });
     return retContainer.ret = {
-        results: results,
-        reporterName: reporterName,
+        results,
+        reporterName,
         count: 0,
         cb: noop
     };

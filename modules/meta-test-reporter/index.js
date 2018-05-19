@@ -1,17 +1,17 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-var process = require('suman-browser-polyfills/modules/process');
-var global = require('suman-browser-polyfills/modules/global');
-var assert = require("assert");
-var path = require("path");
-var _suman = global.__suman = (global.__suman || {});
-var suman_events_1 = require("suman-events");
-var isEqual = require("lodash.isequal");
-var utils_1 = require("../../lib/utils");
-var reporterName = path.basename(__dirname);
-var log = utils_1.getLogger(reporterName);
-var noColors = process.argv.indexOf('--no-color') > 0;
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts, expectations) {
+const process = require('suman-browser-polyfills/modules/process');
+const global = require('suman-browser-polyfills/modules/global');
+const assert = require("assert");
+const path = require("path");
+const _suman = global.__suman = (global.__suman || {});
+const suman_events_1 = require("suman-events");
+const isEqual = require("lodash.isequal");
+const utils_1 = require("../../lib/utils");
+const reporterName = path.basename(__dirname);
+const log = utils_1.getLogger(reporterName);
+const noColors = process.argv.indexOf('--no-color') > 0;
+exports.loadreporter = utils_1.wrapReporter(reporterName, (retContainer, results, s, sumanOpts, expectations) => {
     s.on(String(suman_events_1.events.TEST_CASE_PASS), function (test) {
         results.passes++;
     });
@@ -36,8 +36,8 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         }
     });
     return retContainer.ret = {
-        results: results,
-        reporterName: reporterName
+        results,
+        reporterName
     };
 });
 exports.default = exports.loadreporter;

@@ -5,7 +5,6 @@ node_modules
 test
 scripts
 .vscode
-.vs_code
 
 ### files
 .npmignore

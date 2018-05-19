@@ -1,18 +1,18 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-var process = require('suman-browser-polyfills/modules/process');
-var global = require('suman-browser-polyfills/modules/global');
-var path = require("path");
-var ProgressBar = require('progress');
-var events = require('suman-events').events;
-var utils_1 = require("../../lib/utils");
-var reporterName = path.basename(__dirname);
-var log = utils_1.getLogger(reporterName);
-var onAnyEvent = function (data) {
+const process = require('suman-browser-polyfills/modules/process');
+const global = require('suman-browser-polyfills/modules/global');
+const path = require("path");
+const ProgressBar = require('progress');
+const { events } = require('suman-events');
+const utils_1 = require("../../lib/utils");
+const reporterName = path.basename(__dirname);
+const log = utils_1.getLogger(reporterName);
+const onAnyEvent = function (data) {
     process.stdout.write(String(data));
 };
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts, expectations) {
-    var progressBar;
+exports.loadreporter = utils_1.wrapReporter(reporterName, (retContainer, results, s, sumanOpts, expectations) => {
+    let progressBar;
     s.on(events.RUNNER_STARTED, function onRunnerStart(totalNumTests) {
         log.info('runner has started.');
         progressBar = new ProgressBar(' => progress [:bar] :percent :current :token1 :token2', {
@@ -35,7 +35,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         log.good('Runner has ended.');
     });
     return retContainer.ret = {
-        reporterName: reporterName
+        reporterName
     };
 });
 exports.default = exports.loadreporter;

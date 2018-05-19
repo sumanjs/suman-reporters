@@ -1,43 +1,43 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-var process = require('suman-browser-polyfills/modules/process');
-var global = require('suman-browser-polyfills/modules/global');
-var util = require("util");
-var path = require("path");
-var su = require("suman-utils");
-var chalk = require("chalk");
-var suman_events_1 = require("suman-events");
-var _suman = global.__suman = (global.__suman || {});
-var utils_1 = require("../../lib/utils");
-var reporterName = path.basename(__dirname);
-var log = utils_1.getLogger(reporterName);
+const process = require('suman-browser-polyfills/modules/process');
+const global = require('suman-browser-polyfills/modules/global');
+const util = require("util");
+const path = require("path");
+const su = require("suman-utils");
+const chalk = require("chalk");
+const suman_events_1 = require("suman-events");
+const _suman = global.__suman = (global.__suman || {});
+const utils_1 = require("../../lib/utils");
+const reporterName = path.basename(__dirname);
+const log = utils_1.getLogger(reporterName);
 function getCleanTitle(test) {
     return String(test.title || test.desc || test.description || test.name).replace(/#/g, '').trim();
 }
 function logDebug() {
-    var debug;
+    let debug;
     if (debug = process.env.SUMAN_DEBUG) {
-        var args = Array.from(arguments).filter(function (i) { return i; });
+        const args = Array.from(arguments).filter(i => i);
         args.forEach(function (a) {
             process.stderr.write('\n' + (typeof a === 'string' ? a : util.inspect(a)) + '\n');
         });
     }
     return debug;
 }
-var onAnyEvent = function () {
+let onAnyEvent = function () {
     if (!logDebug.apply(null, arguments)) {
-        var args = Array.from(arguments).map(function (data) {
+        const args = Array.from(arguments).map(function (data) {
             return typeof data === 'string' ? data : util.inspect(data);
         });
         return console.log.apply(console, args);
     }
 };
-var isTTY = process.stdout.isTTY;
-exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer, results, s, sumanOpts) {
+let isTTY = process.stdout.isTTY;
+exports.loadreporter = utils_1.wrapReporter(reporterName, (retContainer, results, s, sumanOpts) => {
     if (_suman.inceptionLevel < 1 && !isTTY) {
-        log.warning("\"" + reporterName + "\" warning: suman inception level is 0, we may not need to load this reporter.");
+        log.warning(`"${reporterName}" warning: suman inception level is 0, we may not need to load this reporter.`);
     }
-    var isColorable = function () {
+    let isColorable = function () {
         return _suman.inceptionLevel < 1 && !sumanOpts.no_color;
     };
     s.on(String(suman_events_1.events.RUNNER_INITIAL_SET), function (forkedCPs, processes, suites) {
@@ -66,35 +66,35 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
             log.info('All TAP input received.');
         }
     });
-    var onTestCaseEnd = function () {
+    let onTestCaseEnd = function () {
         results.n++;
     };
-    var onTestCaseFail = function (test) {
+    let onTestCaseFail = function (test) {
         test = test.testCase || test;
         results.failures++;
         if (false && isColorable()) {
-            console.log(chalk.red("not ok " + results.n + " " + getCleanTitle(test)));
+            console.log(chalk.red(`not ok ${results.n} ${getCleanTitle(test)}`));
         }
         else {
-            console.log("not ok " + results.n + " " + getCleanTitle(test));
+            console.log(`not ok ${results.n} ${getCleanTitle(test)}`);
         }
     };
-    var onTestCasePass = function (test) {
+    let onTestCasePass = function (test) {
         test = test.testCase || test;
         results.passes++;
         if (false && isColorable()) {
-            console.log(chalk.green("ok " + results.n + " " + getCleanTitle(test)));
+            console.log(chalk.green(`ok ${results.n} ${getCleanTitle(test)}`));
         }
         else {
-            console.log("ok " + results.n + " " + getCleanTitle(test));
+            console.log(`ok ${results.n} ${getCleanTitle(test)}`);
         }
     };
-    var onTestCaseSkipped = function (test) {
+    let onTestCaseSkipped = function (test) {
         test = test.testCase || test;
         results.skipped++;
         console.log('ok %d %s # SKIP -', results.n, getCleanTitle(test));
     };
-    var onTestCaseStubbed = function (test) {
+    let onTestCaseStubbed = function (test) {
         test = test.testCase || test;
         results.stubbed++;
         console.log('ok %d %s # STUBBED -', results.n, getCleanTitle(test));
@@ -117,7 +117,7 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
     if (!sumanOpts.no_tables) {
         s.on(String(suman_events_1.events.STANDARD_TABLE), function (table) {
             console.log('\n\n');
-            var str = table.toString();
+            let str = table.toString();
             str = '\t' + str;
             console.log(str.replace(/\n/g, '\n\t'));
             console.log('\n');
@@ -133,8 +133,8 @@ exports.loadreporter = utils_1.wrapReporter(reporterName, function (retContainer
         });
     }
     return retContainer.ret = {
-        reporterName: reporterName,
-        results: results
+        reporterName,
+        results
     };
 });
 exports.default = exports.loadreporter;
