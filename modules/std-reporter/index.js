@@ -15,7 +15,9 @@ const noColors = process.argv.indexOf('--no-color') > 0;
 const noop = function () { };
 exports.loadReporter = utils_1.wrapReporter(reporterName, (retContainer, results, s, sumanOpts) => {
     const testCaseFailures = [];
-    let first = true;
+    const settings = {
+        first: true
+    };
     let onAnyEvent = function () {
         const args = Array.from(arguments).map(function (data) {
             return typeof data === 'string' ? data : util.inspect(data);
@@ -23,8 +25,8 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, (retContainer, results
         console.log.apply(console, args);
     };
     let onTestCaseEvent = function () {
-        if (first) {
-            first = false;
+        if (settings.first) {
+            settings.first = false;
             if (!('val' in _suman.currentPaddingCount) && sumanOpts.series) {
                 log.warning(`'${reporterName}' reporter may be unable to properly indent output.\n`);
             }
@@ -37,6 +39,9 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, (retContainer, results
         printTestCaseEvent(args, amount);
     };
     let printTestCaseEvent = function (str, paddingCount) {
+        if (settings.first) {
+            settings.first = false;
+        }
         if (!_suman.isTestMostRecentLog) {
             _suman.isTestMostRecentLog = true;
             console.log();
@@ -200,7 +205,9 @@ exports.loadReporter = utils_1.wrapReporter(reporterName, (retContainer, results
             `but it didnt match the regex(es) you passed in as input for "matchAll"`);
     });
     s.on(String(suman_events_1.events.RUNNER_SAYS_FILE_HAS_JUST_STARTED_RUNNING), function (file) {
+        !settings.first && console.log();
         log.info(chalk_1.default.bold('File has just started running =>'), chalk_1.default.grey.bold(`'${file}'`));
+        !settings.first && console.log();
     });
     s.on(String(suman_events_1.events.RUNNER_HIT_DIRECTORY_BUT_NOT_RECURSIVE), onVerboseEvent);
     s.on(String(suman_events_1.events.RUNNER_STARTED), noop);

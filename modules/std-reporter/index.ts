@@ -41,8 +41,11 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
                                                         s: EventEmitter, sumanOpts: ISumanOpts) => {
   
   const testCaseFailures: Array<ITestDataObj> = [];
-  let first = true;
-  
+
+  const settings = {
+    first: true
+  };
+
   
   let onAnyEvent: IStringVarargs = function () {
     const args = Array.from(arguments).map(function (data) {
@@ -54,9 +57,9 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   };
   
   let onTestCaseEvent: IStringVarargs = function () {
-    
-    if (first) {
-      first = false;
+
+    if (settings.first) {
+      settings.first = false;
       if (!('val' in _suman.currentPaddingCount) && sumanOpts.series) {
         log.warning(`'${reporterName}' reporter may be unable to properly indent output.\n`);
       }
@@ -72,6 +75,11 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   };
   
   let printTestCaseEvent = function (str: string, paddingCount: number) {
+
+    if(settings.first){
+      settings.first = false;
+    }
+
     if (!_suman.isTestMostRecentLog) {
       _suman.isTestMostRecentLog = true;
       console.log(); // log a new line
@@ -292,7 +300,9 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   });
   
   s.on(String(events.RUNNER_SAYS_FILE_HAS_JUST_STARTED_RUNNING), function (file: string) {
+    !settings.first && console.log(); // we only add a newline if no test cases printed yet
     log.info(chalk.bold('File has just started running =>'), chalk.grey.bold(`'${file}'`));
+    !settings.first && console.log(); // we only add a newline if no test cases printed yet
   });
   
   s.on(String(events.RUNNER_HIT_DIRECTORY_BUT_NOT_RECURSIVE), onVerboseEvent);
