@@ -20,7 +20,7 @@ import * as path from 'path';
 import chalk = require('chalk');
 import {events} from 'suman-events';
 import su =  require('suman-utils');
-import JSONStdio = require('json-stdio');
+import stdio = require('json-stdio');
 
 //project
 const _suman: IGlobalSumanObj = global.__suman = (global.__suman || {});
@@ -98,12 +98,12 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     results.n++;
     // console.error('TEST_CASE_END_TAP_JSON',d);
     // d.messageType = String(events.TEST_CASE_END_TAP_JSON);
-    JSONStdio.logToStdout(d);
+    stdio.logToStdout(d);
   });
 
   s.on(String(events.TEST_CASE_FAIL_TAP_JSON), function (d: ITAPJSONTestCase) {
     results.failures++;
-    JSONStdio.logToStdout(d);
+    stdio.logToStdout(d);
     // const test = d.testCase;
     // console.log(su.customStringify({
     //   '@tap-json': true,
@@ -120,7 +120,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   s.on(String(events.TEST_CASE_PASS_TAP_JSON), function (d: ITAPJSONTestCase) {
     results.passes++;
     // console.error('TEST_CASE_PASS_TAP_JSON',d);
-    JSONStdio.logToStdout(d);
+    stdio.logToStdout(d);
     // const test = d.testCase;
     // console.log(su.customStringify({
     //   '@tap-json': true,
@@ -135,7 +135,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
 
   s.on(String(events.TEST_CASE_SKIPPED_TAP_JSON), function (d: ITAPJSONTestCase) {
     results.skipped++;
-    JSONStdio.logToStdout(d);
+    stdio.logToStdout(d);
     // const test = d.testCase;
     // console.log(su.customStringify({
     //   '@tap-json': true,
@@ -152,7 +152,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
 
   s.on(String(events.TEST_CASE_STUBBED_TAP_JSON), function (d: ITAPJSONTestCase) {
     results.stubbed++;
-    JSONStdio.logToStdout(d);
+    stdio.logToStdout(d);
     // const test = d.testCase;
     // console.log(su.customStringify({
     //   '@tap-json': true,
@@ -170,7 +170,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
   {
     let evn = String(events.SUMAN_CONTEXT_BLOCK);
     s.on(evn, function (b: ITestSuite) {
-      JSONStdio.logToStdout({
+      stdio.logToStdout({
         messageType: getTAPJSONType(evn),
         padding: getPaddingCount(),
         message: ` ▶ group: '${b.desc}' ▶ `
@@ -182,7 +182,7 @@ export const loadReporter = wrapReporter(reporterName, (retContainer: IRetContai
     let evn = String(events.TEST_CASE_END);
     s.on(evn, function (b: ITestSuite) {
       results.n++;
-      JSONStdio.logToStdout({
+      stdio.logToStdout({
         messageType: getTAPJSONType(evn),
       });
     });
