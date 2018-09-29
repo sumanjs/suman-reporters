@@ -2,7 +2,7 @@
   "name": "suman-reporters",
   "version": "0.0.1015",
   "description": "Suman standard reporters",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "./scripts/test.sh"
   },
@@ -37,7 +37,6 @@
     "suman-utils": "latest"
   },
   "devDependencies": {
-    "@types/core-js": "^0.9.42",
     "@types/lodash.isequal": "^4.5.2",
     "@types/node": "^10.1.2",
     "@types/socket.io-client": "^1.4.31"

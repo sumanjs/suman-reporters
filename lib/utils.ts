@@ -17,6 +17,10 @@ import su = require('suman-utils');
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+export interface FooBar {
+  dummy: string
+}
+
 const loggers = {} as any;
 const calledReporters = {} as any;
 

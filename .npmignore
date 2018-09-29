@@ -18,10 +18,7 @@ yarn.lock
 *.md
 *.json
 *.log
-*.ts
-*.yml
-*.txt
 *.DS_Store
 
-### negation
-!*.d.ts
+
+
